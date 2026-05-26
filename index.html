@@ -1243,7 +1243,7 @@ function fleeFromDungeon() {
 // ☁️ [클라우드 연동] 로그인 / 회원가입 통합 처리 시스템 (서버 데이터 실시간 동기화)
 // ==========================================================================
 async function handleAuthSubmit() {
-    const usernameInput = document.getElementById('auth-username').value.trim();
+    const usernameInput = document.getElementById('username').value.trim();
     if (!usernameInput) { alert("용사님의 이름을 입력해 주세요!"); return; }
 
     currentUser = usernameInput;
