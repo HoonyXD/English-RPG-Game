@@ -38,11 +38,11 @@
         #quiz-screen { background-color: #2c3e50; }
         
         /* 💡 던전 실전 전투 화면: 검은색(#000) 대신 bg_dungeon.png를 꽉 차게 지정 */
-        #dungeon-battle-screen { 
-            background-image: url('bg_dungeon.png'); 
-            background-size: cover; 
-            background-position: center;
-            background-repeat: no-repeat;
+        #dungeon-battle-screen, #battle-screen { 
+            background-image: url('bg_dungeon.png') !important; 
+            background-size: cover !important; 
+            background-position: center !important;
+            background-repeat: no-repeat !important;
         }
 
         /* 🌟 좌측 상단 포인트 UI */
@@ -149,6 +149,24 @@
         }
         .logout-btn:active { transform: translateY(4px); box-shadow: inset 3px 3px 0px #781e14, 0 0px 0 #000; }
 
+		.flee-btn {
+            position: absolute; 
+            bottom: 20px;             
+            left: 20px;              
+            padding: 10px 20px;       
+            background: linear-gradient(to bottom, #d35400, #a04000); /* 도망치기는 주황색 그라데이션 */
+            border: 4px solid #1a0f08; 
+            color: white; 
+            font-family: 'Jua', sans-serif; 
+            font-size: 16px; 
+            border-radius: 0px; 
+            cursor: pointer; 
+            z-index: 1000;           
+            box-shadow: inset -4px -4px 0px #6e2c00, inset 4px 4px 0px #f39c12, 0 4px 0px #000;
+            text-shadow: 2px 2px 0px #000;
+            transition: transform 0.1s;
+        }
+        .flee-btn:active { transform: translateY(4px); box-shadow: inset 4px 4px 0px #6e2c00, 0 0px 0px #000; }
         /* 🌀 신비로운 소용돌이 포탈 */
         .portal { 
             position: absolute; 
@@ -165,6 +183,7 @@
             z-index: 5;
             animation: portalVortex 1.2s infinite alternate linear, portalPulse 2s infinite ease-in-out;
         }
+		
         .portal::after {
             content: '';
             position: absolute;
@@ -438,28 +457,32 @@
             <div class="level-container" id="dungeon-level-grid"></div>
         </div>
 
-        <div id="dungeon-battle-screen" class="screen" style="display:none; background:#000;">
-    <div class="banner" id="dungeon-battle-title">던전 전투</div>
-    
-    <div class="battle-arena" style="display:flex; justify-content:space-around; align-items:center; width:900px; height:250px; margin-top:100px;">
-        <div class="fighter">
-            <div class="hp-bar" id="battle-player-hp">❤️❤️❤️</div>
-            <img src="player_combat.gif" id="battle-player-vis" class="battle-sprite-img" alt="용사">
-            <div>용사</div>
-        </div>
-        <div style="font-size: 50px; color: yellow; text-shadow: 2px 2px 5px black;">VS</div>
-        <div class="fighter">
-            <div class="hp-bar" id="battle-monster-hp">❤️❤️❤️</div>
-            <img src="monster_dragon.gif" id="battle-monster-vis" class="battle-sprite-img" alt="몬스터">
-            <div id="monster-name">박쥐</div>
-        </div>
-    </div>
+        <div id="dungeon-battle-screen" class="screen">
+            <div class="banner" id="dungeon-battle-title">던전 전투</div>
+            
+            <div class="battle-arena" style="display:flex; justify-content:space-around; align-items:center; width:900px; height:250px; margin-top:80px; background: rgba(0,0,0,0.4); border: 4px double rgba(255,255,255,0.1); padding: 10px; box-sizing: border-box;">
+                <div class="fighter">
+                    <div class="hp-bar" id="battle-player-hp">❤️❤️❤️</div>
+                    <div id="battle-player-vis" style="font-size: 5.5rem; filter: drop-shadow(0px 4px 0px #000);">⚔️</div>
+                    <div class="player-name-tag" style="margin-top:5px;">🛡️ 용사</div>
+                </div>
+                
+                <div style="font-size: 50px; color: yellow; text-shadow: 3px 3px 0px black; font-family:'Jua', sans-serif;">VS</div>
+                
+                <div class="fighter">
+                    <div class="hp-bar" id="battle-monster-hp">❤️❤️❤️</div>
+                    <div id="battle-monster-vis" style="font-size: 5.5rem; filter: drop-shadow(0px 4px 0px #000); display: inline-block; transition: transform 0.2s;">😈</div>
+                    <div class="player-name-tag" id="monster-name" style="margin-top:5px; border-color:#a12d2d;">몬스터</div>
+                </div>
+            </div>
 
-    <div class="battle-ui-box" style="width:800px; height:180px; border:4px solid #c0392b; background:#222; padding:20px; color:white; text-align:center; border-radius:12px; box-sizing:border-box;">
-        <div class="battle-question" id="battle-q-text">몬스터의 공격!</div>
-        <div class="battle-options" id="battle-options-area" style="display:flex; gap:10px; justify-content:center; margin-top:15px;"></div>
-    </div>
+            <div class="quiz-box" style="position: relative; top: auto; left: auto; transform: none; width: 800px; height: 180px; margin-top: 15px; padding: 15px 30px;">
+                <div class="quiz-question" id="battle-q-text" style="font-size: 19px; margin-bottom: 10px; border-bottom: 2px double #5c3a21; padding-bottom: 5px;">몬스터의 공격!</div>
+                <div class="quiz-options" id="battle-options-area" style="display:flex; gap:10px; flex-direction: row; justify-content:center; width:100%;"></div>
+            </div>
 
+            <button class="flee-btn" onclick="fleeFromDungeon()">🏃 도망치기</button>
+        </div>
     <script>
         console.log("총 단어 개수:", wordPool ? wordPool.length : "데이터 없음");
         // 전역 게임 변수
@@ -1175,6 +1198,15 @@ function nextDungeonStep() {
     }
 }
 
+// 🏃 던전 전투 도중 안전하게 탈출하여 마을로 복귀하는 함수
+function fleeFromDungeon() {
+    if (confirm("정말 전투를 포기하고 마을로 도망치시겠습니까? (패배 처리됩니다)")) {
+        console.log("던전 도망치기 실행");
+        alert("💨 후다닥! 몬스터를 피해 마을로 무사히 도망쳤습니다.");
+        changeMap('town-screen', 490); // 마을 스크린으로 즉시 이동 (스폰 위치 490px)
+    }
+}
+		
     </script>
 </body>
 </html>
