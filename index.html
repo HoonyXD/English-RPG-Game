@@ -131,19 +131,18 @@
     </div>
 
     <div class="screen" id="auth-screen">
-      <div class="auth-title">초등 영어 RPG 월드</div>
-      <div class="auth-box">
-        <div class="menu-tabs">
-  <div class="tab-btn active" id="tab-login">로그인</div>
-  <div class="tab-btn" id="tab-register">회원가입</div>
-</div>
-
-<h3 id="auth-box-title">로그인</h3>
-<input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
-<input type="password" id="auth-password" placeholder="비밀번호">
-<button class="submit-btn" id="auth-submit-btn">게임 시작하기</button>
-      </div>
-    </div>
+      <div class="auth-title">초등 영어 RPG 월드</div>
+      <div class="auth-box">
+        <div class="menu-tabs">
+          <div class="tab-btn active" id="tab-login" onclick="setAuthMode('login')">로그인</div>
+          <div class="tab-btn" id="tab-register" onclick="setAuthMode('register')">회원가입</div>
+        </div>
+        <h3 id="auth-box-title">로그인</h3>
+        <input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
+        <input type="password" id="auth-password" placeholder="비밀번호">
+        <button class="submit-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">게임 시작하기</button>
+      </div>
+    </div>
 
     <div class="screen" id="town-screen">
       <div class="banner">🏡 평화로운 모험가 마을</div>
@@ -305,13 +304,14 @@
     // [1] 파이어베이스 구성 설정 프로토콜 및 모킹 방어코드
     // ----------------------------------------------------
     const firebaseConfig = {
-      apiKey: "AIzaSyFakeKey_PlaceholderForSecurity",
-      authDomain: "elementary-english-rpg.firebaseapp.com",
-      projectId: "elementary-english-rpg",
-      storageBucket: "elementary-english-rpg.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef123456"
-    };
+  apiKey: "AIzaSyBo1KtM2kTV0Vzo02gbt1pO0R_l4FO5_Q8",
+  authDomain: "english-rpg-game-5478e.firebaseapp.com",
+  projectId: "english-rpg-game-5478e",
+  storageBucket: "english-rpg-game-5478e.firebasestorage.app",
+  messagingSenderId: "419282044565",
+  appId: "1:419282044565:web:cb7aac385519cbc979fd9c",
+  measurementId: "G-314HEG3L5V"
+};
 
 // 3. Firebase 및 Firestore 초기화
   // (앱이 이미 초기화되어 있는지 확인 후 초기화 진행)
