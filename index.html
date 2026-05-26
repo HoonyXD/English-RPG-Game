@@ -1240,68 +1240,65 @@ function fleeFromDungeon() {
     }
 }
 // ==========================================================================
-// ☁️ [클라우드 연동] 로그인 / 회원가입 통합 처리 시스템 (서버 데이터 실시간 동기화)
+// ☁️ [최종 교정] 로그인 / 회원가입 통합 처리 시스템 (입력창 에러 완벽 차단)
 // ==========================================================================
 async function handleAuthSubmit() {
-    const usernameInput = document.getElementById('username').value.trim();
-    if (!usernameInput) { alert("용사님의 이름을 입력해 주세요!"); return; }
+    // 💡 1. 용사님의 화면에 맞춘 ID 입력창 매칭 (오류 방지 가드)
+    let usernameInput = document.getElementById('auth-username') || document.getElementById('username');
+    
+    // 만약 둘 다 없다면, 스크린샷 기반으로 인풋 태그를 강제로 추적합니다.
+    if (!usernameInput) {
+        usernameInput = document.querySelector('.auth-box input[type="text"]');
+    }
 
-    currentUser = usernameInput;
+    if (!usernameInput || !usernameInput.value.trim()) { 
+        alert("용사님의 이름을 입력해 주세요!"); 
+        return; 
+    }
+
+    currentUser = usernameInput.value.trim();
     console.log("서버 로그인 시도 유저 이름:", currentUser);
 
     try {
-        // 1. 파이어베이스 원격 클라우드 DB에서 이 유저의 이름(문서)을 찾아옵니다.
+        // 2. 구글 파이어베이스 원격 클라우드 DB에서 이 유저의 저장소 조회
         const userDocRef = db.collection("users").doc(currentUser);
         const doc = await userDocRef.get();
 
         if (doc.exists) {
-            // [기존 유저 로그인]: 서버에서 저장되어 있던 전설의 세이브 데이터를 불러옵니다.
+            // [기존 유저]: 서버에 저장되어 있던 소중한 세이브 데이터 복원
             progressDatabase[currentUser] = doc.data();
-            alert(`⚔️ [로그인 성공] 원격 서버에서 용사 '${currentUser}'의 데이터를 무사히 불러왔습니다!`);
+            alert(`⚔️ [로그인 성공] 서버에서 용사 '${currentUser}'의 데이터를 무사히 원격 로드했습니다!`);
         } else {
-            // [신규 유저 회원가입]: 서버에 아이디가 없다면 초보 용사 데이터를 새로 만들어 서버에 저장합니다.
+            // [신규 유저]: 서버에 이름이 없다면 새로 시작하는 데이터 생성 후 업로드
             const newProgress = {
                 word: 1,
                 grammar: 1,
                 writing: 1,
                 listening: 1,
-                dungeon: 1
+                dungeon: 1,
+                points: 0
             };
             progressDatabase[currentUser] = newProgress;
             await userDocRef.set(newProgress);
-            alert(`✨ [회원가입 완료] 새로운 용사 '${currentUser}'의 데이터가 클라우드 서버에 개설되었습니다!`);
+            alert(`✨ [회원가입 완료] 새로운 용사 '${currentUser}'의 데이터가 구글 클라우드에 개설되었습니다!`);
         }
 
-        // 2. 인게임 상단 UI 포인트 동기화 및 닉네임 표기 처리
-        userPoints = progressDatabase[currentUser].points || 0; // 포인트 필드가 있다면 로드
-        if(typeof updatePointsUI === 'function') updatePointsUI();
+        // 3. 인게임 상단 UI 포인트 동기화 및 전역 변수 세팅
+        userPoints = progressDatabase[currentUser].points || 0;
+        if (typeof updatePointsUI === 'function') updatePointsUI();
         
+        // 캐릭터 네임택 업데이트
         const nameTag = document.querySelector('.player-name-tag');
-        if (nameTag) nameTag.innerText = `Lv. ${progressDatabase[currentUser].dungeon} ${currentUser}`;
+        if (nameTag) {
+            nameTag.innerText = `Lv. ${progressDatabase[currentUser].dungeon} ${currentUser}`;
+        }
 
-        // 3. 마을 화면으로 진입시킵니다.
+        // 4. 대망의 마을 화면으로 강제 진입!
         changeMap('town-screen', 490);
 
     } catch (error) {
-        console.error("클라우드 서버 통신 중 치명적 에러 발생:", error);
-        alert("⚠️ 서버 연결에 실패했습니다. 파이어베이스 규칙(Rules)이 true로 세팅되었는지 확인하세요.");
-    }
-}
-
-// ==========================================================================
-// ☁️ [클라우드 연동] 데이터 강제 동기화 백업 세이브 함수
-// ==========================================================================
-async function saveProgressToServer() {
-    if (!currentUser || !progressDatabase[currentUser]) return;
-
-    try {
-        // 로컬 브라우저 창고뿐만 아니라, 구글 파이어베이스 클라우드로 동시 실시간 백업 세이브를 때립니다.
-        localStorage.setItem('rpg_progress_db', JSON.stringify(progressDatabase));
-        
-        await db.collection("users").doc(currentUser).set(progressDatabase[currentUser]);
-        console.log("☁️ 세이브 데이터가 인터넷 서버 클라우드 허브에 안전하게 자동 저장되었습니다.");
-    } catch (error) {
-        console.error("서버 자동 백업 세이브 실패:", error);
+        console.error("클라우드 서버 통신 중 에러 발생:", error);
+        alert("⚠️ 서버 연결에 실패했습니다! F12를 눌러 Firestore Database의 Rules(규칙)가 true로 설정되었는지 확인하세요.");
     }
 }		
     </script>
