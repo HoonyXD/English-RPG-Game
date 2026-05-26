@@ -368,6 +368,25 @@
 .battle-btn:hover { background: #34495e; border-color: #f1c40f; }
 
     </style>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    // 용사님이 발급받아 오신 고유 파이어베이스 식별 키
+    const firebaseConfig = {
+        apiKey: "AIzaSyBo1KtM2kTV0Vzo02gbt1pO0R_l4FO5_Q8",
+        authDomain: "english-rpg-game-5478e.firebaseapp.com",
+        projectId: "english-rpg-game-5478e",
+        storageBucket: "english-rpg-game-5478e.firebasestorage.app",
+        messagingSenderId: "419282044565",
+        appId: "1:419282044565:web:cb7aac385519cbc979fd9c",
+        measurementId: "G-314HEG3L5V"
+    };
+
+    // 파이어베이스 엔진 및 원격 클라우드 창고(db) 가동
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+</script>
 </head>
 
 <script src="words.js"></script>
@@ -1039,24 +1058,38 @@ function winDungeon() {
     // 2. 현재 로그인한 유저의 데이터 객체를 안전하게 가져오기
     let progress = progressDatabase[currentUser];
     if (!progress) {
-        progress = { word: 1, grammar: 1, writing: 1, listening: 1, dungeon: 1 };
+        progress = { word: 1, grammar: 1, writing: 1, listening: 1, dungeon: 1, points: 0 };
     }
     if (typeof progress.dungeon === 'undefined') progress.dungeon = 1;
     
+    // 💡 [중요 추가] 실시간으로 획득한 누적 포인트를 저장 객체에 동기화 (서버 유실 방지)
+    progress.points = userPoints;
+
     // 3. 단계 해금 조건 검사 (최종 보스층인 20층 이하일 때만 다음 층 해금 개방)
     if (currentLevel >= progress.dungeon && currentLevel < 20) {
         progress.dungeon = currentLevel + 1;
-        progressDatabase[currentUser] = progress;
-        
-        // 4. 로컬 스토리지 강제 세이브 저장
-        localStorage.setItem('rpg_progress_db', JSON.stringify(progressDatabase));
         console.log("새로운 던전층 해금됨: ", progress.dungeon);
     }
     
-    alert(`🎉 승리했습니다! ${earnedPoints} 포인트를 획득했습니다!`);
+    // 최신 진척도 데이터를 전역 데이터베이스에 최종 대입
+    progressDatabase[currentUser] = progress;
+    
+    // 4. 로컬 브라우저 창고 세이브 저장
+    localStorage.setItem('rpg_progress_db', JSON.stringify(progressDatabase));
+    
+    // 💡 [클라우드 연동 핵심] 구글 파이어베이스 원격 클라우드 서버에 실시간 백업 세이브 전송!
+    if (typeof saveProgressToServer === 'function') {
+        saveProgressToServer();
+    } else {
+        // 혹시 스크립트에 saveProgressToServer 함수가 누락되었을 때를 대비한 안전 가드
+        db.collection("users").doc(currentUser).set(progressDatabase[currentUser])
+          .then(() => console.log("☁️ 실시간 클라우드 던전 클리어 데이터 세이브 완료!"))
+          .catch((err) => console.error("서버 세이브 실패:", err));
+    }
+    
+    alert(`🎉 승리했습니다! ${earnedPoints} 포인트를 전리품으로 획득했습니다!`);
     openDungeonSelect(); 
 }
-
 function loseDungeon() {
     alert(`☠️ 패배했습니다... 체력이 모두 소진되었습니다. 마을에서 재정비하세요.`);
     openDungeonSelect();
@@ -1206,7 +1239,71 @@ function fleeFromDungeon() {
         changeMap('town-screen', 490); // 마을 스크린으로 즉시 이동 (스폰 위치 490px)
     }
 }
-		
+// ==========================================================================
+// ☁️ [클라우드 연동] 로그인 / 회원가입 통합 처리 시스템 (서버 데이터 실시간 동기화)
+// ==========================================================================
+async function handleAuthSubmit() {
+    const usernameInput = document.getElementById('auth-username').value.trim();
+    if (!usernameInput) { alert("용사님의 이름을 입력해 주세요!"); return; }
+
+    currentUser = usernameInput;
+    console.log("서버 로그인 시도 유저 이름:", currentUser);
+
+    try {
+        // 1. 파이어베이스 원격 클라우드 DB에서 이 유저의 이름(문서)을 찾아옵니다.
+        const userDocRef = db.collection("users").doc(currentUser);
+        const doc = await userDocRef.get();
+
+        if (doc.exists) {
+            // [기존 유저 로그인]: 서버에서 저장되어 있던 전설의 세이브 데이터를 불러옵니다.
+            progressDatabase[currentUser] = doc.data();
+            alert(`⚔️ [로그인 성공] 원격 서버에서 용사 '${currentUser}'의 데이터를 무사히 불러왔습니다!`);
+        } else {
+            // [신규 유저 회원가입]: 서버에 아이디가 없다면 초보 용사 데이터를 새로 만들어 서버에 저장합니다.
+            const newProgress = {
+                word: 1,
+                grammar: 1,
+                writing: 1,
+                listening: 1,
+                dungeon: 1
+            };
+            progressDatabase[currentUser] = newProgress;
+            await userDocRef.set(newProgress);
+            alert(`✨ [회원가입 완료] 새로운 용사 '${currentUser}'의 데이터가 클라우드 서버에 개설되었습니다!`);
+        }
+
+        // 2. 인게임 상단 UI 포인트 동기화 및 닉네임 표기 처리
+        userPoints = progressDatabase[currentUser].points || 0; // 포인트 필드가 있다면 로드
+        if(typeof updatePointsUI === 'function') updatePointsUI();
+        
+        const nameTag = document.querySelector('.player-name-tag');
+        if (nameTag) nameTag.innerText = `Lv. ${progressDatabase[currentUser].dungeon} ${currentUser}`;
+
+        // 3. 마을 화면으로 진입시킵니다.
+        changeMap('town-screen', 490);
+
+    } catch (error) {
+        console.error("클라우드 서버 통신 중 치명적 에러 발생:", error);
+        alert("⚠️ 서버 연결에 실패했습니다. 파이어베이스 규칙(Rules)이 true로 세팅되었는지 확인하세요.");
+    }
+}
+
+// ==========================================================================
+// ☁️ [클라우드 연동] 데이터 강제 동기화 백업 세이브 함수
+// ==========================================================================
+async function saveProgressToServer() {
+    if (!currentUser || !progressDatabase[currentUser]) return;
+
+    try {
+        // 로컬 브라우저 창고뿐만 아니라, 구글 파이어베이스 클라우드로 동시 실시간 백업 세이브를 때립니다.
+        localStorage.setItem('rpg_progress_db', JSON.stringify(progressDatabase));
+        
+        await db.collection("users").doc(currentUser).set(progressDatabase[currentUser]);
+        console.log("☁️ 세이브 데이터가 인터넷 서버 클라우드 허브에 안전하게 자동 저장되었습니다.");
+    } catch (error) {
+        console.error("서버 자동 백업 세이브 실패:", error);
+    }
+}		
     </script>
 </body>
 </html>
