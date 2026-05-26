@@ -1,1329 +1,874 @@
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>초등 영어 RPG 월드</title>
-    <style>
-        /* 1. 기본 초기화 및 폰트 설정 */
-        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-        
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #110d0a; display: flex; justify-content: center; align-items: center; font-family: 'Jua', sans-serif; overflow: hidden; user-select: none; }
-        #game-container { width: 1024px; height: 576px; position: relative; border: 8px solid #2c1a0e; border-radius: 12px; overflow: hidden; background: #1a120b; }
-        
-        /* 모든 화면(screen) 클래스 공통 설정 */
-        .screen { 
-            width: 100%; height: 100%; position: absolute; top: 0; left: 0; 
-            display: none; flex-direction: column; justify-content: center; align-items: center; 
-            color: white; 
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>초등 영어 RPG 월드 (최종 완성본)</title>
+  
+  <script src="words.js"></script>
+  <script src="grammarBank.js"></script>
+  <script src="writingBank.js"></script>
+  <script src="listeningBank.js"></script>
+  <script src="dungeonBank.js"></script>
 
-/* 2. 각 화면별 배경 지정 (던전 20층 배경 이미지 완벽 매칭) */
-        #auth-screen { display: flex; background-image: url('bg_auth.png'); background-size: cover; background-color: #2b1007; }
-        #town-screen { background-image: url('bg_town.png'); background-size: cover; background-color: #2c3e50; }
-        #training-screen { background-image: url('bg_training_gateway.png'); background-size: cover; background-color: #34495e; }
-        #merchant-screen { background-color: #3e2723; }
-        
-        /* 💡 던전 선택 화면: 검은 배경 대신 bg_dungeon.png를 꽉 차게 지정 */
-        #dungeon-select-screen { 
-            background-image: url('bg_dungeon.png'); 
-            background-size: cover; 
-            background-position: center;
-            background-repeat: no-repeat;
-            padding: 30px; 
-            box-sizing: border-box; 
-            justify-content: flex-start; 
-            align-items: center; 
-        }
-        
-        #quiz-screen { background-color: #2c3e50; }
-        
-        /* 💡 던전 실전 전투 화면: 검은색(#000) 대신 bg_dungeon.png를 꽉 차게 지정 */
-        #dungeon-battle-screen, #battle-screen { 
-            background-image: url('bg_dungeon.png') !important; 
-            background-size: cover !important; 
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-        }
-
-        /* 🌟 좌측 상단 포인트 UI */
-        #points-ui { 
-            position: absolute; 
-            top: 20px; 
-            left: 20px; 
-            background: rgba(0,0,0,0.85); 
-            border: 3px solid #3498db; 
-            border-radius: 8px; 
-            padding: 8px 16px; 
-            z-index: 200; 
-            display: none; 
-            color: #fff; 
-            font-size: 18px; 
-        }
-
-	#myroom-screen   {background:linear-gradient(135deg,#1a0e2e,#2d1b4e,#1a0e2e);}
-    #group-screen    {background:linear-gradient(135deg,#0a1628,#1a2d4e,#0a1628);}
-    #room-shop-screen{background:linear-gradient(135deg,#1a2e1a,#2d4e1b,#1a2e1a);}
-
-    /* HUD */
-    #points-ui{position:absolute;top:20px;left:20px;background:rgba(0,0,0,.85);border:3px solid #3498db;border-radius:8px;padding:8px 16px;z-index:200;display:none;color:#fff;font-size:18px;}
-    #xp-ui{position:absolute;top:58px;left:20px;background:rgba(0,0,0,.85);border:3px solid #9b59b6;border-radius:8px;padding:6px 14px;z-index:200;display:none;color:#fff;font-size:13px;min-width:170px;}
-    #xp-bar-outer{width:100%;height:8px;background:#333;border-radius:4px;margin-top:4px;}
-    #xp-bar-inner{height:8px;background:linear-gradient(to right,#9b59b6,#e91e63);border-radius:4px;transition:width .5s;}
-    #group-badge{position:absolute;top:100px;left:20px;background:rgba(0,0,0,.85);border:3px solid #3498db;border-radius:8px;padding:4px 12px;z-index:200;display:none;color:#3498db;font-size:13px;}
-		
-/* 🎒 우측 상단 인벤토리 UI (각진 픽셀 상자 모듈) */
-        #inventory-ui { 
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            width: 150px;            
-            background: rgba(16, 12, 8, 0.95); 
-            border: 4px solid #f1c40f; 
-            border-radius: 0px; 
-            padding: 12px;           
-            z-index: 200; 
-            display: none; 
-            color: white; 
-            box-shadow: inset -4px -4px 0px #000, inset 4px 4px 0px rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.8); 
-            box-sizing: border-box;
-        }
-        .inv-title { font-size: 15px; border-bottom: 4px double #5c3a21; margin-bottom: 8px; padding-bottom: 5px; color: #f1c40f; text-align: center; text-shadow: 2px 2px 0px #000; }
-        .inv-list { font-size: 14px; list-style: none; padding: 0; margin: 0; max-height: 120px; overflow-y: auto; }
-        .inv-list li { margin-bottom: 6px; color: #eebb88; text-align: center; text-shadow: 1px 1px 0px #000; }
-
-        /* 👑 공통 상단 배너 (레트로 아케이드 스타일) */
-        .banner { 
-            position: absolute; 
-            top: 20px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            background: linear-gradient(to bottom, #4a2e1b, #2c1a0e); 
-            border: 4px solid #f1c40f; 
-            padding: 10px 35px; 
-            border-radius: 0px; 
-            font-size: 24px; 
-            z-index: 10; 
-            color: #f1c40f; 
-            white-space: nowrap;
-            box-shadow: inset -4px -4px 0px #1a0f08, inset 4px 4px 0px #7d5233, 0 6px 0px rgba(0,0,0,0.6);
-            text-shadow: 2px 2px 0px #000;
-        }
-
-        /* 🚪 마을로 나가기 / 포기하기 버튼 */
-        .back-btn { 
-            position: absolute; 
-            bottom: 20px;             
-            left: 20px;              
-            padding: 10px 20px;       
-            background: linear-gradient(to bottom, #c0392b, #962d22); 
-            border: 4px solid #1a0f08; 
-            color: white; 
-            font-family: 'Jua', sans-serif; 
-            font-size: 16px; 
-            border-radius: 0px; 
-            cursor: pointer; 
-            z-index: 1000;           
-            box-shadow: inset -4px -4px 0px #5c1d16, inset 4px 4px 0px #e74c3c, 0 4px 0px #000;
-            text-shadow: 2px 2px 0px #000;
-            transition: transform 0.1s;
-        }
-        .back-btn:active { transform: translateY(4px); box-shadow: inset 4px 4px 0px #5c1d16, 0 0px 0px #000; }
-
-	.rpg-btn{background:linear-gradient(to bottom,#2980b9,#1a5276);color:white;border:3px solid #1a0f08;padding:10px 20px;font-family:'Jua',sans-serif;font-size:15px;cursor:pointer;margin:4px;}
-    .green-btn{background:linear-gradient(to bottom,#27ae60,#1e7e43);color:white;border:3px solid #1a0f08;padding:10px 20px;font-family:'Jua',sans-serif;font-size:15px;cursor:pointer;margin:4px;}
-		
-        /* 🔐 로그인 화면 */
-        .auth-title { font-size: 52px; color: #f1c40f; text-shadow: 4px 4px 0px #000, -2px -2px 0px #d35400; margin-bottom: 24px; letter-spacing: 2px; }
-        .auth-box { background: rgba(26, 18, 11, 0.95); border: 5px solid #d35400; border-radius: 0px; padding: 30px; width: 340px; text-align: center; color: #fff; box-shadow: inset -4px -4px 0px #7e3d00, inset 4px 4px 0px #f39c12, 0 15px 30px rgba(0,0,0,0.9); }
-        .auth-box h3 { margin-top: 0; font-size: 24px; color: #f1c40f; margin-bottom: 15px; text-shadow: 2px 2px 0px #000; }
-        .auth-box input { width: 95%; padding: 12px; margin-bottom: 15px; background: #0c0805; border: 4px solid #5c3a21; border-radius: 0px; font-size: 16px; font-family: 'Jua', sans-serif; color: #fffbdf; box-sizing: border-box; box-shadow: inset 2px 2px 0px #000; }
-        .auth-box input:focus { border-color: #f1c40f; outline: none; }
-        .menu-tabs { display: flex; gap: 8px; margin-bottom: 18px; width: 100%; justify-content: center;}
-        .tab-btn { padding: 8px 22px; border: 4px solid #1a0f08; cursor: pointer; border-radius: 0px; font-family: 'Jua', sans-serif; font-size: 16px; background: #4a3321; color: #bdc3c7; box-shadow: inset -3px -3px 0px #2c1e14, inset 3px 3px 0px #6d4c31; text-shadow: 1px 1px 0px #000; }
-        .tab-btn.active { background: linear-gradient(to bottom, #e67e22, #d35400); color: white; border-color: #1a0f08; box-shadow: inset -3px -3px 0px #962d22, inset 3px 3px 0px #f39c12; text-shadow: 2px 2px 0px #000; }
-        .submit-btn { width: 95%; padding: 12px; background: linear-gradient(to bottom, #27ae60, #1e7e43); color: white; border: 4px solid #1a0f08; border-radius: 0px; font-size: 20px; font-family: 'Jua', sans-serif; cursor: pointer; box-shadow: inset -4px -4px 0px #14552d, inset 4px 4px 0px #2ecc71, 0 5px 0px #000; text-shadow: 2px 2px 0px #000; }
-        .submit-btn:active { transform: translateY(4px); box-shadow: inset 4px 4px 0px #14552d, 0 1px 0px #000; }
-
-        /* 🏃 로그아웃 버튼 */
-        .logout-btn {
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            padding: 8px 16px; 
-            background: linear-gradient(to bottom, #e74c3c, #c0392b); 
-            color: white; 
-            border: 4px solid #1a0f08; 
-            border-radius: 0px; 
-            cursor: pointer; 
-            font-family: 'Jua', sans-serif; 
-            font-size: 14px; 
-            z-index: 100; 
-            box-shadow: inset -3px -3px 0px #781e14, inset 3px 3px 0px #ff6b5b, 0 4px 0 #000;
-            text-shadow: 1px 1px 0px #000;
-        }
-        .logout-btn:active { transform: translateY(4px); box-shadow: inset 3px 3px 0px #781e14, 0 0px 0 #000; }
-
-		.flee-btn {
-            position: absolute; 
-            bottom: 20px;             
-            left: 20px;              
-            padding: 10px 20px;       
-            background: linear-gradient(to bottom, #d35400, #a04000); /* 도망치기는 주황색 그라데이션 */
-            border: 4px solid #1a0f08; 
-            color: white; 
-            font-family: 'Jua', sans-serif; 
-            font-size: 16px; 
-            border-radius: 0px; 
-            cursor: pointer; 
-            z-index: 1000;           
-            box-shadow: inset -4px -4px 0px #6e2c00, inset 4px 4px 0px #f39c12, 0 4px 0px #000;
-            text-shadow: 2px 2px 0px #000;
-            transition: transform 0.1s;
-        }
-
-		
-        .flee-btn:active { transform: translateY(4px); box-shadow: inset 4px 4px 0px #6e2c00, 0 0px 0px #000; }
-     
-		/* 포탈 */
-    .portal{position:absolute;width:60px;height:80px;background:radial-gradient(circle at center,rgba(175,122,197,1) 0%,rgba(142,68,173,1) 40%,rgba(108,52,131,.6) 70%,transparent 100%);border-radius:50%;box-shadow:0 0 15px rgba(155,89,182,.8);display:flex;justify-content:center;align-items:center;cursor:pointer;z-index:5;animation:portalVortex 1.2s infinite alternate linear,portalPulse 2s infinite ease-in-out;}
-    .portal-label{position:absolute;top:-36px;background:#1a120b;padding:5px 12px;font-size:13px;border:3px solid #f1c40f;white-space:nowrap;color:#fffbdf;pointer-events:none;}
-    @keyframes portalVortex{0%{transform:scale(1) rotate(0deg);opacity:.9;}100%{transform:scale(1.05) rotate(3deg);opacity:1;}}
-    @keyframes portalPulse{0%,100%{box-shadow:0 0 15px rgba(155,89,182,.8);}50%{box-shadow:0 0 40px rgba(155,89,182,.9);}}
-
-    /* 포탈 위치 */
-    #portal-to-training{left:75px;top:440px;}
-    #portal-merchant   {left:265px;top:440px;}
-    #portal-dungeon    {left:455px;top:440px;}
-    #portal-myroom     {left:645px;top:440px;}
-    #portal-group      {left:835px;top:440px;}
-    #portal-word      {left:102px;top:440px;}
-    #portal-grammar   {left:356px;top:440px;}
-    #portal-writing   {left:608px;top:440px;}
-    #portal-listening {left:862px;top:440px;}
-
-
-        /* 📍 [핵심 수정] 이미지 지면 높이에 자석처럼 밀착되도록 Y축 포지션 전면 정렬 */
-        /* 마을 화면 포탈 위치 보정 */
-        #portal-to-training { left: 115px; top: 440px; }
-        #portal-merchant { left: 465px; top: 440px; }
-        #portal-dungeon { right: 115px; top: 440px; }
-
-        /* 훈련장 전용 내부 게이트 포탈 위치 보정 */
-        #portal-word { left: 102px; top: 440px; }
-        #portal-grammar { left: 356px; top: 440px; }
-        #portal-writing { left: 608px; top: 440px; }
-        #portal-listening { left: 862px; top: 440px; }
-
-        /* 🧍 플레이어 캐릭터 (지면 위 발바닥 안착 매칭) */
-        #player { 
-            position: absolute; 
-            width: 50px; 
-            height: 75px; 
-            z-index: 99; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            top: 450px; /* 💡 포탈의 밑단 높이와 결이 맞도록 400px -> 450px로 하강 */
-            transition: transform 0.1s; 
-            image-rendering: pixelated; 
-        }
-        .character-avatar { width: 44px; height: 55px; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .char-head { width: 32px; height: 28px; background: #ffdbac; border: 4px solid #1a0f08; border-radius: 0px; position: relative; z-index: 3; box-shadow: inset -3px -3px 0px rgba(0,0,0,0.1), inset 0 8px 0 #5c3a21; }
-        .char-head::after { content: ''; position: absolute; top: 10px; right: 4px; width: 6px; height: 6px; background: #1a0f08; box-shadow: -12px 0 0 #1a0f08; }
-        .char-scarf { width: 28px; height: 6px; background: #e74c3c; border: 4px solid #1a0f08; border-radius: 0px; z-index: 2; margin-top: -4px; }
-        .char-body { width: 26px; height: 18px; background: #3498db; border: 4px solid #1a0f08; border-radius: 0px; z-index: 1; margin-top: -4px; position: relative; box-shadow: inset -4px -4px 0 #2980b9, inset 4px 4px 0px rgba(255,255,255,0.2); }
-        .player-name-tag { background: #110d0a; color: #fff; padding: 3px 12px; font-size: 13px; border-radius: 0px; margin-top: 6px; white-space: nowrap; border: 3px solid #f1c40f; box-shadow: 0 4px 6px rgba(0,0,0,0.5); text-shadow: 1px 1px 0px #000; }
-        .controls-guide { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(16, 12, 8, 0.9); border-top: 4px solid #f1c40f; padding: 10px 0; font-size: 14px; color: #fffbdf; text-align: center; z-index: 2; text-shadow: 1px 1px 0px #000; letter-spacing: 1px; }
-
-        /* 상점 */
-    #merchant-screen{background-color:#2b1a0e;flex-direction:row;justify-content:space-between;box-sizing:border-box;}
-    .merchant-left{width:35%;height:100%;display:flex;align-items:center;justify-content:center;border-right:6px double #5c3a21;background:rgba(0,0,0,.5);padding:25px;box-sizing:border-box;}
-    .merchant-left h2{font-size:26px;color:#f1c40f;text-shadow:3px 3px 0 #000;line-height:1.6;text-align:center;}
-    .merchant-right{width:65%;display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:35px;align-content:center;box-sizing:border-box;overflow-y:auto;}
-    .shop-item-card{background:#4a3321;border:4px solid #1a0f08;padding:18px;text-align:center;color:white;}
-    .shop-item-card button{background:linear-gradient(to bottom,#27ae60,#1e7e43);color:white;border:4px solid #1a0f08;padding:8px 18px;font-family:'Jua',sans-serif;cursor:pointer;font-size:16px;margin-top:10px;}
-        
-		/* 🏅 레벨 분기 컨테이너 */
-        .level-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 92%; margin-top: 95px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
-        .level-card { background: linear-gradient(to bottom, #3d2b1f, #251911); border: 4px solid #1a0f08; border-radius: 0px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: #fff; font-size: 17px; box-sizing: border-box; box-shadow: inset -4px -4px 0px #110a06, inset 4px 4px 0px #5c3a21; text-shadow: 2px 2px 0px #000; transition: all 0.1s ease; }
-        .level-card.locked { background: #333333 !important; border-color: #111111; opacity: 0.6; cursor: not-allowed; box-shadow: inset -4px -4px 0px #1a1a1a, inset 4px 4px 0px #555 !important; text-shadow: none; }
-        .level-card:not(.locked):hover { background: linear-gradient(to bottom, #d35400, #a04000); border-color: #f1c40f; transform: translateY(-4px); box-shadow: inset -4px -4px 0px #6e2c00, inset 4px 4px 0px #f39c12, 0 6px 12px rgba(0,0,0,0.6); }
-        .level-card .status-text { font-size: 12px; margin-top: 5px; color: #f1c40f; letter-spacing: 1px; }
-
-        /* ✏️ 훈련장 퀴즈 박스 고정식 박형 레이아웃 */
-        .quiz-box { 
-            background: #120c08; 
-            color: #fffbdf; 
-            padding: 25px 40px;     
-            border-radius: 0px; 
-            width: 700px;           
-            height: 410px;          
-            border: 6px double #e5a93c; 
-            box-shadow: inset -4px -4px 0px #000, inset 4px 4px 0px rgba(255,255,255,0.1), 0 15px 40px rgba(0,0,0,0.8); 
-            position: absolute;
-            top: 54%;                
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; 
-            box-sizing: border-box;
-        }
-        .quiz-progress { font-size: 16px; color: #f1c40f; margin-bottom: 5px; text-shadow: 1px 1px 0px #000; font-weight: bold; }
-        .quiz-question { font-size: 22px; font-weight: bold; margin-bottom: 18px; color: #ffffff; text-shadow: 2px 2px 0px #000; line-height: 1.5; border-bottom: 3px double #5c3a21; padding-bottom: 10px; }
-        .quiz-options { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        .option-btn { padding: 12px 24px; border: 4px solid #1a0f08; border-radius: 0px; font-family: 'Jua', sans-serif; font-size: 17px; cursor: pointer; background: linear-gradient(to bottom, #2c1f14, #1c130c); text-align: left; color: #ebb888; width: 100%; box-sizing: border-box; box-shadow: inset -3px -3px 0px #0a0604, inset 3px 3px 0px #4a3525; text-shadow: 1px 1px 0px #000; transition: all 0.1s ease; }
-        .option-btn:hover { background: linear-gradient(to bottom, #422f1f, #2c1f14); color: #ffffff; border-color: #f1c40f; box-shadow: inset -3px -3px 0px #0a0604, inset 3px 3px 0px #634732; }
-        .option-btn:active { transform: translateY(2px); }
-        .scramble-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; min-height: 50px; padding: 10px; background: #0c0805; border-radius: 0px; border: 4px dashed #6d4c31; box-sizing: border-box; box-shadow: inset 2px 2px 5px #000; }
-        .word-block { background: linear-gradient(to bottom, #e67e22, #d35400); border: 3px solid #1a0f08; padding: 8px 16px; border-radius: 0px; cursor: pointer; box-shadow: inset -2px -2px 0px #962d22, inset 2px 2px 0px #f39c12, 0 4px 0px #000; font-size: 17px; text-shadow: 1px 1px 0px #000; }
-        .word-block:active { transform: translateY(4px); box-shadow: inset 2px 2px 0px #962d22, 0 0px 0px #000; }
-        .audio-btn { background: linear-gradient(to bottom, #9b59b6, #8e44ad); color: white; border: 4px solid #1a0f08; padding: 10px 28px; border-radius: 0px; font-size: 17px; cursor: pointer; margin: 0 auto 12px auto; display: block; font-family: 'Jua', sans-serif; box-shadow: inset -3px -3px 0px #5b326d, inset 3px 3px 0px #c39bd3, 0 4px 0px #000; text-shadow: 1px 1px 0px #000; }
-        .audio-btn:active { transform: translateY(4px); box-shadow: inset 3px 3px 0px #5b326d, 0 0px 0px #000; }
-
-        /* ⚔️ 던전 전투 화면 */
-        .battle-arena { display: flex; justify-content: space-around; align-items: center; width: 880px; height: 240px; margin-top: 65px; background: rgba(0,0,0,0.4); border: 4px double rgba(255,255,255,0.1); padding: 10px; box-sizing: border-box; }
-        .fighter { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 200px; }
-        .hp-bar { font-size: 30px; margin-bottom: 6px; filter: drop-shadow(0px 3px 5px #000); letter-spacing: 2px; }
-
-        /* 💡 이모지 대신 이미지가 들어갈 도트 스프라이트 스타일 박스 (선명도 200% 세팅) */
-        .battle-sprite-img { 
-            width: 130px; 
-            height: 130px; 
-            object-fit: contain; 
-            /* 도트 이미지가 흐려지지 않고 깨끗하게 보이게 하는 최고 필수 옵션 */
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: pixelated; 
-            image-rendering: crisp-edges;
-            filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.5)); /* 도트 그림자 피팅 */
-        }
-/* 🏃 용사가 오른쪽(몬스터 방향)으로 돌진하는 애니메이션 */
-@keyframes playerAttack {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(60px) scale(1.1); }
-    100% { transform: translateX(0); }
-}
-/* 😈 몬스터가 왼쪽(용사 방향)으로 돌진하는 애니메이션 */
-@keyframes monsterAttack {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(-60px) scale(1.1); }
-    100% { transform: translateX(0); }
-}
-/* 💥 맞았을 때 빨갛게 깜빡이며 흔들리는 데미지 애니메이션 */
-@keyframes hitDamage {
-    0% { transform: translateX(0); filter: brightness(1) sepia(0); }
-    20% { transform: translateX(-10px); filter: tail-shadow(0 0 10px red) brightness(1.5) sepia(1) hue-rotate(-50deg); }
-    40% { transform: translateX(10px); }
-    60% { transform: translateX(-8px); }
-    80% { transform: translateX(8px); }
-    100% { transform: translateX(0); filter: brightness(1) sepia(0); }
-}
-
-/* 자바스크립트에서 제어하기 위한 클래스들 */
-.animate-p-attack { animation: playerAttack 0.4s ease-in-out; }
-.animate-m-attack { animation: monsterAttack 0.4s ease-in-out; }
-.animate-hit { animation: hitDamage 0.5s ease-in-out; }
-
-.battle-ui-box { 
-    background: rgba(0,0,0,0.9); 
-    border: 4px solid #e74c3c; 
-    width: 750px; 
-    height: 170px;           
-    border-radius: 12px; 
-    margin-top: 15px; 
-    padding: 15px; 
-    box-sizing: border-box; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-}
-.battle-question { font-size: 19px; color: white; margin-bottom: 12px; text-align: center; }
-.battle-options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
-.battle-btn { padding: 8px 16px; font-family: 'Jua'; font-size: 16px; border-radius: 6px; border: 2px solid #fff; background: #2c3e50; color: white; cursor: pointer; min-width: 120px; }
-.battle-btn:hover { background: #34495e; border-color: #f1c40f; }
-
-/* 마이룸 */
-    .myroom-container{width:900px;height:440px;background:rgba(0,0,0,.6);border:6px double #9b59b6;border-radius:8px;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,1fr);gap:10px;padding:18px;box-sizing:border-box;margin-top:80px;}
-    .room-slot{border:3px dashed #5c3a84;border-radius:8px;background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:36px;cursor:pointer;transition:background .2s;position:relative;}
-    .room-slot:hover{background:rgba(155,89,182,.2);}
-    .room-slot .slot-label{font-size:10px;color:#9b59b6;margin-top:3px;}
-    .room-slot.occupied{border-color:#9b59b6;background:rgba(155,89,182,.15);}
-    .remove-btn{position:absolute;top:2px;right:5px;font-size:12px;color:#e74c3c;cursor:pointer;display:none;}
-    .room-slot:hover .remove-btn{display:block;}
-
-    /* 그룹 */
-    .group-panel{background:rgba(0,0,0,.7);border:4px solid #3498db;padding:20px;border-radius:8px;}
-    .group-panel h3{color:#3498db;margin-top:0;font-size:20px;}
-    .group-input{background:#0c1825;border:3px solid #3498db;color:#fff;font-family:'Jua',sans-serif;font-size:15px;padding:10px;margin:4px;}
-    .group-input:focus{outline:none;border-color:#00bcd4;}
-    .ranking-table{width:100%;border-collapse:collapse;margin-top:12px;}
-    .ranking-table th{background:#1a2d4e;color:#3498db;padding:10px;font-size:14px;text-align:center;}
-    .ranking-table td{padding:8px 10px;font-size:14px;border-bottom:1px solid #1a2d4e;text-align:center;}
-    .ranking-table tr:nth-child(1) td{color:#f1c40f;font-size:16px;}
-    .ranking-table tr:nth-child(2) td{color:#bdc3c7;}
-    .ranking-table tr:nth-child(3) td{color:#e67e22;}
-
-    /* 마이룸 상점 */
-    .room-shop-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;width:92%;margin-top:90px;max-height:420px;overflow-y:auto;}
-    .room-shop-card{background:linear-gradient(to bottom,#1a2e1a,#0d1a0d);border:4px solid #2ecc71;padding:14px 10px;text-align:center;color:white;cursor:pointer;transition:all .1s;}
-    .room-shop-card:hover{border-color:#f1c40f;transform:translateY(-3px);}
-    .room-shop-card .item-emoji{font-size:34px;display:block;margin-bottom:6px;}
-    .room-shop-card .item-name{font-size:12px;color:#2ecc71;margin-bottom:4px;}
-    .room-shop-card .item-price{font-size:14px;color:#f1c40f;}
-    .room-shop-card button{margin-top:8px;background:linear-gradient(to bottom,#27ae60,#1e7e43);color:white;border:3px solid #1a0f08;padding:6px 10px;font-family:'Jua',sans-serif;font-size:13px;cursor:pointer;width:100%;}
-    .room-shop-card button:disabled{background:#333;cursor:not-allowed;color:#666;}
-
-    /* 레벨업 토스트 */
-    #levelup-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#f1c40f,#e67e22);border:6px solid #fff;padding:28px 56px;z-index:9999;font-size:32px;color:#1a0f08;text-align:center;border-radius:12px;display:none;animation:toastPop .4s ease;}
-    @keyframes toastPop{0%{transform:translate(-50%,-50%) scale(.5);opacity:0;}100%{transform:translate(-50%,-50%) scale(1);opacity:1;}}
-    .xp-float{position:absolute;color:#c39bd3;font-size:20px;font-family:'Jua',sans-serif;text-shadow:2px 2px 0 #000;pointer-events:none;z-index:9998;animation:floatUp 1.2s ease forwards;}
-    @keyframes floatUp{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-60px);}}
-
-    /* 로딩 */
-    #loading-overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;color:#f1c40f;font-size:22px;gap:16px;}
-    .spinner{width:48px;height:48px;border:6px solid #333;border-top-color:#f1c40f;border-radius:50%;animation:spin .8s linear infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-		
-    </style>
-	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-<script>
-    // 용사님이 발급받아 오신 고유 파이어베이스 식별 키
-    const firebaseConfig = {
-        apiKey: "AIzaSyBo1KtM2kTV0Vzo02gbt1pO0R_l4FO5_Q8",
-        authDomain: "english-rpg-game-5478e.firebaseapp.com",
-        projectId: "english-rpg-game-5478e",
-        storageBucket: "english-rpg-game-5478e.firebasestorage.app",
-        messagingSenderId: "419282044565",
-        appId: "1:419282044565:web:cb7aac385519cbc979fd9c",
-        measurementId: "G-314HEG3L5V"
-    };
-
-    // 파이어베이스 엔진 및 원격 클라우드 창고(db) 가동
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-</script>
-</head>
-
-<script src="words.js"></script>
-<script src="grammarBank.js"></script>
-<script src="writingBank.js"></script>
-<script src="listeningBank.js"></script>
-<script src="dungeonBank.js"></script>
-
-<body><div id="game-container">
-
-  <!-- 로딩 -->
-  <div id="loading-overlay">
-    <div class="spinner"></div>
-    <div id="loading-msg">처리 중...</div>
-  </div>
-
-  <!-- HUD -->
-  <div id="points-ui">포인트: <span id="user-points-display">0</span> P</div>
-  <div id="xp-ui">
-    <span id="xp-level-label">Lv.1</span> &nbsp;|&nbsp;
-    XP <span id="xp-current">0</span>/<span id="xp-required">100</span>
-    <div id="xp-bar-outer"><div id="xp-bar-inner" style="width:0%"></div></div>
-  </div>
-  <div id="group-badge">그룹: <span id="group-badge-code">—</span></div>
-  <div id="inventory-ui">
-    <div class="inv-title">🎒 인벤토리</div>
-    <ul id="inv-list" class="inv-list"><li>비어있음</li></ul>
-  </div>
-  <div id="player">
-    <div class="character-avatar" id="char-avatar">
-      <div class="char-head"></div><div class="char-scarf"></div><div class="char-body"></div>
-    </div>
-    <div class="player-name-tag" id="p-name-tag">용사</div>
-  </div>
-  <div id="levelup-toast">🎉 레벨 업!<br><span id="levelup-num" style="font-size:46px;"></span></div>
-
-  <!-- ════ 인증 ════ -->
-  <div id="auth-screen" class="screen" style="display:flex;">
-    <div class="auth-title">⚔ 영어 원정대 RPG ⚔</div>
-    <div class="auth-box">
-      <div class="menu-tabs">
-        <button id="tab-login"    class="tab-btn active" onclick="switchAuthMode('login')">로그인</button>
-        <button id="tab-register" class="tab-btn"        onclick="switchAuthMode('register')">회원가입</button>
-      </div>
-      <h3 id="form-title">모험가 로그인</h3>
-      <input type="text"     id="auth-id"   placeholder="아이디를 입력하세요">
-      <input type="password" id="auth-pw"   placeholder="비밀번호를 입력하세요">
-      <input type="text"     id="auth-name" placeholder="캐릭터 이름" style="display:none;">
-      <button class="submit-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">마을로 입장하기</button>
-    </div>
-  </div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #110d0a; display: flex; justify-content: center; align-items: center; font-family: 'Jua', sans-serif; overflow: hidden; user-select: none; }
+    #game-container { width: 1024px; height: 576px; position: relative; border: 8px solid #2c1a0e; border-radius: 12px; overflow: hidden; background: #1a120b; }
+    .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
     
-    <div class="banner">⛺ <span class="p-user-name">영웅</span>의 중세 마을</div>
-            <div class="banner">⛺ <span class="p-user-name">영웅</span>의 중세 마을</div>
-            <div id="portal-to-training" class="portal"><div class="portal-label">⚔️ 기사 훈련장 (↑)</div></div>
-            <div id="portal-merchant" class="portal"><div class="portal-label">💰 비밀 상인 (↑)</div></div>
-            <div id="portal-dungeon" class="portal"><div class="portal-label">😈 드래곤 던전 (↑)</div></div>
-            <div class="controls-guide">🎮 이동 [ <strong>◀ ▶ 방향키</strong> ] / 포탈 진입 [ <strong>▲ 위쪽 방향키</strong> ]</div>
-        </div>
+    /* 제공된 리소스 배경 이미지 세팅 */
+    #auth-screen { display: flex; background: url('bg_auth.png') no-repeat center center; background-size: cover; }
+    #town-screen { background: url('bg_town.png') no-repeat center center; background-size: cover; }
+    #training-screen { background: url('bg_training_gateway.jpg') no-repeat center center; background-size: cover; }
+    #merchant-screen { background-color: #3e2723; }
+    #level-select-screen, #dungeon-select-screen { background: rgba(20, 15, 10, 0.95); padding: 30px; box-sizing: border-box; justify-content: flex-start; align-items: center; }
+    #quiz-screen { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('bg_training_gateway.jpg') no-repeat center center; background-size: cover; }
+    #dungeon-battle-screen { background: url('bg_dungeon.jpg') no-repeat center center; background-size: cover; }
+    #myroom-screen { background: linear-gradient(135deg,#1a0e2e,#2d1b4e,#1a0e2e); }
+    #group-screen { background: linear-gradient(135deg,#0a1628,#1a2d4e,#0a1628); }
+    #room-shop-screen { background: linear-gradient(135deg,#1a2e1a,#2d4e1b,#1a2e1a); }
 
-        <!-- ════ 상점 ════ -->
-  <div id="merchant-screen" class="screen">
-    <div class="merchant-left"><h2>"원하는 게 무엇인가,<br>용사여?<br>오늘은 전부 무료라네!"</h2></div>
-    <div class="merchant-right" id="shop-grid"></div>
-    <button class="back-btn" onclick="changeMap('town-screen',300)">◀ 마을로</button>
-  </div>
+    /* UI 레이아웃 요소 */
+    #points-ui { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #3498db; border-radius: 8px; padding: 8px 16px; z-index: 200; display: none; color: #fff; font-size: 18px; }
+    #xp-ui { position: absolute; top: 58px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #9b59b6; border-radius: 8px; padding: 6px 14px; z-index: 200; display: none; color: #fff; font-size: 13px; min-width: 170px; }
+    #xp-bar-outer { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 4px; }
+    #xp-bar-inner { height: 8px; background: linear-gradient(to right,#9b59b6,#e91e63); border-radius: 4px; transition: width .5s; width: 0%; }
+    #group-badge { position: absolute; top: 100px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #3498db; border-radius: 8px; padding: 4px 12px; z-index: 200; display: none; color: #3498db; font-size: 13px; }
+    
+    #inventory-ui { position: absolute; top: 20px; right: 20px; width: 140px; background: rgba(0,0,0,0.85); border: 3px solid #f1c40f; border-radius: 8px; padding: 10px; z-index: 200; display: none; color: white; box-sizing: border-box; }
+    .inv-title { font-size: 15px; border-bottom: 2px solid #5c3a21; margin-bottom: 6px; padding-bottom: 3px; color: #f1c40f; text-align: center; }
+    .inv-list { font-size: 14px; list-style: none; padding: 0; margin: 0; max-height: 120px; overflow-y: auto; text-align: center; }
+    .inv-list li { margin-bottom: 5px; color: #d4a373; }
+    
+    .banner { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #5c3a21; border: 4px solid #f1c40f; padding: 8px 30px; border-radius: 8px; font-size: 24px; z-index: 10; color: #f39c12; white-space: nowrap; }
+    .back-btn { position: absolute; bottom: 20px; left: 20px; padding: 8px 18px; background: #c0392b; border: 2px solid #d35400; color: white; font-family: 'Jua', sans-serif; font-size: 15px; border-radius: 6px; cursor: pointer; z-index: 1000; }
+    .logout-btn { position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: #e74c3c; color: white; border: 3px solid #c0392b; border-radius: 5px; cursor: pointer; font-family: 'Jua', sans-serif; font-size: 14px; z-index: 100; }
 
-        <div id="training-screen" class="screen">
-            <div class="banner">⚔️ 기사 훈련소 광장</div>
-            <button class="back-btn" onclick="changeMap('town-screen', 150)">◀ 마을로 나가기</button>
-            <div id="portal-word" class="portal" data-category="word"><div class="portal-label">🔤 단어 훈련소 (↑)</div></div>
-            <div id="portal-grammar" class="portal" data-category="grammar"><div class="portal-label">📜 문법 훈련소 (↑)</div></div>
-            <div id="portal-writing" class="portal" data-category="writing"><div class="portal-label">✍️ 작문 훈련소 (↑)</div></div>
-            <div id="portal-listening" class="portal" data-category="listening"><div class="portal-label">🎧 듣기 훈련소 (↑)</div></div>
-        </div>
+    /* 인증 UI */
+    .auth-box { background: rgba(0,0,0,0.85); padding: 30px; border-radius: 10px; border: 4px solid #f1c40f; text-align: center; width: 320px; margin-top: 40px; }
+    .auth-title { font-size: 42px; color: #f1c40f; text-shadow: 3px 3px 0 #000; margin-bottom: 10px; }
+    .menu-tabs { display: flex; margin-bottom: 15px; background: #333; border-radius: 5px; overflow: hidden; }
+    .tab-btn { flex: 1; padding: 8px; cursor: pointer; background: #333; color: #aaa; font-size: 14px; }
+    .tab-btn.active { background: #f1c40f; color: #000; font-weight: bold; }
+    .auth-box input { width: 90%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 2px solid #5c3a21; font-family: 'Jua'; font-size: 16px; text-align: center; }
+    .submit-btn { width: 95%; padding: 10px; background: linear-gradient(to bottom, #2ecc71, #27ae60); border: 2px solid #1e7e34; color: white; font-family: 'Jua'; font-size: 18px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
 
-        <div id="level-select-screen" class="screen">
-            <div class="banner">🏆 <span id="selected-category-title">단어</span> 훈련 - 레벨 선택</div>
-            <button class="back-btn" onclick="changeMap('training-screen', 300)">◀ 훈련소 광장으로</button>
-            <div class="level-container" id="level-grid"></div>
-        </div>
+    /* 포탈 시스템 스타일 */
+    .portal { position: absolute; width: 60px; height: 80px; background: radial-gradient(circle at center, rgba(175, 122, 197, 1) 0%, rgba(142, 68, 173, 1) 40%, rgba(108, 52, 131, 0.6) 70%, transparent 100%); border-radius: 50%; box-shadow: 0 0 15px rgba(155, 89, 182, 0.8); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 5; animation: portalVortex 1.2s infinite alternate linear; }
+    .portal-label { position: absolute; top: -34px; background: rgba(26, 18, 11, 0.95); padding: 4px 10px; border-radius: 8px; font-size: 13px; border: 2px solid #bdc3c7; white-space: nowrap; color: #ecf0f1; pointer-events: none; }
+    @keyframes portalVortex { 0% { transform: scale(1.0) rotate(0deg); opacity: 0.9; } 100% { transform: scale(1.05) rotate(3deg); opacity: 1; } }
 
-        <div id="quiz-screen" class="screen">
-            <div class="banner" id="quiz-banner-title">훈련</div>
-            <div class="quiz-box">
-                <div class="quiz-progress" id="quiz-idx">문제 1 / 5</div>
-                <div class="quiz-question" id="quiz-q-text"></div>
-                <div id="quiz-interactive-area"></div>
-            </div>
-            <button class="back-btn" onclick="exitQuiz()">🏳️ 훈련 포기하기</button>
-        </div>
+    /* 메인 맵별 포탈 위치 고정 */
+    #portal-to-training { left: 80px; top: 360px; }
+    #portal-merchant { left: 260px; top: 360px; }
+    #portal-dungeon { left: 440px; top: 360px; }
+    #portal-myroom { left: 620px; top: 360px; }
+    #portal-group { left: 800px; top: 360px; }
 
-        <div id="dungeon-select-screen" class="screen">
-            <div class="banner">😈 죽음의 드래곤 던전</div>
-            <button class="back-btn" onclick="changeMap('town-screen', 300)">◀ 마을로 도망치기</button>
-            <div class="level-container" id="dungeon-level-grid"></div>
-        </div>
+    #portal-word { left: 100px; top: 360px; }
+    #portal-grammar { left: 320px; top: 360px; }
+    #portal-writing { left: 540px; top: 360px; }
+    #portal-listening { left: 760px; top: 360px; }
 
-        <div id="dungeon-battle-screen" class="screen">
-            <div class="banner" id="dungeon-battle-title">던전 전투</div>
-            
-            <div class="battle-arena" style="display:flex; justify-content:space-around; align-items:center; width:900px; height:250px; margin-top:80px; background: rgba(0,0,0,0.4); border: 4px double rgba(255,255,255,0.1); padding: 10px; box-sizing: border-box;">
-                <div class="fighter">
-                    <div class="hp-bar" id="battle-player-hp">❤️❤️❤️</div>
-                    <div id="battle-player-vis" style="font-size: 5.5rem; filter: drop-shadow(0px 4px 0px #000);">⚔️</div>
-                    <div class="player-name-tag" style="margin-top:5px;">🛡️ 용사</div>
-                </div>
-                
-                <div style="font-size: 50px; color: yellow; text-shadow: 3px 3px 0px black; font-family:'Jua', sans-serif;">VS</div>
-                
-                <div class="fighter">
-                    <div class="hp-bar" id="battle-monster-hp">❤️❤️❤️</div>
-                    <div id="battle-monster-vis" style="font-size: 5.5rem; filter: drop-shadow(0px 4px 0px #000); display: inline-block; transition: transform 0.2s;">😈</div>
-                    <div class="player-name-tag" id="monster-name" style="margin-top:5px; border-color:#a12d2d;">몬스터</div>
-                </div>
-            </div>
+    /* 아바타 캐릭터 본체 스펙 */
+    #player { position: absolute; width: 50px; height: 75px; z-index: 99; display: none; flex-direction: column; align-items: center; top: 400px; transition: transform 0.1s; }
+    .character-avatar { width: 44px; height: 55px; position: relative; display: flex; flex-direction: column; align-items: center; }
+    .char-head { width: 32px; height: 28px; background: #ffdbac; border: 3px solid #222; border-radius: 8px; position: relative; z-index: 3; box-shadow: inset 0 8px 0 #5c3a21; }
+    .char-head::after { content: ''; position: absolute; top: 12px; right: 4px; width: 6px; height: 6px; background: #222; border-radius: 50%; box-shadow: -10px 0 0 #222; }
+    .char-scarf { width: 26px; height: 6px; background: #e74c3c; border: 3px solid #222; border-radius: 4px; z-index: 2; margin-top: -3px; }
+    .char-body { width: 24px; height: 18px; background: #3498db; border: 3px solid #222; border-radius: 4px; z-index: 1; margin-top: -3px; position: relative; box-shadow: inset -3px -3px 0 #2980b9; }
+    .player-name-tag { background: #110d0a; color: #fff; padding: 2px 10px; font-size: 13px; margin-top: 4px; white-space: nowrap; border: 2px solid #f1c40f; border-radius: 4px; }
+    .controls-guide { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(16,12,8,0.9); border-top: 4px solid #f1c40f; padding: 8px 0; font-size: 14px; color: #fffbdf; text-align: center; z-index: 2; }
 
-            <div class="quiz-box" style="position: relative; top: auto; left: auto; transform: none; width: 800px; height: 180px; margin-top: 15px; padding: 15px 30px;">
-                <div class="quiz-question" id="battle-q-text" style="font-size: 19px; margin-bottom: 10px; border-bottom: 2px double #5c3a21; padding-bottom: 5px;">몬스터의 공격!</div>
-                <div class="quiz-options" id="battle-options-area" style="display:flex; gap:10px; flex-direction: row; justify-content:center; width:100%;"></div>
-            </div>
+    /* 스크롤 그리드 바인더 스펙 (1~20단계 가시성 확보) */
+    .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 80px; width: 90%; max-height: 400px; overflow-y: auto; padding-right: 10px; }
+    .rpg-card { background: rgba(44, 62, 80, 0.95); border: 3px solid #34495e; border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .rpg-card:hover { border-color: #f1c40f; background: rgba(52, 73, 94, 1); transform: translateY(-2px); }
+    .rpg-card h3 { margin: 0 0 4px 0; color: #f1c40f; font-size: 18px; }
+    .rpg-card p { margin: 0; color: #bdc3c7; font-size: 13px; }
+    .rpg-btn { background: linear-gradient(to bottom, #2980b9, #1a5276); color: white; border: 3px solid #1a0f08; padding: 6px 12px; font-family: 'Jua', sans-serif; font-size: 14px; cursor: pointer; margin: 4px; border-radius: 5px; }
 
-            <button class="flee-btn" onclick="fleeFromDungeon()">🏃 도망치기</button>
-        </div>
+    /* 배틀 스크린 스펙 */
+    .battle-container { display: flex; width: 90%; justify-content: space-between; align-items: center; margin-top: 60px; height: 240px; position: relative; }
+    .battle-unit { width: 40%; display: flex; flex-direction: column; align-items: center; position: relative; transition: all 0.3s; }
+    .battle-avatar { width: 100px; height: 110px; background: rgba(52, 73, 94, 0.8); border: 4px solid #2c3e50; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 45px; margin-bottom: 5px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+    .hp-bar-outer { width: 100%; height: 16px; background: #c0392b; border: 2px solid #000; border-radius: 8px; overflow: hidden; margin-top: 5px; }
+    .hp-bar-inner { height: 100%; background: #2ecc71; width: 100%; transition: width 0.3s; }
+    .quiz-area { width: 90%; background: rgba(0,0,0,0.85); border: 4px solid #f1c40f; border-radius: 12px; padding: 15px; box-sizing: border-box; text-align: center; margin-top: 10px; }
+    .quiz-question { font-size: 20px; margin-bottom: 12px; color: #fffbdf; min-height: 50px; display: flex; justify-content: center; align-items: center; }
+    .quiz-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .quiz-options button { padding: 12px; font-family: 'Jua', sans-serif; font-size: 16px; background: #34495e; color: white; border: 2px solid #2c3e50; border-radius: 6px; cursor: pointer; }
+    .quiz-options button:hover { background: #f1c40f; color: black; border-color: #f39c12; }
 
-  <!-- ════ 마이룸 ════ -->
-  <div id="myroom-screen" class="screen">
-    <div class="banner">🏠 <span class="p-user-name">나</span>의 마이룸</div>
-    <div class="myroom-container" id="myroom-grid"></div>
-    <div style="position:absolute;bottom:20px;right:20px;display:flex;gap:8px;">
-      <button class="back-btn" style="position:relative;bottom:auto;left:auto;" onclick="changeMap('town-screen',645)">◀ 마을로</button>
-      <button class="green-btn" onclick="openRoomShop()">🛒 아이템 상점</button>
+    /* 마이룸 / 연합길드 가구배치 스타일 */
+    .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
+    .room-item { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px dashed #9b59b6; display: flex; justify-content: center; align-items: center; font-size: 32px; border-radius: 8px; }
+    .group-panel { background: rgba(0,0,0,0.7); border: 4px solid #3498db; border-radius: 12px; padding: 25px; width: 450px; text-align: center; margin-top: 60px; }
+    .group-list { max-height: 160px; overflow-y: auto; margin: 15px 0; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: left; }
+    .group-mem { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #333; font-size: 15px; }
+    .loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; display:none; justify-content:center; align-items:center; font-size:24px; color:#f1c40f; }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <div id="loading-overlay" class="loading-overlay">서버 데이터 동기화 중...</div>
+
+    <div id="points-ui">💰 금화: <span id="player-points">0</span>개</div>
+    <div id="xp-ui">
+      <div>⭐ 레벨: <span id="player-level">1</span> (<span id="player-xp-text">0</span> XP)</div>
+      <div id="xp-bar-outer"><div id="xp-bar-inner"></div></div>
     </div>
-  </div>
+    <div id="group-badge">🛡️ 그룹 연합 활성</div>
 
-  <!-- ════ 마이룸 아이템 상점 ════ -->
-  <div id="room-shop-screen" class="screen">
-    <div class="banner">🛒 아이템 상점 &nbsp;<span id="shop-my-points" style="font-size:15px;color:#fffbdf;"></span></div>
-    <div class="room-shop-grid" id="room-shop-grid"></div>
-    <button class="back-btn" onclick="openMyRoom()">◀ 마이룸으로</button>
-  </div>
-
-  <!-- ════ 그룹 ════ -->
-  <div id="group-screen" class="screen" style="gap:16px;">
-    <div class="banner">👥 그룹 &amp; 랭킹</div>
-
-    <div id="group-no-group" class="group-panel" style="width:740px;">
-      <h3>그룹에 참여하거나 새로 만들어 보세요!</h3>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-        <input id="group-code-input" class="group-input" maxlength="6" placeholder="코드 6자리" style="text-transform:uppercase;width:160px;">
-        <button class="rpg-btn" onclick="doJoinGroup()">참여하기</button>
-        <button class="rpg-btn" style="background:linear-gradient(to bottom,#8e44ad,#6c3483);" onclick="toggleCreateGroup()">그룹 만들기</button>
-      </div>
-      <div id="group-create-area" style="display:none;gap:10px;align-items:center;">
-        <input id="group-name-input" class="group-input" placeholder="그룹 이름" style="width:200px;">
-        <button class="rpg-btn" onclick="doCreateGroup()">만들기</button>
-      </div>
-    </div>
-
-    <div id="group-has-group" style="display:none;width:800px;">
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;justify-content:center;flex-wrap:wrap;">
-        <div style="background:rgba(0,0,0,.6);border:3px solid #3498db;padding:10px 22px;border-radius:8px;font-size:18px;color:#3498db;">
-          <span id="group-name-display">—</span> &nbsp;|&nbsp; 코드:
-          <strong id="group-code-display" style="color:#f1c40f;letter-spacing:3px;">—</strong>
-        </div>
-        <button class="rpg-btn" onclick="copyGroupCode()" style="background:linear-gradient(to bottom,#27ae60,#1e7e43);">📋 코드 복사</button>
-        <button class="rpg-btn" onclick="doLeaveGroup()" style="background:linear-gradient(to bottom,#c0392b,#922b21);">탈퇴</button>
-      </div>
-      <div class="group-panel" style="width:100%;">
-        <h3>🏆 이번 주 랭킹 <span style="font-size:12px;color:#7f8c8d;font-weight:normal;">매주 월요일 초기화 | 상위 3명 👑🥈🥉 자동 지급</span></h3>
-        <table class="ranking-table">
-          <thead><tr><th>순위</th><th>닉네임</th><th>레벨</th><th>총 XP</th><th>보상</th></tr></thead>
-          <tbody id="ranking-tbody"></tbody>
-        </table>
-      </div>
+    <div id="inventory-ui">
+      <div class="inv-title">🎒 가방 인벤토리</div>
+      <ul id="inv-items-list" class="inv-list"></ul>
     </div>
 
-    <button class="back-btn" onclick="changeMap('town-screen',835)">◀ 마을로</button>
+    <div class="screen" id="auth-screen">
+      <div class="auth-title">초등 영어 RPG 월드</div>
+      <div class="auth-box">
+        <div class="menu-tabs">
+          <div class="tab-btn active" id="tab-login" onclick="setAuthMode('login')">로그인</div>
+          <div class="tab-btn" id="tab-register" onclick="setAuthMode('register')">회원가입</div>
+        </div>
+        <h3 id="auth-box-title">로그인</h3>
+        <input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
+        <input type="password" id="auth-password" placeholder="비밀번호">
+        <button class="submit-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">게임 시작하기</button>
+      </div>
+    </div>
+
+    <div class="screen" id="town-screen">
+      <div class="banner">🏡 평화로운 모험가 마을</div>
+      <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+      
+      <div class="portal" id="portal-to-training" onclick="changeMap('training-screen', 110)"><div class="portal-label">훈련 게이트</div>🌀</div>
+      <div class="portal" id="portal-merchant" onclick="changeMap('merchant-screen', 290)"><div class="portal-label">상인 가로쉬</div>🌀</div>
+      <div class="portal" id="portal-dungeon" onclick="changeMap('level-select-screen', 470)"><div class="portal-label">어둠의 던전 (1~20층)</div>🌀</div>
+      <div class="portal" id="portal-myroom" onclick="enterMyRoom()"><div class="portal-label">나의 마이룸</div>🌀</div>
+      <div class="portal" id="portal-group" onclick="enterGroupScreen()"><div class="portal-label">길드 그룹 본부</div>🌀</div>
+    </div>
+
+    <div class="screen" id="training-screen">
+      <div class="banner">🎯 속성 훈련 아카데미</div>
+      <button class="back-btn" onclick="changeMap('town-screen', 110)">🏡 마을로 나가기</button>
+      
+      <div class="portal" id="portal-word" onclick="startTraining('word')"><div class="portal-label">영단어 기초반 (랜덤 💰)</div>🌀</div>
+      <div class="portal" id="portal-grammar" onclick="startTraining('grammar')"><div class="portal-label">영문법 숙련반 (랜덤 💰)</div>🌀</div>
+      <div class="portal" id="portal-writing" onclick="startTraining('writing')"><div class="portal-label">영작문 도전반 (랜덤 💰)</div>🌀</div>
+      <div class="portal" id="portal-listening" onclick="startTraining('listening')"><div class="portal-label">리스닝 청취반 (랜덤 💰)</div>🌀</div>
+    </div>
+
+    <div class="screen" id="quiz-screen">
+      <div class="banner" id="quiz-banner">훈련 진행 중</div>
+      <div class="quiz-area" style="margin-top: 80px;">
+        <div class="quiz-question" id="quiz-question-text">질문 데이터 로딩 실패시 출력</div>
+        <div class="quiz-options" id="quiz-options-area"></div>
+      </div>
+      <button class="back-btn" onclick="changeMap('training-screen', 490)">🏳️ 훈련 포기하기</button>
+    </div>
+
+    <div class="screen" id="merchant-screen">
+      <div class="banner">💰 비밀 상점</div>
+      <div class="grid-container">
+        <div class="rpg-card" onclick="buyItem('🔥 마법의 검', 25)">
+          <h3>🔥 마법의 검</h3>
+          <p>공격력을 극대화 시켜주는 전설의 검</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (25 💰)</button>
+        </div>
+        <div class="rpg-card" onclick="buyItem('🛡️ 기사의 방패', 20)">
+          <h3>🛡️ 기사의 방패</h3>
+          <p>단단한 물리 저항력을 지닌 철제 방패</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (20 💰)</button>
+        </div>
+        <div class="rpg-card" onclick="buyItem('🧪 하급 포션', 5)">
+          <h3>🧪 하급 포션</h3>
+          <p>전투 중 소모된 체력을 회복하는 시약</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (5 💰)</button>
+        </div>
+        <div class="rpg-card" onclick="openRoomShop()">
+          <h3 style="color:#9b59b6;">🛋️ 고급 가구 상점 가기</h3>
+          <p>마이룸 내부에 영구 커스텀 배치 가능한 인테리어 수집품</p>
+          <button class="rpg-btn" style="margin-top:8px; background:linear-gradient(to bottom, #9b59b6, #8e44ad);">상점 입장</button>
+        </div>
+      </div>
+      <button class="back-btn" onclick="changeMap('town-screen', 290)">🏡 마을로 나가기</button>
+    </div>
+
+    <div class="screen" id="room-shop-screen">
+      <div class="banner">🛋️ 가구 인테리어 상점</div>
+      <div class="grid-container">
+        <div class="rpg-card" onclick="buyItem('🛏️ 고급 침대', 30)">
+          <h3>🛏️ 고급 침대</h3>
+          <p>포근한 침실 분위기 유도</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (30 💰)</button>
+        </div>
+        <div class="rpg-card" onclick="buyItem('🎨 마법 명화', 15)">
+          <h3>🎨 마법 명화</h3>
+          <p>정신력을 자극하는 움직이는 그림 액자</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (15 💰)</button>
+        </div>
+        <div class="rpg-card" onclick="buyItem('🧸 거대 곰인형', 12)">
+          <h3>🧸 거대 곰인형</h3>
+          <p>귀여운 디자인의 마이룸 배치 품목</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (12 💰)</button>
+        </div>
+        <div class="rpg-card" onclick="buyItem('🪴 치유의 화분', 10)">
+          <h3>🪴 치유의 화분</h3>
+          <p>맑은 공기를 상시 내뿜는 가구 데코</p>
+          <button class="rpg-btn" style="margin-top:8px;">구매 (10 💰)</button>
+        </div>
+      </div>
+      <button class="back-btn" onclick="changeMap('merchant-screen', 290)">⬅️ 일반 상점</button>
+    </div>
+
+    <div class="screen" id="myroom-screen">
+      <div class="banner">🏰 나만의 아늑한 마이룸</div>
+      <div class="room-view" id="myroom-display-area"></div>
+      <div style="margin-top: 15px; display:flex; gap: 10px;">
+        <button class="rpg-btn" onclick="arrangeRoom()">🛋️ 가구 자동 재배치</button>
+      </div>
+      <button class="back-btn" onclick="changeMap('town-screen', 620)">🏡 마을로 나가기</button>
+    </div>
+
+    <div class="screen" id="group-screen">
+      <div class="banner">🛡️ 길드 그룹 연합 본부</div>
+      <div class="group-panel">
+        <div id="no-group-view">
+          <p style="margin-top:0; color:#bdc3c7;">현재 가입된 연합 그룹이 없습니다.</p>
+          <button class="rpg-btn" onclick="createGroup()" style="background: #27ae60;">🆕 새 그룹 개설하기</button>
+          <div style="margin: 15px 0; border-top: 1px solid #444;"></div>
+          <input type="text" id="join-group-code" placeholder="초대 코드 6자리 입력" style="padding:8px; font-family:'Jua'; width:60%; text-align:center;">
+          <button class="rpg-btn" onclick="joinGroup()">🚪 참가하기</button>
+        </div>
+        <div id="active-group-view" style="display:none;">
+          <h3 style="margin:0; color:#3498db;">연합 코드: <span id="group-code-display" style="color:#f1c40f;">------</span> <button class="rpg-btn" onclick="copyGroupCode()" style="padding:2px 8px; font-size:12px;">복사</button></h3>
+          <div class="group-list" id="group-members-list"></div>
+          <button class="rpg-btn" onclick="leaveGroup()" style="background:#c0392b;">💥 그룹 탈퇴하기</button>
+        </div>
+      </div>
+      <button class="back-btn" onclick="changeMap('town-screen', 800)">🏡 마을로 나가기</button>
+    </div>
+
+    <div class="screen" id="level-select-screen">
+      <div class="banner">⚔️ 던전 난이도 선택 (1~20층)</div>
+      <div class="grid-container" id="dungeon-floor-grid" style="grid-template-columns: repeat(4, 1fr);">
+        </div>
+      <button class="back-btn" onclick="changeMap('town-screen', 440)">🏡 마을로 나가기</button>
+    </div>
+
+    <div class="screen" id="dungeon-battle-screen">
+      <div class="banner" id="battle-banner">실시간 던전 결투</div>
+      <div class="battle-container">
+        <div class="battle-unit" id="player-unit">
+          <div class="battle-avatar">🧙</div>
+          <div><strong id="battle-p-name">용사</strong></div>
+          <div class="hp-bar-outer"><div class="hp-bar-inner" id="player-hp-bar"></div></div>
+          <div style="font-size:14px; margin-top:3px;">HP: <span id="player-hp-text">3</span> / 3</div>
+        </div>
+        <div style="font-size:32px; color:#f1c40f; font-weight:bold; text-shadow:2px 2px 0 #000;">VS</div>
+        <div class="battle-unit" id="monster-unit">
+          <div class="battle-avatar" id="monster-avatar">👹</div>
+          <div><strong id="monster-name">심연의 크리처</strong></div>
+          <div class="hp-bar-outer"><div class="hp-bar-inner" id="monster-hp-bar"></div></div>
+          <div style="font-size:14px; margin-top:3px;">HP: <span id="monster-hp-text">3</span> / 3</div>
+        </div>
+      </div>
+      <div class="quiz-area">
+        <div class="quiz-question" id="dungeon-question-text">실시간 컴파일 로딩 중...</div>
+        <div class="quiz-options" id="dungeon-options-area"></div>
+      </div>
+    </div>
+
+    <div class="controls-guide" id="movement-guide">마우스 조작 또는 좌우 방향키로 포탈에 접촉하여 해당 맵 세션으로 워프하세요.</div>
+
+    <div id="player">
+      <div class="character-avatar">
+        <div class="char-head"></div>
+        <div class="char-scarf"></div>
+        <div class="char-body"></div>
+      </div>
+      <div class="player-name-tag" id="player-tag-name">용사</div>
+    </div>
+
   </div>
 
-</div><!-- #game-container -->
-	
-    <script>
-// ══════════════════════════════════════════════════════════
-// Firebase 초기화 (compat SDK — import 불필요)
-// ══════════════════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey:            "AIzaSyBo1KtM2kTV0Vzo02gbt1pO0R_l4FO5_Q8",
-  authDomain:        "english-rpg-game-5478e.firebaseapp.com",
-  projectId:         "english-rpg-game-5478e",
-  storageBucket:     "english-rpg-game-5478e.firebasestorage.app",
-  messagingSenderId: "419282044565",
-  appId:             "1:419282044565:web:cb7aac385519cbc979fd9c",
-  measurementId:     "G-314HEG3L5V"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ── 외부 데이터 안전 초기화 ──
-if (typeof quizBank === 'undefined')
-  window.quizBank = { word:{}, grammar:{}, writing:{}, listening:{}, dungeon:{} };
-
-// ══════════════════════════════════════════════════════════
-// 레벨 & XP
-// ══════════════════════════════════════════════════════════
-function xpForLevel(lv){ return Math.floor(100*lv*(lv+1)/2); }
-function calcLevel(xp){ let lv=1; while(xp>=xpForLevel(lv)) lv++; return lv-1; }
-function xpProgress(xp){
-  const lv=calcLevel(xp), prev=xpForLevel(lv-1)||0, next=xpForLevel(lv);
-  return {level:lv, current:xp-prev, required:next-prev};
-}
-const XP = {
-  correct: 5,
-  clear:   30,
-  dungeon: (f)=>Math.floor(50+f*15),
-  replay:  (f)=>Math.floor(10+f*3),
-};
-
-// ══════════════════════════════════════════════════════════
-// Firestore 헬퍼
-// ══════════════════════════════════════════════════════════
-const uRef = (id)   => db.collection('users').doc(id);
-const gRef = (code) => db.collection('groups').doc(code);
-
-async function getUser(id){
-  const s = await uRef(id).get();
-  return s.exists ? s.data() : null;
-}
-async function mergeUser(id, data){
-  await uRef(id).set(data, {merge:true});
-}
-async function addXP(userId, amount){
-  const u   = await getUser(userId);
-  const before = u?.totalXp || 0;
-  const lvB    = calcLevel(before);
-  const after  = before + amount;
-  const lvA    = calcLevel(after);
-  await mergeUser(userId, {totalXp:after, level:lvA});
-  return lvA > lvB ? lvA : null;
-}
-		
-        console.log("총 단어 개수:", wordPool ? wordPool.length : "데이터 없음");
-        // ══════════════════════════════════════════════════════════
-// 전역 상태
-// ══════════════════════════════════════════════════════════
-let currentUser     = null;
-let currentUserData = null;
-let activeMap       = 'auth-screen';
-let playerX         = 490;
-const speed         = 7;
-const keys          = {};
-let currentCategory    = '';
-let currentLevel       = 1;
-let quizIndex          = 0;
-let quizData           = [];
-let compositionUserAns = [];
-let playerHp=3, monsterHp=3, isDungeonReplay=false;
-let _rankUnsub = null;
-
-const monsterList = [
-  '🌊 슬라임','👺 고블린','🪨 오크','🦅 가고일','💀 스켈레톤',
-  '🧟 좀비','🧙 리치','🗿 골렘','🌿 와이번','🔥 레드 드래곤',
-  '🧝 다크 엘프','🐂 미노타우르스','🔱 키메라','🐍 바실리스크','🦁 그리핀',
-  '🧛 뱀파이어','🦁 스핑크스','🐘 베히모스','🦑 크라켄','🐲 블랙 드래곤',
-];
-const SHOP_ITEMS = [
-  {name:'🍎 사과',      desc:'체력 즉시 1 회복'},
-  {name:'📖 비전서',    desc:'던전 문제 스킵 + 피해'},
-  {name:'⚔️ 용사의 검', desc:'던전 공격력 +1'},
-];
-let localInventory = [];
-
-const ROOM_ITEMS = [
-  {id:'room_table',   name:'🪑 나무 책상',   emoji:'🪑', price:100},
-  {id:'room_plant',   name:'🌿 화분',        emoji:'🌿', price:60},
-  {id:'room_lamp',    name:'🪔 마법 등불',   emoji:'🪔', price:120},
-  {id:'room_shield',  name:'🛡️ 훈장 방패',  emoji:'🛡️', price:150},
-  {id:'room_chest',   name:'📦 보물 상자',   emoji:'📦', price:200},
-  {id:'room_trophy',  name:'🏆 우승 트로피', emoji:'🏆', price:300},
-  {id:'room_crystal', name:'🔮 수정 구슬',   emoji:'🔮', price:250},
-  {id:'room_book',    name:'📚 마법 서가',   emoji:'📚', price:180},
-  {id:'room_rug',     name:'🪄 마법 양탄자', emoji:'🪄', price:220},
-  {id:'room_pet',     name:'🐉 미니 드래곤', emoji:'🐉', price:500},
-];
-const RANK_REWARDS = [
-  {id:'crown_gold',   name:'👑 황금 왕관', emoji:'👑', price:0, type:'room', rankReward:true},
-  {id:'crown_silver', name:'🥈 은빛 왕관', emoji:'🥈', price:0, type:'room', rankReward:true},
-  {id:'crown_bronze', name:'🥉 동빛 왕관', emoji:'🥉', price:0, type:'room', rankReward:true},
-];
-
-// ══════════════════════════════════════════════════════════
-// UI 헬퍼
-// ══════════════════════════════════════════════════════════
-function showLoading(msg='처리 중...'){
-  document.getElementById('loading-msg').innerText=msg;
-  document.getElementById('loading-overlay').style.display='flex';
-}
-function hideLoading(){ document.getElementById('loading-overlay').style.display='none'; }
-
-function refreshXpUI(totalXp){
-  const p=xpProgress(totalXp);
-  document.getElementById('xp-level-label').innerText=`Lv.${p.level}`;
-  document.getElementById('xp-current').innerText=p.current;
-  document.getElementById('xp-required').innerText=p.required;
-  document.getElementById('xp-bar-inner').style.width=Math.min(100,Math.floor(p.current/p.required*100))+'%';
-}
-function refreshPointsUI(pts){
-  document.getElementById('user-points-display').innerText=pts??0;
-}
-function refreshInvUI(){
-  const list=document.getElementById('inv-list');
-  list.innerHTML=localInventory.length===0?'<li>비어있음</li>':localInventory.map(i=>`<li>✅ ${i}</li>`).join('');
-}
-function showXpFloat(amount){
-  const el=document.createElement('div'); el.className='xp-float';
-  el.innerText=`+${amount} XP`; el.style.left='22px'; el.style.top='92px';
-  document.getElementById('game-container').appendChild(el);
-  setTimeout(()=>el.remove(),1300);
-}
-function showLevelUpToast(lv){
-  const t=document.getElementById('levelup-toast');
-  document.getElementById('levelup-num').innerText=`Lv.${lv}`;
-  t.style.display='block'; setTimeout(()=>t.style.display='none',2600);
-}
-async function giveXP(amount){
-  if(!currentUser) return;
-  showXpFloat(amount);
-  const newLv=await addXP(currentUser, amount);
-  currentUserData=await getUser(currentUser);
-  refreshXpUI(currentUserData.totalXp||0);
-  if(newLv) showLevelUpToast(newLv);
-}
-async function addPoints(amount){
-  const cur=currentUserData?.points||0;
-  const next=cur+amount;
-  await mergeUser(currentUser,{points:next});
-  currentUserData.points=next; refreshPointsUI(next);
-}
-async function spendPoints(amount){
-  const cur=currentUserData?.points||0;
-  if(cur<amount) return false;
-  const next=cur-amount;
-  await mergeUser(currentUser,{points:next});
-  currentUserData.points=next; refreshPointsUI(next); return true;
-}
-
-// ══════════════════════════════════════════════════════════
-// 지도 이동
-// ══════════════════════════════════════════════════════════
-function changeMap(screenId, spawnX){
-  document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.style.backgroundImage='none';});
-  const t=document.getElementById(screenId); if(!t) return;
-  t.style.display='flex'; activeMap=screenId;
-  const bg={'auth-screen':"url('bg_auth.png')",'town-screen':"url('bg_town.png')",'training-screen':"url('bg_training_gateway.png')",'dungeon-select-screen':"url('bg_dungeon.png')",'dungeon-battle-screen':"url('bg_dungeon.png')"};
-  if(bg[screenId]) t.style.backgroundImage=bg[screenId];
-  const p=document.getElementById('player');
-  if(['town-screen','training-screen'].includes(screenId)){
-    p.style.display='flex'; playerX=spawnX; p.style.left=playerX+'px';
-  } else { p.style.display='none'; }
-}
-
-// ══════════════════════════════════════════════════════════
-// 물리 / 게임루프
-// ══════════════════════════════════════════════════════════
-let pVelY=0, isJump=false;
-const gravity=0.6, groundY=400;
-function physicsLoop(){
-  if(isJump){
-    let top=parseInt(document.getElementById('player').style.top)||groundY;
-    pVelY+=gravity; top+=pVelY;
-    if(top>=groundY){top=groundY;pVelY=0;isJump=false;}
-    document.getElementById('player').style.top=top+'px';
-  }
-  requestAnimationFrame(physicsLoop);
-}
-physicsLoop();
-window.addEventListener('keydown',e=>{
-  if(!['town-screen','training-screen'].includes(activeMap)) return;
-  keys[e.key]=true;
-  if(e.key==='ArrowUp'||e.key==='Up') checkPortal();
-});
-window.addEventListener('keyup',e=>{keys[e.key]=false;});
-function gameLoop(){
-  if(['town-screen','training-screen'].includes(activeMap)){
-    const p=document.getElementById('player'), av=document.getElementById('char-avatar');
-    let mv=false;
-    if(keys['ArrowLeft']||keys['Left']) {playerX-=speed;if(av)av.style.transform='scaleX(-1)';if(playerX<40)playerX=40;mv=true;}
-    if(keys['ArrowRight']||keys['Right']){playerX+=speed;if(av)av.style.transform='scaleX(1)'; if(playerX>940)playerX=940;mv=true;}
-    if(mv&&p) p.style.left=playerX+'px';
-  }
-  requestAnimationFrame(gameLoop);
-}
-gameLoop();
-
-function checkPortal(){
-  const pc=playerX+25;
-  if(activeMap==='town-screen'){
-    const portals=[
-      {id:'portal-to-training',fn:()=>{alert('⚔ 기사 훈련소로!');changeMap('training-screen',490);}},
-      {id:'portal-merchant',   fn:()=>{alert('💰 상점 입장!');renderShop();changeMap('merchant-screen',490);}},
-      {id:'portal-dungeon',    fn:()=>{alert('🐉 드래곤 던전!');openDungeonSelect();}},
-      {id:'portal-myroom',     fn:()=>openMyRoom()},
-      {id:'portal-group',      fn:()=>openGroupScreen()},
-    ];
-    for(const p of portals){
-      const el=document.getElementById(p.id);
-      if(el&&pc>=el.offsetLeft&&pc<=el.offsetLeft+el.offsetWidth){p.fn();break;}
-    }
-  } else if(activeMap==='training-screen'){
-    document.querySelectorAll('#training-screen .portal').forEach(p=>{
-      if(pc>=p.offsetLeft&&pc<=p.offsetLeft+p.offsetWidth) openLevelSelect(p.getAttribute('data-category'));
-    });
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-// 인증
-// ══════════════════════════════════════════════════════════
-function switchAuthMode(mode){
-  ['login','register'].forEach(m=>document.getElementById('tab-'+m).classList.toggle('active',m===mode));
-  ['auth-id','auth-pw','auth-name'].forEach(id=>document.getElementById(id).value='');
-  if(mode==='login'){
-    document.getElementById('form-title').innerText='모험가 로그인';
-    document.getElementById('auth-name').style.display='none';
-    document.getElementById('auth-submit-btn').innerText='마을로 입장하기';
-  } else {
-    document.getElementById('form-title').innerText='새로운 모험가 등록';
-    document.getElementById('auth-name').style.display='block';
-    document.getElementById('auth-submit-btn').innerText='가입 완료하기';
-  }
-}
-
-async function handleAuthSubmit(){
-  const id=document.getElementById('auth-id').value.trim();
-  const pw=document.getElementById('auth-pw').value.trim();
-  const name=document.getElementById('auth-name').value.trim();
-  if(!id||!pw){alert('아이디와 비밀번호를 입력해주세요!');return;}
-  showLoading('Firebase 처리 중...');
-  try{
-    const userData=await getUser(id);
-    const isRegister=document.getElementById('tab-register').classList.contains('active');
-    if(isRegister){
-      if(!name){alert('캐릭터 이름을 입력해주세요!');return;}
-      if(userData){alert('이미 사용 중인 아이디입니다.');return;}
-      await db.collection('users').doc(id).set({
-        pw,name,totalXp:0,level:1,points:0,
-        progress:{word:1,grammar:1,writing:1,listening:1,dungeon:1},
-        inventory:[],roomLayout:[],groupCode:null,
-        createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      alert('가입 완료! 로그인해 주세요.');
-      switchAuthMode('login');
-    } else {
-      if(!userData||userData.pw!==pw){alert('아이디 또는 비밀번호가 틀렸습니다!');return;}
-      currentUser=id; currentUserData=userData;
-      document.querySelectorAll('.p-user-name').forEach(el=>el.innerText=userData.name);
-      document.getElementById('p-name-tag').innerText=userData.name;
-      ['points-ui','xp-ui','inventory-ui'].forEach(i=>document.getElementById(i).style.display='block');
-      refreshXpUI(userData.totalXp||0);
-      refreshPointsUI(userData.points||0);
-      refreshInvUI();
-      if(userData.groupCode){
-        document.getElementById('group-badge').style.display='block';
-        document.getElementById('group-badge-code').innerText=userData.groupCode;
-        checkWeeklyRewards(userData.groupCode);
-      }
-      document.getElementById('player').style.display='flex';
-      changeMap('town-screen',490);
-    }
-  } finally { hideLoading(); }
-}
-
-function logout(){
-  if(!confirm('로그아웃 하시겠습니까?')) return;
-  if(_rankUnsub){_rankUnsub();_rankUnsub=null;}
-  currentUser=currentUserData=null;
-  ['points-ui','xp-ui','inventory-ui','group-badge'].forEach(i=>document.getElementById(i).style.display='none');
-  document.getElementById('player').style.display='none';
-  changeMap('auth-screen',490);
-}
-
-// ══════════════════════════════════════════════════════════
-// 상점
-// ══════════════════════════════════════════════════════════
-function renderShop(){
-  const grid=document.getElementById('shop-grid'); grid.innerHTML='';
-  SHOP_ITEMS.forEach(item=>{
-    const d=document.createElement('div'); d.className='shop-item-card';
-    d.innerHTML=`<h3>${item.name}</h3><p>${item.desc}</p><button onclick="buyShopItem('${item.name}')">무료 구매</button>`;
-    grid.appendChild(d);
-  });
-}
-function buyShopItem(name){localInventory.push(name);refreshInvUI();alert(`[${name}] 획득!`);}
-
-// ══════════════════════════════════════════════════════════
-// 훈련 시스템
-// ══════════════════════════════════════════════════════════
-async function openLevelSelect(category){
-  currentCategory=category;
-  const T={word:'📖 단어',grammar:'📋 문법',writing:'✍ 작문',listening:'🎧 듣기'};
-  document.getElementById('selected-category-title').innerText=T[category];
-  const prog=currentUserData?.progress||{word:1,grammar:1,writing:1,listening:1,dungeon:1};
-  const max=prog[category]||1;
-  const grid=document.getElementById('level-grid'); grid.innerHTML='';
-  for(let i=1;i<=20;i++){
-    const card=document.createElement('div');
-    if(i<=max){
-      card.className='level-card';
-      card.innerHTML=`<div>레벨 ${i}</div><div class="status-text">▶ 도전하기</div>`;
-      card.onclick=((lv)=>()=>startQuiz(lv))(i);
-    } else {
-      card.className='level-card locked';
-      card.innerHTML=`<div>🔒 레벨 ${i}</div><div class="status-text" style="color:#7f8c8d;">잠김</div>`;
-    }
-    grid.appendChild(card);
-  }
-  changeMap('level-select-screen',490);
-}
-
-function genWordQuiz(){
-  let q=[];
-  while(q.length<10){
-    let opts=[];
-    while(opts.length<4){let r=wordPool[Math.floor(Math.random()*wordPool.length)];if(!opts.find(o=>o.word===r.word))opts.push(r);}
-    const ci=Math.floor(Math.random()*4);
-    q.push({q:`단어 '${opts[ci].word}'의 뜻은?`,a:opts.map(o=>o.meaning),c:ci});
-  }
-  return q;
-}
-
-async function startQuiz(level){
-  currentLevel=level; quizIndex=0;
-  if(currentCategory==='word'){
-    if(typeof wordPool==='undefined'){alert('단어 데이터 없음!');return;}
-    quizData=genWordQuiz();
-  } else {
-    const orig=window.quizBank[currentCategory]?.[level];
-    if(!orig){alert('해당 레벨 데이터 없음!');return;}
-    quizData=[...orig].sort(()=>Math.random()-.5);
-  }
-  const T={word:'단어',grammar:'문법',writing:'작문',listening:'듣기'};
-  document.getElementById('quiz-banner-title').innerText=`${T[currentCategory]} 훈련 Lv.${level}`;
-  renderQuestion(); changeMap('quiz-screen',490);
-}
-
-function renderQuestion(){
-  const q=quizData[quizIndex];
-  document.getElementById('quiz-idx').innerText=`문제 ${quizIndex+1} / 5`;
-  document.getElementById('quiz-q-text').innerText=q.q;
-  const area=document.getElementById('quiz-interactive-area'); area.innerHTML='';
-  if(currentCategory==='listening'){
-    const b=document.createElement('button'); b.className='audio-btn';
-    b.innerText='🔊 발음 듣기'; b.onclick=()=>speakTTS(q.speak);
-    area.appendChild(b); speakTTS(q.speak);
-  }
-  if(['word','grammar','listening'].includes(currentCategory)){
-    const div=document.createElement('div'); div.className='quiz-options';
-    q.a.forEach((ch,i)=>{
-      const b=document.createElement('button'); b.className='option-btn';
-      b.innerText=`${i+1}. ${ch}`;
-      b.onclick=async()=>{
-        if(i===q.c){
-          await giveXP(XP.correct); alert(`정답! +${XP.correct} XP`);
-          quizIndex++; quizIndex<5?renderQuestion():await clearTraining();
-        } else { alert('오답! 처음부터 다시.'); startQuiz(currentLevel); }
-      };
-      div.appendChild(b);
-    });
-    area.appendChild(div);
-  } else if(currentCategory==='writing'){
-    compositionUserAns=[];
-    const res=document.createElement('div'); res.className='scramble-container'; res.innerText='단어 조합'; area.appendChild(res);
-    const pool=document.createElement('div'); pool.className='scramble-container';
-    [...q.blocks].sort(()=>Math.random()-.5).forEach(w=>{
-      const blk=document.createElement('div'); blk.className='word-block'; blk.innerText=w;
-      blk.onclick=async function(){
-        if(compositionUserAns.includes(w)) return;
-        compositionUserAns.push(w); res.innerText=compositionUserAns.join(' '); this.style.opacity='.3';
-        if(compositionUserAns.length===q.blocks.length){
-          setTimeout(async()=>{
-            if(compositionUserAns.join(' ')===q.ans){
-              await giveXP(XP.correct); alert(`정답! +${XP.correct} XP`);
-              quizIndex++; quizIndex<5?renderQuestion():await clearTraining();
-            } else { alert('오답! 처음부터 다시.'); startQuiz(currentLevel); }
-          },300);
-        }
-      };
-      pool.appendChild(blk);
-    });
-    area.appendChild(pool);
-  }
-}
-
-async function clearTraining(){
-  await giveXP(XP.clear); alert(`🏅 훈련 성공! +${XP.clear} XP`);
-  const prog=currentUserData?.progress||{};
-  if(currentLevel===(prog[currentCategory]||1)&&currentLevel<20){
-    prog[currentCategory]=currentLevel+1;
-    await mergeUser(currentUser,{progress:prog});
-    currentUserData.progress=prog;
-  }
-  openLevelSelect(currentCategory);
-}
-
-function speakTTS(text){
-  if('speechSynthesis' in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';window.speechSynthesis.speak(u);}
-}
-function exitQuiz(){if(confirm('포기하시겠습니까?'))openLevelSelect(currentCategory);}
-
-// ══════════════════════════════════════════════════════════
-// 던전
-// ══════════════════════════════════════════════════════════
-function openDungeonSelect(){
-  const grid=document.getElementById('dungeon-level-grid'); grid.innerHTML='';
-  const max=currentUserData?.progress?.dungeon||1;
-  for(let i=1;i<=20;i++){
-    const card=document.createElement('div'), locked=i>max;
-    card.className='level-card'+(locked?' locked':'');
-    card.innerHTML=`<div>던전 ${i}층</div><div class="status-text">${locked?'🔒 잠김':i<max?'🔄 재도전':'▶ 입장하기'}</div>`;
-    card.onclick=()=>{if(locked)alert('잠겨있습니다.');else startDungeon(i,i<max);};
-    grid.appendChild(card);
-  }
-  changeMap('dungeon-select-screen',490);
-}
-
-function startDungeon(level,isReplay){
-  const mEl=document.getElementById('battle-monster-vis'), tEl=document.getElementById('dungeon-battle-title');
-  if(!mEl||!tEl){alert('UI 오류!');return;}
-  currentCategory='dungeon'; currentLevel=level; isDungeonReplay=isReplay;
-  playerHp=3; monsterHp=3; quizIndex=0;
-  const m=monsterList[level-1]||'👾 정체불명';
-  mEl.innerText=m.split(' ')[0]; tEl.innerText=`${m} 출현! (${level}층)`;
-  document.getElementById('monster-name').innerText=m;
-  mEl.style.transform=`scale(${1+level*0.05})`;
-  if(!window.quizBank.dungeon?.[level]){alert('던전 데이터 없음!');return;}
-  quizData=[...window.quizBank.dungeon[level]].sort(()=>Math.random()-.5).slice(0,5);
-  updateBattleUI(); renderDungeonQ(); changeMap('dungeon-battle-screen',490);
-}
-
-function renderDungeonQ(){
-  if(playerHp<=0||monsterHp<=0||quizIndex>=quizData.length) return;
-  const q=quizData[quizIndex];
-  document.getElementById('battle-q-text').innerText=q.q;
-  const area=document.getElementById('battle-options-area'); area.innerHTML='';
-  q.a.forEach((ch,i)=>{
-    const b=document.createElement('button'); b.className='battle-btn'; b.innerText=`${i+1}. ${ch}`;
-    b.onclick=()=>{
-      area.querySelectorAll('button').forEach(x=>x.disabled=true);
-      if(i===q.c){alert('⚔ 정답!');triggerAnim(true,()=>{monsterHp--;updateBattleUI();nextDungeonStep();});}
-      else       {alert('💥 오답!');triggerAnim(false,()=>{playerHp--;updateBattleUI();nextDungeonStep();});}
+  <script>
+    // ----------------------------------------------------
+    // [1] 파이어베이스 구성 설정 프로토콜 및 모킹 방어코드
+    // ----------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyFakeKey_PlaceholderForSecurity",
+      authDomain: "elementary-english-rpg.firebaseapp.com",
+      projectId: "elementary-english-rpg",
+      storageBucket: "elementary-english-rpg.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef123456"
     };
-    area.appendChild(b);
-  });
-}
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-async function nextDungeonStep(){
-  if(playerHp<=0){alert('☠ 쓰러졌습니다...');changeMap('town-screen',490);}
-  else if(monsterHp<=0){await winDungeon();}
-  else{
-    quizIndex++;
-    if(quizIndex<quizData.length) renderDungeonQ();
-    else if(monsterHp<playerHp) await winDungeon();
-    else{alert('⚔ 무승부!');changeMap('town-screen',490);}
-  }
-}
+    const RANK_REWARDS = ["👑 마왕의 왕관", "💎 전설의 다이아", "🌟 황금 훈장"];
 
-function updateBattleUI(){
-  const ph='❤ '.repeat(Math.max(0,playerHp))+'🖤'.repeat(Math.max(0,3-playerHp));
-  const mh='❤ '.repeat(Math.max(0,monsterHp))+'🖤'.repeat(Math.max(0,3-monsterHp));
-  const pe=document.getElementById('battle-player-hp'), me=document.getElementById('battle-monster-hp');
-  if(pe)pe.innerText=ph; if(me)me.innerText=mh;
-}
+    // ----------------------------------------------------
+    // [2] 전역 인스턴스 코어 변수
+    // ----------------------------------------------------
+    let currentUser = null;
+    let currentUserData = null;
+    let currentMap = 'auth-screen';
+    let playerX = 490;
 
-async function winDungeon(){
-  const xpAmt=isDungeonReplay?XP.replay(currentLevel):XP.dungeon(currentLevel);
-  const pts=isDungeonReplay?Math.floor(currentLevel*5):currentLevel*10;
-  await giveXP(xpAmt); await addPoints(pts);
-  const prog=currentUserData?.progress||{};
-  if(currentLevel>=(prog.dungeon||1)&&currentLevel<20){
-    prog.dungeon=currentLevel+1;
-    await mergeUser(currentUser,{progress:prog});
-    currentUserData.progress=prog;
-  }
-  alert(`🎉 승리! +${xpAmt} XP  +${pts} 포인트`);
-  openDungeonSelect();
-}
+    let activeQuizList = [];
+    let activeQuizIndex = 0;
+    let activeRewardGold = 5;
+    let activeRewardXp = 15;
 
-function triggerAnim(correct,cb){
-  const pi=document.getElementById('battle-player-vis'), mi=document.getElementById('battle-monster-vis');
-  if(!pi||!mi){if(cb)cb();return;}
-  if(correct){pi.classList.add('animate-p-attack');setTimeout(()=>mi.classList.add('animate-hit'),200);}
-  else       {mi.classList.add('animate-m-attack');setTimeout(()=>pi.classList.add('animate-hit'),200);}
-  setTimeout(()=>{pi.classList.remove('animate-p-attack','animate-hit');mi.classList.remove('animate-m-attack','animate-hit');if(cb)cb();},620);
-}
-function fleeFromDungeon(){if(confirm('전투를 포기하고 마을로 도망치겠습니까?')){alert('🏃 무사히 도망쳤습니다!');changeMap('town-screen',490);}}
+    let currentFloor = 1;
+    let playerHp = 3;
+    let monsterHp = 3;
+    let dungeonQuizMax = 5;
 
-// ══════════════════════════════════════════════════════════
-// 마이룸
-// ══════════════════════════════════════════════════════════
-async function openMyRoom(){
-  showLoading('마이룸 불러오는 중...');
-  currentUserData=await getUser(currentUser); hideLoading();
-  changeMap('myroom-screen',645); renderMyRoom();
-}
+    // 던전 각 레벨별 출현 몬스터 테이블 (1~20단계 가변 스케일링용)
+    const dungeonMonsters = [
+      "👹 슬라임", "👺 고블린 전사", "🦇 가고일", "👻 유령 경비병", "🕷️ 거대 거미",
+      "🐺 다이어 울프", "🧟 좀비 병사", "💀 스켈레톤 마술사", "🦎 리자드맨", "🐂 미노타우르스",
+      "🔮 다크 엘프", "🦅 키메라", "🦂 독전갈 전사", "🛡️ 골렘 기사", "🧊 아이스 데몬",
+      "🔥 서큐버스", "⚡ 썬더 브링어", "🌋 이프리트", "🐉 새도우 드래곤", "👑 심연의 마왕 가로쉬"
+    ];
 
-function renderMyRoom(){
-  const grid=document.getElementById('myroom-grid'); grid.innerHTML='';
-  const room=currentUserData?.roomLayout||[];
-  const inv =currentUserData?.inventory||[];
-  const placed=room.map(r=>r.id);
-  room.forEach(item=>{
-    const s=document.createElement('div'); s.className='room-slot occupied';
-    s.innerHTML=`${item.emoji}<div class="slot-label">${item.name}</div><span class="remove-btn" onclick="doRemove('${item.id}')">✕</span>`;
-    grid.appendChild(s);
-  });
-  const unplaced=inv.filter(i=>i.type==='room'&&!placed.includes(i.id));
-  for(let i=0;i<(15-room.length);i++){
-    const s=document.createElement('div'); s.className='room-slot';
-    if(i<unplaced.length){
-      const item=unplaced[i];
-      s.innerHTML=`<span style="font-size:26px;">➕</span><div class="slot-label">${item.name}</div>`;
-      s.onclick=()=>doPlace(item.id,item.emoji,item.name);
-    } else {
-      s.innerHTML=`<span style="font-size:22px;opacity:.3;">🔲</span><div class="slot-label">빈 공간</div>`;
+    // 1~20단계 던전 난이도 선택 카드 자동 생성 렌더러
+    function buildDungeonFloorUI() {
+      const grid = document.getElementById('dungeon-floor-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= 20; i++) {
+        const card = document.createElement('div');
+        card.className = 'rpg-card';
+        card.style.padding = '8px';
+        card.onclick = () => startDungeonFloor(i);
+        
+        const monsterName = dungeonMonsters[i - 1] || "👹 심연의 악마";
+        card.innerHTML = `
+          <h3 style="font-size:15px; margin:0; color:#f1c40f;">${i}층</h3>
+          <p style="font-size:11px; margin:2px 0; color:#fff;">${monsterName.split(' ')[1]}</p>
+          <span style="font-size:10px; color:#2ecc71;">보상 💰${i * 5}</span>
+        `;
+        grid.appendChild(card);
+      }
     }
-    grid.appendChild(s);
-  }
-}
 
-async function doPlace(id,emoji,name){
-  showLoading('배치 중...');
-  await uRef(currentUser).update({roomLayout:firebase.firestore.FieldValue.arrayUnion({id,emoji,name})});
-  currentUserData=await getUser(currentUser); hideLoading(); renderMyRoom();
-}
-async function doRemove(id){
-  showLoading('제거 중...');
-  const room=currentUserData?.roomLayout||[], target=room.find(r=>r.id===id);
-  if(target) await uRef(currentUser).update({roomLayout:firebase.firestore.FieldValue.arrayRemove(target)});
-  currentUserData=await getUser(currentUser); hideLoading(); renderMyRoom();
-}
+    // ----------------------------------------------------
+    // [3] 파이어베이스 연동 트랜잭션 헬퍼
+    // ----------------------------------------------------
+    function uRef(uid) { return db.collection("users").doc(uid); }
+    function gRef(code) { return db.collection("groups").doc(code); }
+    function showLoading() { document.getElementById('loading-overlay').style.display = 'flex'; }
+    function hideLoading() { document.getElementById('loading-overlay').style.display = 'none'; }
 
-async function openRoomShop(){
-  showLoading('상점 불러오는 중...');
-  currentUserData=await getUser(currentUser); hideLoading();
-  changeMap('room-shop-screen',645); renderRoomShop();
-}
-
-function renderRoomShop(){
-  document.getElementById('shop-my-points').innerText=`(보유: ${currentUserData?.points||0} P)`;
-  const grid=document.getElementById('room-shop-grid'); grid.innerHTML='';
-  const inv=currentUserData?.inventory||[];
-  ROOM_ITEMS.forEach(item=>{
-    const owned=inv.some(i=>i.id===item.id);
-    const card=document.createElement('div'); card.className='room-shop-card';
-    card.innerHTML=`
-      <span class="item-emoji">${item.emoji}</span>
-      <div class="item-name">${item.name}</div>
-      <div class="item-price">💰 ${item.price} P</div>
-      ${owned?'<div style="font-size:11px;color:#27ae60;margin-top:2px;">✅ 보유 중</div>':''}
-      <button ${owned?'disabled':''} onclick="doBuyRoom('${item.id}')">${owned?'보유 중':'구매하기'}</button>`;
-    grid.appendChild(card);
-  });
-}
-
-async function doBuyRoom(itemId){
-  const item=ROOM_ITEMS.find(i=>i.id===itemId); if(!item) return;
-  const pts=currentUserData?.points||0;
-  if(pts<item.price){alert(`포인트 부족! (필요: ${item.price}P, 보유: ${pts}P)`);return;}
-  showLoading('구매 중...');
-  const ok=await spendPoints(item.price); if(!ok){hideLoading();return;}
-  await uRef(currentUser).update({inventory:firebase.firestore.FieldValue.arrayUnion({...item,type:'room',grantedAt:Date.now()})});
-  currentUserData=await getUser(currentUser); hideLoading();
-  alert(`✅ [${item.name}] 구매 완료!`); renderRoomShop();
-}
-
-// ══════════════════════════════════════════════════════════
-// 그룹 & 랭킹
-// ══════════════════════════════════════════════════════════
-function getWeekStart(){
-  const now=new Date(),day=now.getDay(),diff=now.getDate()-day+(day===0?-6:1);
-  const mon=new Date(now.setDate(diff)); mon.setHours(0,0,0,0); return mon.getTime();
-}
-
-async function openGroupScreen(){
-  if(_rankUnsub){_rankUnsub();_rankUnsub=null;}
-  changeMap('group-screen',835);
-  showLoading('그룹 정보 불러오는 중...');
-  currentUserData=await getUser(currentUser); hideLoading();
-  refreshGroupUI();
-}
-
-function refreshGroupUI(){
-  const code=currentUserData?.groupCode;
-  document.getElementById('group-no-group').style.display =code?'none':'block';
-  document.getElementById('group-has-group').style.display=code?'block':'none';
-  if(code){
-    document.getElementById('group-code-display').innerText=code;
-    document.getElementById('group-badge').style.display='block';
-    document.getElementById('group-badge-code').innerText=code;
-    startRankingListener(code);
-  }
-}
-
-function startRankingListener(code){
-  if(_rankUnsub){_rankUnsub();_rankUnsub=null;}
-  _rankUnsub=gRef(code).onSnapshot(async snap=>{
-    if(!snap.exists) return;
-    const grp=snap.data();
-    document.getElementById('group-name-display').innerText=grp.name||code;
-    const members=grp.members||[];
-    const users=await Promise.all(members.map(uid=>getUser(uid)));
-    const ranking=users.map((u,i)=>({
-      uid:members[i],name:u?.name||members[i],
-      xp:u?.totalXp||0,level:u?.level||1,
-      rewardItems:u?.weeklyRewardItems||[],
-    })).sort((a,b)=>b.level-a.level||b.xp-a.xp);
-    renderRanking(ranking);
-  });
-}
-
-function renderRanking(ranking){
-  const tbody=document.getElementById('ranking-tbody'); tbody.innerHTML='';
-  const medals=['🥇','🥈','🥉'];
-  ranking.forEach((e,i)=>{
-    const isMe=e.uid===currentUser;
-    const rewards=e.rewardItems.map(r=>r.emoji||'').join(' ')||'—';
-    const tr=document.createElement('tr');
-    if(isMe) tr.style.background='rgba(52,152,219,.2)';
-    tr.innerHTML=`<td style="font-size:22px;">${medals[i]||i+1}</td><td>${e.name}${isMe?' 👈':''}</td><td><strong>Lv.${e.level}</strong></td><td>${e.xp.toLocaleString()} XP</td><td>${rewards}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function toggleCreateGroup(){
-  const a=document.getElementById('group-create-area');
-  a.style.display=a.style.display==='none'?'flex':'none';
-}
-
-async function doCreateGroup(){
-  const name=document.getElementById('group-name-input').value.trim()||`${currentUserData?.name||currentUser}의 그룹`;
-  showLoading('그룹 생성 중...');
-  try{
-    let code;
-    while(true){
-      code=''; const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      for(let i=0;i<6;i++) code+=c[Math.floor(Math.random()*c.length)];
-      const snap=await gRef(code).get(); if(!snap.exists) break;
+    async function getUser(uid) {
+      const snap = await uRef(uid).get();
+      if(snap.exists) return snap.data();
+      const defaultData = { points: 0, level: 1, totalXp: 0, groupCode: null, inventory: [], weeklyRewardItems: [] };
+      await uRef(uid).set(defaultData);
+      return defaultData;
     }
-    const batch=db.batch();
-    batch.set(gRef(code),{code,name,owner:currentUser,members:[currentUser],createdAt:firebase.firestore.FieldValue.serverTimestamp(),weeklyReset:getWeekStart()});
-    batch.set(uRef(currentUser),{groupCode:code},{merge:true});
-    await batch.commit();
-    currentUserData=await getUser(currentUser);
-    alert(`✅ 그룹 생성!\n코드: ${code}\n친구에게 알려주세요!`);
-    refreshGroupUI();
-  } finally { hideLoading(); }
-}
 
-async function doJoinGroup(){
-  const code=document.getElementById('group-code-input').value.toUpperCase().trim();
-  if(!code||code.length!==6){alert('6자리 코드를 입력하세요.');return;}
-  showLoading('그룹 참여 중...');
-  try{
-    const snap=await gRef(code).get();
-    if(!snap.exists){alert('존재하지 않는 그룹 코드입니다.');return;}
-    const batch=db.batch();
-    batch.update(gRef(code),{members:firebase.firestore.FieldValue.arrayUnion(currentUser)});
-    batch.set(uRef(currentUser),{groupCode:code},{merge:true});
-    await batch.commit();
-    currentUserData=await getUser(currentUser);
-    alert(`✅ [${snap.data().name}] 그룹에 참여했습니다!`);
-    refreshGroupUI();
-  } finally { hideLoading(); }
-}
+    function getWeekStart() {
+      const d = new Date();
+      const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6:1);
+      return new Date(d.setDate(diff)).setHours(0,0,0,0);
+    }
 
-async function doLeaveGroup(){
-  if(!confirm('정말 그룹을 탈퇴하시겠습니까?')) return;
-  const code=currentUserData?.groupCode; if(!code) return;
-  showLoading('탈퇴 처리 중...');
-  try{
-    if(_rankUnsub){_rankUnsub();_rankUnsub=null;}
-    const batch=db.batch();
-    batch.update(gRef(code),{members:firebase.firestore.FieldValue.arrayRemove(currentUser)});
-    batch.set(uRef(currentUser),{groupCode:null},{merge:true});
-    await batch.commit();
-    currentUserData=await getUser(currentUser);
-    document.getElementById('group-badge').style.display='none';
-    refreshGroupUI();
-  } finally { hideLoading(); }
-}
+    // ----------------------------------------------------
+    // [4] 인증 필드 핸들러
+    // ----------------------------------------------------
+    let authMode = 'login';
+    function setAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('tab-login').classList.toggle('active', mode==='login');
+      document.getElementById('tab-register').classList.toggle('active', mode==='register');
+      document.getElementById('auth-box-title').innerText = mode==='login' ? '로그인' : '회원가입';
+      document.getElementById('auth-submit-btn').innerText = mode==='login' ? '게임 시작하기' : '새 계정 생성';
+    }
 
-function copyGroupCode(){
-  const code=document.getElementById('group-code-display').innerText;
-  navigator.clipboard.writeText(code).then(()=>alert(`코드 [${code}] 복사됨!`));
-}
+    async function handleAuthSubmit() {
+      const user = document.getElementById('auth-username').value.trim();
+      const pass = document.getElementById('auth-password').value.trim();
+      if(!user || !pass) return alert("아이디와 비밀번호를 입력하세요!");
 
-async function checkWeeklyRewards(code){
-  try{
-    const snap=await gRef(code).get(); if(!snap.exists) return;
-    const grp=snap.data();
-    if((grp.weeklyReset||0)>=getWeekStart()) return;
-    const members=grp.members||[];
-    const users=await Promise.all(members.map(uid=>getUser(uid)));
-    const ranking=users.map((u,i)=>({uid:members[i],xp:u?.totalXp||0,level:u?.level||1}))
-                       .sort((a,b)=>b.level-a.level||b.xp-a.xp);
-    const batch=db.batch();
-    RANK_REWARDS.forEach((r,i)=>{
-      if(ranking[i]){
-        batch.set(uRef(ranking[i].uid),{
-          weeklyRewardItems:firebase.firestore.FieldValue.arrayUnion(r),
-          inventory:firebase.firestore.FieldValue.arrayUnion({...r,type:'room',grantedAt:Date.now()})
-        },{merge:true});
+      showLoading();
+      try {
+        const uSnap = await uRef(user).get();
+        if(authMode === 'register') {
+          if(uSnap.exists) return alert("이미 존재하는 용사 계정명입니다.");
+          const newData = { points:0, level:1, totalXp:0, groupCode:null, inventory:[], weeklyRewardItems:[], password:pass };
+          await uRef(user).set(newData);
+          alert("회원가입 완료! 로그인 후 진입하세요.");
+          setAuthMode('login');
+        } else {
+          if(!uSnap.exists || uSnap.data().password !== pass) return alert("계정 정보가 올바르지 않습니다.");
+          currentUser = user;
+          currentUserData = uSnap.data();
+          loginSuccess();
+        }
+      } catch(e) { alert("연동 장애: " + e.message); }
+      finally { hideLoading(); }
+    }
+
+    function loginSuccess() {
+      document.getElementById('points-ui').style.display = 'block';
+      document.getElementById('xp-ui').style.display = 'block';
+      document.getElementById('inventory-ui').style.display = 'block';
+      document.getElementById('player').style.display = 'flex';
+      document.getElementById('player-tag-name').innerText = currentUser;
+      
+      buildDungeonFloorUI();
+      updateUI();
+      changeMap('town-screen', 490);
+
+      if (currentUserData.weeklyRewardItems && currentUserData.weeklyRewardItems.length > 0) {
+        alert("🎁 주간 연합 랭킹 보상이 보관함에 입고되었습니다:\n" + currentUserData.weeklyRewardItems.join(", "));
+        uRef(currentUser).update({ weeklyRewardItems: [] });
+      }
+      if(currentUserData.groupCode) checkWeeklyRewards(currentUserData.groupCode);
+    }
+
+    function handleLogout() {
+      currentUser = null; currentUserData = null;
+      document.getElementById('points-ui').style.display = 'none';
+      document.getElementById('xp-ui').style.display = 'none';
+      document.getElementById('inventory-ui').style.display = 'none';
+      document.getElementById('player').style.display = 'none';
+      document.getElementById('group-badge').style.display = 'none';
+      changeMap('auth-screen', 490);
+    }
+
+    // ----------------------------------------------------
+    // [5] 인게임 월드 맵 체인저 및 좌표 감지기
+    // ----------------------------------------------------
+    function changeMap(mapId, targetX) {
+      document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+      document.getElementById(mapId).style.display = 'flex';
+      currentMap = mapId;
+      
+      const p = document.getElementById('player');
+      if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen', 'level-select-screen'].includes(mapId)) {
+        p.style.display = 'none';
+        document.getElementById('movement-guide').style.display = 'none';
+      } else {
+        p.style.display = 'flex';
+        document.getElementById('movement-guide').style.display = 'block';
+      }
+      movePlayer(targetX);
+    }
+
+    function movePlayer(x) {
+      playerX = Math.max(40, Math.min(960, x));
+      document.getElementById('player').style.left = (playerX - 25) + 'px';
+      
+      if(currentMap === 'town-screen') {
+        if(Math.abs(playerX - 110) < 30) changeMap('training-screen', 110);
+        else if(Math.abs(playerX - 290) < 30) changeMap('merchant-screen', 290);
+        else if(Math.abs(playerX - 470) < 30) changeMap('level-select-screen', 470);
+        else if(Math.abs(playerX - 620) < 30) enterMyRoom();
+        else if(Math.abs(playerX - 800) < 30) enterGroupScreen();
+      }
+    }
+
+    window.addEventListener('keydown', e => {
+      if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen'].includes(currentMap)) return;
+      if(e.key === 'ArrowLeft') movePlayer(playerX - 25);
+      if(e.key === 'ArrowRight') movePlayer(playerX + 25);
+    });
+
+    window.addEventListener('click', e => {
+      if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen'].includes(currentMap)) return;
+      const container = document.getElementById('game-container');
+      const rect = container.getBoundingClientRect();
+      if(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        const clickedX = (e.clientX - rect.left) * (1024 / rect.width);
+        if(e.clientY - rect.top > 230) movePlayer(clickedX);
       }
     });
-    batch.update(gRef(code),{weeklyReset:getWeekStart()});
-    await batch.commit();
-  } catch(e){ console.warn('Weekly reward error',e); }
-}
-</script>
+
+    function updateUI() {
+      if(!currentUserData) return;
+      document.getElementById('player-points').innerText = currentUserData.points || 0;
+      document.getElementById('player-level').innerText = currentUserData.level || 1;
+      document.getElementById('player-xp-text').innerText = currentUserData.totalXp || 0;
+      document.getElementById('xp-bar-inner').style.width = ((currentUserData.totalXp || 0) % 100) + '%';
+
+      if(currentUserData.groupCode) {
+        document.getElementById('group-badge').style.display = 'block';
+        document.getElementById('group-badge').innerText = `🛡️ 연합: ${currentUserData.groupCode}`;
+      } else {
+        document.getElementById('group-badge').style.display = 'none';
+      }
+
+      const invArea = document.getElementById('inv-items-list');
+      invArea.innerHTML = '';
+      if(currentUserData.inventory && currentUserData.inventory.length > 0) {
+        currentUserData.inventory.forEach(item => {
+          const li = document.createElement('li'); li.innerText = item; invArea.appendChild(li);
+        });
+      } else {
+        invArea.innerHTML = '<li style="color:#777; font-size:12px;">가방 비어있음</li>';
+      }
+    }
+
+    // ----------------------------------------------------
+    // [6] 훈련소 아카데미 4대 분과 - 완벽 랜덤 데이터 주입기
+    // ----------------------------------------------------
+    function startTraining(partType) {
+      activeQuizIndex = 0;
+      activeQuizList = [];
+
+      // 1. 데이터 파싱 & 완전 무작위 셔플 가공 프로세스
+      if(partType === 'word') {
+        activeRewardGold = 5; activeRewardXp = 10;
+        // 단어풀 자동화 보기를 위한 생성 처리
+        let pool = [...wordPool].sort(() => Math.random() - 0.5).slice(0, 5);
+        pool.forEach(item => {
+          let corrects = item.meaning;
+          let wrongs = [...wordPool].filter(w => w.meaning !== corrects)
+                                    .sort(() => Math.random() - 0.5)
+                                    .slice(0, 3).map(w => w.meaning);
+          let rawChoices = [corrects, ...wrongs].sort(() => Math.random() - 0.5);
+          activeQuizList.push({
+            q: `단어 [ ${item.word} ] 의 올바른 한국어 뜻을 고르세요.`,
+            a: rawChoices,
+            c: rawChoices.indexOf(corrects)
+          });
+        });
+      } 
+      else if(partType === 'grammar') {
+        activeRewardGold = 7; activeRewardXp = 15;
+        let allGrammar = [];
+        Object.keys(quizBankData.grammar).forEach(k => {
+          allGrammar = allGrammar.concat(quizBankData.grammar[k]);
+        });
+        activeQuizList = allGrammar.sort(() => Math.random() - 0.5).slice(0, 5);
+      } 
+      else if(partType === 'writing') {
+        activeRewardGold = 10; activeRewardXp = 20;
+        let allWriting = [];
+        Object.keys(quizBank.writing).forEach(k => {
+          allWriting = allWriting.concat(quizBank.writing[k]);
+        });
+        // 객관식 구조 처리를 위해 변형 바인딩
+        let rawSelected = allWriting.sort(() => Math.random() - 0.5).slice(0, 5);
+        rawSelected.forEach(item => {
+          let wrongOptions = allWriting.filter(w => w.ans !== item.ans)
+                                       .sort(() => Math.random() - 0.5)
+                                       .slice(0, 3).map(w => w.ans);
+          let rawChoices = [item.ans, ...wrongOptions].sort(() => Math.random() - 0.5);
+          activeQuizList.push({
+            q: `[영작문] 다음 한국어에 맞는 올바른 단어 배열 조합은?\n"${item.q || item.blocks.join(' ')}"`,
+            a: rawChoices,
+            c: rawChoices.indexOf(item.ans)
+          });
+        });
+      } 
+      else if(partType === 'listening') {
+        activeRewardGold = 8; activeRewardXp = 15;
+        let allListening = [];
+        Object.keys(quizBank.listening).forEach(k => {
+          allListening = allListening.concat(quizBank.listening[k]);
+        });
+        activeQuizList = allListening.sort(() => Math.random() - 0.5).slice(0, 5);
+      }
+
+      if(activeQuizList.length === 0) {
+        alert("훈련 보충 데이터를 불러오지 못했습니다. 전역 변수를 점검하세요.");
+        return;
+      }
+
+      changeMap('quiz-screen', 490);
+      renderTrainingQuestion();
+    }
+
+    function renderTrainingQuestion() {
+      const qData = activeQuizList[activeQuizIndex];
+      document.getElementById('quiz-banner').innerText = `🎯 아카데미 랜덤 실전 테스트 (${activeQuizIndex + 1}/5)`;
+      
+      // 청취 대사 가시성 예외 확보
+      let questionString = qData.q;
+      if(qData.speak) questionString += `\n(🔊 대사: "${qData.speak}")`;
+      document.getElementById('quiz-question-text').innerText = questionString;
+      
+      const optArea = document.getElementById('quiz-options-area');
+      optArea.innerHTML = '';
+      
+      qData.a.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => handleTrainingAnswer(idx === qData.c);
+        optArea.appendChild(btn);
+      });
+    }
+
+    async function handleTrainingAnswer(isCorrect) {
+      if(isCorrect) {
+        alert(`⭕ 정답입니다! 금화 +${activeRewardGold}💰 / 경험치 +${activeRewardXp}⭐를 전송합니다.`);
+        showLoading();
+        try {
+          const newXp = (currentUserData.totalXp || 0) + activeRewardXp;
+          await uRef(currentUser).update({
+            points: firebase.firestore.FieldValue.increment(activeRewardGold),
+            totalXp: newXp,
+            level: Math.floor(newXp / 100) + 1
+          });
+          currentUserData = await getUser(currentUser);
+          updateUI();
+        } finally { hideLoading(); }
+      } else {
+        alert("❌ 오답입니다! 오답 노트를 점검해 보세요.");
+      }
+
+      activeQuizIndex++;
+      if(activeQuizIndex < 5) renderTrainingQuestion();
+      else {
+        alert("🏁 5문항의 랜덤 속성 아카데미 세션이 마감되었습니다!");
+        changeMap('training-screen', 490);
+      }
+    }
+
+    // ----------------------------------------------------
+    // [7] 던전 1~20단계 고도화 랜덤 처리 엔진
+    // ----------------------------------------------------
+    function startDungeonFloor(floorNum) {
+      currentFloor = floorNum;
+      playerHp = 3;
+      monsterHp = 3;
+      activeQuizIndex = 0;
+
+      // 난이도별 가변 몬스터 매칭 및 몬스터 아바타 크기 가변 스케일 조절 연출
+      const fullMonsterStr = dungeonMonsters[floorNum - 1] || "👹 심연의 크리처";
+      document.getElementById('monster-avatar').innerText = fullMonsterStr.split(' ')[0];
+      document.getElementById('monster-name').innerText = fullMonsterStr;
+      document.getElementById('monster-avatar').style.transform = `scale(${1 + (floorNum * 0.05)})`;
+
+      // 1~20단계 난이도 연계 다이내믹 믹싱 알고리즘
+      let sourceKey = floorNum;
+      if(sourceKey > 10) sourceKey = (floorNum % 10) + 1; // 11~20층은 상위 뱅크 고난도 재정렬 순환구조
+
+      let rawBank = quizBank.dungeon[sourceKey] || quizBank.dungeon[1];
+      // 퀴즈 완전 랜덤 믹싱 출력
+      activeQuizList = [...rawBank].sort(() => Math.random() - 0.5).slice(0, 3);
+      monsterHp = activeQuizList.length;
+
+      updateBattleUI();
+      changeMap('dungeon-battle-screen', 490);
+      renderDungeonQuestion();
+    }
+
+    function updateBattleUI() {
+      document.getElementById('player-hp-text').innerText = playerHp;
+      document.getElementById('monster-hp-text').innerText = monsterHp;
+      document.getElementById('player-hp-bar').style.width = (playerHp / 3 * 100) + '%';
+      document.getElementById('monster-hp-bar').style.width = (monsterHp / activeQuizList.length * 100) + '%';
+    }
+
+    function renderDungeonQuestion() {
+      const qData = activeQuizList[activeQuizIndex];
+      document.getElementById('battle-banner').innerText = `⚔️ 던전 ${currentFloor}층 결투 (${activeQuizIndex + 1}/${activeQuizList.length})`;
+      document.getElementById('dungeon-question-text').innerText = qData.q;
+      
+      const optArea = document.getElementById('dungeon-options-area');
+      optArea.innerHTML = '';
+      
+      qData.a.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.innerText = opt;
+        btn.onclick = () => {
+          const allBtns = optArea.querySelectorAll('button');
+          allBtns.forEach(b => b.disabled = true);
+          
+          if(idx === qData.c) {
+            alert("⚔️ 정답! 용사의 회심의 강격!");
+            monsterHp--;
+          } else {
+            alert("💥 오답! 크리처의 가혹한 반격 피해 발생!");
+            playerHp--;
+          }
+          updateBattleUI();
+          nextDungeonStep();
+        };
+        optArea.appendChild(btn);
+      });
+    }
+
+    function nextDungeonStep() {
+      if(playerHp <= 0) {
+        alert("☠️ 영웅의 체력이 고갈되어 패배했습니다... 아카데미에서 수련을 더 쌓으세요.");
+        changeMap('level-select-screen', 470);
+      } else if(monsterHp <= 0) {
+        winDungeonFloor();
+      } else {
+        activeQuizIndex++;
+        if(activeQuizIndex < activeQuizList.length) renderDungeonQuestion();
+        else winDungeonFloor();
+      }
+    }
+
+    async function winDungeonFloor() {
+      let goldReward = currentFloor * 5;
+      let xpReward = currentFloor * 10;
+      alert(`🎉 ${currentFloor}층 정복 완료!\n🎁 보상 수령: 금화 +${goldReward}💰 / 경험치 +${xpReward}⭐`);
+      
+      showLoading();
+      try {
+        const newXp = (currentUserData.totalXp || 0) + xpReward;
+        await uRef(currentUser).update({
+          points: firebase.firestore.FieldValue.increment(goldReward),
+          totalXp: newXp,
+          level: Math.floor(newXp / 100) + 1
+        });
+        currentUserData = await getUser(currentUser);
+        updateUI();
+      } finally {
+        hideLoading();
+        changeMap('level-select-screen', 470);
+      }
+    }
+
+    // ----------------------------------------------------
+    // [8] 장비 마켓 및 하우징 인테리어 함수
+    // ----------------------------------------------------
+    function openRoomShop() { changeMap('room-shop-screen', 490); }
+    async function buyItem(itemName, cost) {
+      if((currentUserData.points || 0) < cost) return alert("금화가 부족합니다.");
+      if(currentUserData.inventory && currentUserData.inventory.includes(itemName) && !itemName.includes("포션")) {
+        return alert("보유 중인 고유 소장성 품목입니다.");
+      }
+      showLoading();
+      try {
+        await uRef(currentUser).update({
+          points: firebase.firestore.FieldValue.increment(-cost),
+          inventory: firebase.firestore.FieldValue.arrayUnion(itemName)
+        });
+        alert(`🛒 [ ${itemName} ] 구매 가방에 수납 완료!`);
+        currentUserData = await getUser(currentUser);
+        updateUI();
+        if(['room-shop-screen', 'myroom-screen'].includes(currentMap)) renderMyRoomView();
+      } finally { hideLoading(); }
+    }
+
+    function enterMyRoom() { changeMap('myroom-screen', 620); renderMyRoomView(); }
+    function renderMyRoomView() {
+      const display = document.getElementById('myroom-display-area'); display.innerHTML = '';
+      const furnitureList = (currentUserData.inventory || []).filter(i => i.startsWith('🛏️') || i.startsWith('🎨') || i.startsWith('🧸') || i.startsWith('🪴'));
+      if(furnitureList.length === 0) {
+        display.innerHTML = '<p style="color:#bbb;">상점에서 데코레이션 전용 가구를 수집하고 연동 배치하세요.</p>';
+        return;
+      }
+      furnitureList.forEach(f => {
+        const itemDiv = document.createElement('div'); itemDiv.className = 'room-item';
+        itemDiv.innerText = f.split(' ')[0]; itemDiv.title = f; display.appendChild(itemDiv);
+      });
+    }
+    function arrangeRoom() { alert("🛋️ 인테리어 균형 배치가 완벽 조율되었습니다."); renderMyRoomView(); }
+
+    // ----------------------------------------------------
+    // [9] 길드 연합 소셜 네트워크 서비스
+    // ----------------------------------------------------
+    function enterGroupScreen() { changeMap('group-screen', 800); refreshGroupUI(); }
+    async function refreshGroupUI() {
+      if(!currentUserData.groupCode) {
+        document.getElementById('no-group-view').style.display = 'block';
+        document.getElementById('active-group-view').style.display = 'none';
+      } else {
+        document.getElementById('no-group-view').style.display = 'none';
+        document.getElementById('active-group-view').style.display = 'block';
+        document.getElementById('group-code-display').innerText = currentUserData.groupCode;
+        showLoading();
+        try {
+          const gSnap = await gRef(currentUserData.groupCode).get();
+          const listDiv = document.getElementById('group-members-list'); listDiv.innerHTML = '';
+          if(gSnap.exists) {
+            const members = gSnap.data().members || [];
+            const memDatas = await Promise.all(members.map(m => getUser(m)));
+            const ranked = memDatas.map((d, i) => ({ uid: members[i], level: d.level||1, xp: d.totalXp||0 })).sort((a,b) => b.level - a.level || b.xp - a.xp);
+            ranked.forEach((m, idx) => {
+              const row = document.createElement('div'); row.className = 'group-mem';
+              row.innerHTML = `<span>🏆 ${idx+1}위. <strong>${m.uid}</strong></span> <span>Lv.${m.level} (${m.xp} XP)</span>`;
+              listDiv.appendChild(row);
+            });
+          }
+        } finally { hideLoading(); }
+      }
+    }
+
+    async function createGroup() {
+      const randCode = Math.random().toString(36).substring(2,8).toUpperCase();
+      showLoading();
+      try {
+        await gRef(randCode).set({ members: [currentUser], weeklyReset: getWeekStart() });
+        await uRef(currentUser).update({ groupCode: randCode });
+        currentUserData = await getUser(currentUser);
+        updateUI(); refreshGroupUI();
+        alert(`새 연합 그룹 [${randCode}] 이 활성화되었습니다.`);
+      } finally { hideLoading(); }
+    }
+
+    async function joinGroup() {
+      const code = document.getElementById('join-group-code').value.trim().toUpperCase();
+      if(code.length !== 6) return alert("6자리 연합 코드를 명시하세요.");
+      showLoading();
+      try {
+        const gSnap = await gRef(code).get(); if(!gSnap.exists) return alert("부존재 코드입니다.");
+        const batch = db.batch();
+        batch.update(gRef(code), { members: firebase.firestore.FieldValue.arrayUnion(currentUser) });
+        batch.update(uRef(currentUser), { groupCode: code });
+        await batch.commit();
+        currentUserData = await getUser(currentUser);
+        updateUI(); refreshGroupUI();
+        alert(`연합 [${code}] 허브에 동기화 완료!`);
+      } finally { hideLoading(); }
+    }
+
+    async function leaveGroup() {
+      if(!confirm("연합 그룹을 이탈합니까?")) return;
+      const code = currentUserData.groupCode;
+      showLoading();
+      try {
+        const batch = db.batch();
+        batch.update(gRef(code), { members: firebase.firestore.FieldValue.arrayRemove(currentUser) });
+        batch.update(uRef(currentUser), { groupCode: null });
+        await batch.commit();
+        currentUserData = await getUser(currentUser);
+        updateUI(); refreshGroupUI();
+        alert("그룹 연합망에서 안전하게 로그아웃 되었습니다.");
+      } finally { hideLoading(); }
+    }
+
+    function copyGroupCode() {
+      const code = document.getElementById('group-code-display').innerText;
+      navigator.clipboard.writeText(code).then(() => alert(`클립보드에 복사됨: ${code}`));
+    }
+
+    async function checkWeeklyRewards(code) {
+      try {
+        const snap = await gRef(code).get(); if(!snap.exists) return;
+        const grp = snap.data(); if((grp.weeklyReset || 0) >= getWeekStart()) return;
+        const members = grp.members || [];
+        const users = await Promise.all(members.map(uid => getUser(uid)));
+        const ranking = users.map((u, i) => ({ uid: members[i], xp: u?.totalXp||0, level: u?.level||1 })).sort((a,b) => b.level-a.level || b.xp-a.xp);
+        const batch = db.batch();
+        RANK_REWARDS.forEach((r, i) => {
+          if(ranking[i]) {
+            batch.set(uRef(ranking[i].uid), { weeklyRewardItems: firebase.firestore.FieldValue.arrayUnion(r), inventory: firebase.firestore.FieldValue.arrayUnion(r) }, { merge: true });
+          }
+        });
+        batch.update(gRef(code), { weeklyReset: getWeekStart() });
+        await batch.commit();
+      } catch(e) { console.error(e); }
+    }
+  </script>
 </body>
 </html>
