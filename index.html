@@ -17,14 +17,33 @@
             color: white; 
         }
 
-/* 2. 각 화면별 배경 지정 */
+/* 2. 각 화면별 배경 지정 (던전 20층 배경 이미지 완벽 매칭) */
         #auth-screen { display: flex; background-image: url('bg_auth.png'); background-size: cover; background-color: #2b1007; }
         #town-screen { background-image: url('bg_town.png'); background-size: cover; background-color: #2c3e50; }
         #training-screen { background-image: url('bg_training_gateway.png'); background-size: cover; background-color: #34495e; }
         #merchant-screen { background-color: #3e2723; }
-        #level-select-screen, #dungeon-select-screen { background-color: rgba(20, 15, 10, 0.95); padding: 30px; box-sizing: border-box; justify-content: flex-start; align-items: center; }
+        
+        /* 💡 던전 선택 화면: 검은 배경 대신 bg_dungeon.png를 꽉 차게 지정 */
+        #dungeon-select-screen { 
+            background-image: url('bg_dungeon.png'); 
+            background-size: cover; 
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 30px; 
+            box-sizing: border-box; 
+            justify-content: flex-start; 
+            align-items: center; 
+        }
+        
         #quiz-screen { background-color: #2c3e50; }
-        #dungeon-battle-screen { background-color: #000; }
+        
+        /* 💡 던전 실전 전투 화면: 검은색(#000) 대신 bg_dungeon.png를 꽉 차게 지정 */
+        #dungeon-battle-screen { 
+            background-image: url('bg_dungeon.png'); 
+            background-size: cover; 
+            background-position: center;
+            background-repeat: no-repeat;
+        }
 
         /* 🌟 좌측 상단 포인트 UI */
         #points-ui { 
