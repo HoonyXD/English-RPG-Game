@@ -60,189 +60,178 @@
             font-size: 18px; 
         }
 
-/* 🎒 우측 상단 인벤토리 UI */
+/* 🎒 우측 상단 인벤토리 UI (픽셀 상자 모듈 스타일) */
         #inventory-ui { 
             position: absolute; 
             top: 20px; 
             right: 20px; 
-            width: 140px;            
-            background: rgba(0,0,0,0.85); 
-            border: 3px solid #f1c40f; 
-            border-radius: 8px; 
-            padding: 10px;           
+            width: 150px;            
+            background: rgba(16, 12, 8, 0.95); 
+            border: 4px solid #f1c40f; 
+            border-radius: 0px; /* 픽셀 감성을 위해 라운딩 제거 */
+            padding: 12px;           
             z-index: 200; 
             display: none; 
             color: white; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8); 
+            box-shadow: inset -4px -4px 0px #000, inset 4px 4px 0px rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.8); 
             box-sizing: border-box;
         }
-        .inv-title { font-size: 15px; border-bottom: 2px solid #5c3a21; margin-bottom: 6px; padding-bottom: 3px; color: #f1c40f; text-align: center; }
+        .inv-title { font-size: 15px; border-bottom: 4px double #5c3a21; margin-bottom: 8px; padding-bottom: 5px; color: #f1c40f; text-align: center; text-shadow: 2px 2px 0px #000; }
         .inv-list { font-size: 14px; list-style: none; padding: 0; margin: 0; max-height: 120px; overflow-y: auto; }
-        .inv-list li { margin-bottom: 5px; color: #d4a373; text-align: center; }
+        .inv-list li { margin-bottom: 6px; color: #eebb88; text-align: center; text-shadow: 1px 1px 0px #000; }
 
-        /* 👑 공통 상단 배너 */
+        /* 👑 공통 상단 배너 (레트로 아케이드 전광판 스타일) */
         .banner { 
             position: absolute; 
             top: 20px; 
             left: 50%; 
             transform: translateX(-50%); 
-            background: #5c3a21; 
+            background: linear-gradient(to bottom, #4a2e1b, #2c1a0e); 
             border: 4px solid #f1c40f; 
-            padding: 8px 30px; 
-            border-radius: 8px; 
+            padding: 10px 35px; 
+            border-radius: 0px; 
             font-size: 24px; 
             z-index: 10; 
-            color: #f39c12; 
+            color: #f1c40f; 
             white-space: nowrap;
+            box-shadow: inset -4px -4px 0px #1a0f08, inset 4px 4px 0px #7d5233, 0 6px 0px rgba(0,0,0,0.6);
+            text-shadow: 2px 2px 0px #000;
         }
 
-/* 🚪 마을로 나가기 / 포기하기 버튼 */
+        /* 🚪 마을로 나가기 / 포기하기 버튼 (레트로 패배 대미지 레드) */
         .back-btn { 
             position: absolute; 
-            bottom: 20px;            
+            bottom: 20px;             
             left: 20px;              
-            padding: 8px 18px;       
-            background: #c0392b; 
-            border: 2px solid #d35400; 
+            padding: 10px 20px;       
+            background: linear-gradient(to bottom, #c0392b, #962d22); 
+            border: 4px solid #1a0f08; 
             color: white; 
             font-family: 'Jua', sans-serif; 
-            font-size: 15px; 
-            border-radius: 6px; 
+            font-size: 16px; 
+            border-radius: 0px; 
             cursor: pointer; 
             z-index: 1000;           
+            box-shadow: inset -4px -4px 0px #5c1d16, inset 4px 4px 0px #e74c3c, 0 4px 0px #000;
+            text-shadow: 2px 2px 0px #000;
+            transition: transform 0.1s;
         }
-        .back-btn:active { transform: translateY(2px); }
+        .back-btn:active { transform: translateY(4px); box-shadow: inset 4px 4px 0px #5c1d16, 0 0px 0px #000; }
 
-        /* 🔐 로그인 화면 */
-        .auth-title { font-size: 46px; color: #f1c40f; text-shadow: 4px 4px 0px #000; margin-bottom: 20px; }
-        .auth-box { background: rgba(44, 30, 20, 0.95); border: 4px solid #d35400; border-radius: 15px; padding: 25px; width: 320px; text-align: center; color: #fff; box-shadow: 0 15px 30px rgba(0,0,0,0.8); }
-        .auth-box h3 { margin-top: 0; font-size: 22px; color: #f1c40f; margin-bottom: 12px; }
-        .auth-box input { width: 90%; padding: 10px; margin-bottom: 12px; background: #1a120b; border: 2px solid #8a5a36; border-radius: 6px; font-size: 15px; font-family: 'Jua', sans-serif; color: white; box-sizing: border-box; }
-        .menu-tabs { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; justify-content: center;}
-        .tab-btn { padding: 6px 20px; border: 2px solid #5c3a21; cursor: pointer; border-radius: 5px; font-family: 'Jua', sans-serif; font-size: 15px; background: #4a3321; color: #bdc3c7; }
-        .tab-btn.active { background: #d35400; color: white; border-color: #f39c12; }
-        .submit-btn { width: 90%; padding: 10px; background: linear-gradient(135deg, #27ae60 0%, #1e7e43 100%); color: white; border: 2px solid #2ecc71; border-radius: 6px; font-size: 18px; font-family: 'Jua', sans-serif; cursor: pointer; box-shadow: 0 4px 0 #14552d; }
+        /* 🔐 로그인 화면 (고전 명작 타이틀 메뉴 세팅) */
+        .auth-title { font-size: 52px; color: #f1c40f; text-shadow: 4px 4px 0px #000, -2px -2px 0px #d35400; margin-bottom: 24px; letter-spacing: 2px; }
+        .auth-box { background: rgba(26, 18, 11, 0.95); border: 5px solid #d35400; border-radius: 0px; padding: 30px; width: 340px; text-align: center; color: #fff; box-shadow: inset -4px -4px 0px #7e3d00, inset 4px 4px 0px #f39c12, 0 15px 30px rgba(0,0,0,0.9); }
+        .auth-box h3 { margin-top: 0; font-size: 24px; color: #f1c40f; margin-bottom: 15px; text-shadow: 2px 2px 0px #000; }
+        .auth-box input { width: 95%; padding: 12px; margin-bottom: 15px; background: #0c0805; border: 4px solid #5c3a21; border-radius: 0px; font-size: 16px; font-family: 'Jua', sans-serif; color: #fffbdf; box-sizing: border-box; box-shadow: inset 2px 2px 0px #000; }
+        .auth-box input:focus { border-color: #f1c40f; outline: none; }
+        .menu-tabs { display: flex; gap: 8px; margin-bottom: 18px; width: 100%; justify-content: center;}
+        
+        .tab-btn { padding: 8px 22px; border: 4px solid #1a0f08; cursor: pointer; border-radius: 0px; font-family: 'Jua', sans-serif; font-size: 16px; background: #4a3321; color: #bdc3c7; box-shadow: inset -3px -3px 0px #2c1e14, inset 3px 3px 0px #6d4c31; text-shadow: 1px 1px 0px #000; }
+        .tab-btn.active { background: linear-gradient(to bottom, #e67e22, #d35400); color: white; border-color: #1a0f08; box-shadow: inset -3px -3px 0px #962d22, inset 3px 3px 0px #f39c12; text-shadow: 2px 2px 0px #000; }
+        
+        .submit-btn { width: 95%; padding: 12px; background: linear-gradient(to bottom, #27ae60, #1e7e43); color: white; border: 4px solid #1a0f08; border-radius: 0px; font-size: 20px; font-family: 'Jua', sans-serif; cursor: pointer; box-shadow: inset -4px -4px 0px #14552d, inset 4px 4px 0px #2ecc71, 0 5px 0px #000; text-shadow: 2px 2px 0px #000; }
+        .submit-btn:active { transform: translateY(4px); box-shadow: inset 4px 4px 0px #14552d, 0 1px 0px #000; }
 
-        /* 🏃 로그아웃 버튼 */
+        /* 🏃 로그아웃 버튼 (인게임 퀵 탈출 버튼) */
         .logout-btn {
             position: absolute; 
             top: 20px; 
             right: 20px; 
             padding: 8px 16px; 
-            background: #e74c3c; 
+            background: linear-gradient(to bottom, #e74c3c, #c0392b); 
             color: white; 
-            border: 3px solid #c0392b; 
-            border-radius: 5px; 
+            border: 4px solid #1a0f08; 
+            border-radius: 0px; 
             cursor: pointer; 
             font-family: 'Jua', sans-serif; 
             font-size: 14px; 
             z-index: 100; 
-            box-shadow: 0 4px 0 #962d22;
+            box-shadow: inset -3px -3px 0px #781e14, inset 3px 3px 0px #ff6b5b, 0 4px 0 #000;
+            text-shadow: 1px 1px 0px #000;
         }
-        .logout-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #962d22; }
+        .logout-btn:active { transform: translateY(4px); box-shadow: inset 3px 3px 0px #781e14, 0 0px 0 #000; }
 
-        /* 🌀 신비로운 소용돌이 포탈 (크기 최적화 및 캐릭터 Y축 충돌 동기화) */
+        /* 🌀 신비로운 소용돌이 포탈 (도트 애니메이션 호환 최적화) */
         .portal { 
             position: absolute; 
             width: 60px;          
-            height: 80px;         
-            background: radial-gradient(circle at center, rgba(175, 122, 197, 1) 0%, rgba(142, 68, 173, 1) 40%, rgba(108, 52, 131, 0.6) 70%, transparent 100%); 
+            height: 85px;         
+            background: radial-gradient(circle at center, rgba(187, 143, 206, 1) 0%, rgba(142, 68, 173, 1) 50%, rgba(74, 35, 90, 0.7) 80%, transparent 100%); 
             border: none; 
             border-radius: 50%; 
-            box-shadow: 0 0 15px rgba(155, 89, 182, 0.8), 0 0 25px rgba(155, 89, 182, 0.6), 0 0 40px rgba(155, 89, 182, 0.4); 
+            box-shadow: 0 0 0px 4px #1a0f08, 0 0 20px rgba(155, 89, 182, 0.8); 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             cursor: pointer;
             z-index: 5;
+            image-rendering: pixelated;
             animation: portalVortex 1.2s infinite alternate linear, portalPulse 2s infinite ease-in-out;
         }
-
-.portal::after {
+        .portal::after {
             content: '';
             position: absolute;
-            width: 30px;
-            height: 40px;
+            width: 24px;
+            height: 36px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            filter: blur(5px);
-            animation: portalCoreVortex 1.2s infinite linear;
+            background: rgba(255, 255, 255, 0.4);
+            filter: blur(2px); /* 도트스타일 깨짐방지 조절 */
+            animation: portalCoreVortex 1s infinite linear;
         }
         .portal-label { 
             position: absolute; 
-            top: -34px; 
-            background: rgba(26, 18, 11, 0.95); 
-            padding: 4px 10px; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            border: 2px solid #bdc3c7; 
+            top: -36px; 
+            background: #1a120b; 
+            padding: 5px 12px; 
+            border-radius: 0px; 
+            font-size: 14px; 
+            border: 3px solid #f1c40f; 
             white-space: nowrap; 
-            color: #ecf0f1; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5); 
+            color: #fffbdf; 
+            box-shadow: inset -2px -2px 0px #000, 0 4px 8px rgba(0,0,0,0.6); 
             pointer-events: none; 
+            text-shadow: 1px 1px 0px #000;
         }
 
-/* 포탈 애니메이션 효과 */
-        @keyframes portalVortex { 
-            0% { transform: scale(1.0) rotate(0deg); opacity: 0.9; } 
-            100% { transform: scale(1.05) rotate(3deg); opacity: 1; } 
-        }
-        @keyframes portalPulse {
-            0%, 100% { box-shadow: 0 0 15px rgba(155, 89, 182, 0.8), 0 0 25px rgba(155, 89, 182, 0.6); }
-            50% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.4), 0 0 40px rgba(155, 89, 182, 0.8); }
-        }
-        @keyframes portalCoreVortex {
-            0% { transform: rotate(0deg) scale(1.0); opacity: 0.3; }
-            50% { transform: rotate(180deg) scale(1.2); opacity: 0.5; }
-            100% { transform: rotate(360deg) scale(1.0); opacity: 0.3; }
-        }
-
-        /* 📍 포탈 Y축 위치 전면 보정 (캐릭터의 기본 상단 위치 400px과 매칭되도록 360px로 정렬) */
-        #portal-to-training { left: 115px; top: 360px; }
-        #portal-merchant { left: 465px; top: 360px; }
-        #portal-dungeon { right: 115px; top: 360px; }
-
-        #portal-word { left: 102px; top: 360px; }
-#portal-grammar { left: 356px; top: 360px; }
-#portal-writing { left: 608px; top: 360px; }
-#portal-listening { left: 862px; top: 360px; }
-
-        /* 🧍 플레이어 캐릭터 */
-        #player { position: absolute; width: 50px; height: 75px; z-index: 99; display: none; flex-direction: column; align-items: center; top: 400px; transition: transform 0.1s; }
+        /* 🧍 플레이어 캐릭터 (도트 가독성 최적화) */
+        #player { position: absolute; width: 50px; height: 75px; z-index: 99; display: none; flex-direction: column; align-items: center; top: 400px; transition: transform 0.1s; image-rendering: pixelated; }
         .character-avatar { width: 44px; height: 55px; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .char-head { width: 32px; height: 28px; background: #ffdbac; border: 3px solid #222; border-radius: 8px; position: relative; z-index: 3; box-shadow: inset 0 8px 0 #5c3a21; }
-        .char-head::after { content: ''; position: absolute; top: 12px; right: 4px; width: 6px; height: 6px; background: #222; border-radius: 50%; box-shadow: -10px 0 0 #222; }
-        .char-scarf { width: 26px; height: 6px; background: #e74c3c; border: 3px solid #222; border-radius: 4px; z-index: 2; margin-top: -3px; }
-        .char-body { width: 24px; height: 18px; background: #3498db; border: 3px solid #222; border-radius: 4px; z-index: 1; margin-top: -3px; position: relative; box-shadow: inset -3px -3px 0 #2980b9; }
-        .player-name-tag { background: rgba(0,0,0,0.85); color: #fff; padding: 2px 10px; font-size: 13px; border-radius: 5px; margin-top: 4px; white-space: nowrap; border: 1px solid #f1c40f; }
-        .controls-guide { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(26, 18, 11, 0.85); border-top: 3px solid #5c3a21; padding: 8px 0; font-size: 13px; color: #d4a373; text-align: center; z-index: 2; }
+        .char-head { width: 32px; height: 28px; background: #ffdbac; border: 4px solid #1a0f08; border-radius: 0px; position: relative; z-index: 3; box-shadow: inset -3px -3px 0px rgba(0,0,0,0.1), inset 0 8px 0 #5c3a21; }
+        .char-head::after { content: ''; position: absolute; top: 10px; right: 4px; width: 6px; height: 6px; background: #1a0f08; box-shadow: -12px 0 0 #1a0f08; }
+        .char-scarf { width: 28px; height: 6px; background: #e74c3c; border: 4px solid #1a0f08; border-radius: 0px; z-index: 2; margin-top: -4px; }
+        .char-body { width: 26px; height: 18px; background: #3498db; border: 4px solid #1a0f08; border-radius: 0px; z-index: 1; margin-top: -4px; position: relative; box-shadow: inset -4px -4px 0 #2980b9, inset 4px 4px 0px rgba(255,255,255,0.2); }
+        .player-name-tag { background: #110d0a; color: #fff; padding: 3px 12px; font-size: 13px; border-radius: 0px; margin-top: 6px; white-space: nowrap; border: 3px solid #f1c40f; box-shadow: 0 4px 6px rgba(0,0,0,0.5); text-shadow: 1px 1px 0px #000; }
+        .controls-guide { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(16, 12, 8, 0.9); border-top: 4px solid #f1c40f; padding: 10px 0; font-size: 14px; color: #fffbdf; text-align: center; z-index: 2; text-shadow: 1px 1px 0px #000; letter-spacing: 1px; }
 
-        /* 🛒 상점 UI */
-        #merchant-screen { background-color: #3e2723; flex-direction: row; justify-content: space-between; box-sizing: border-box; }
-        .merchant-left { width: 35%; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 4px solid #5d4037; background: rgba(0,0,0,0.3); padding: 20px; box-sizing: border-box; }
-        .merchant-left h2 { font-size: 26px; color: #f1c40f; text-shadow: 2px 2px 4px #000; line-height: 1.5; text-align: center; }
-        .merchant-right { width: 65%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 30px; align-content: center; box-sizing: border-box; }
-        .shop-item-card { background: #5d4037; border: 3px solid #8d6e63; padding: 15px; border-radius: 12px; text-align: center; color: white; box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
-        .shop-item-card button { background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-family: 'Jua', sans-serif; cursor: pointer; font-size: 16px; box-shadow: 0 4px 0 #1e7e43; margin-top: 8px; }
+        /* 🛒 상점 UI (RPG 무기 상점 마차 테마) */
+        #merchant-screen { background-color: #2b1a0e; flex-direction: row; justify-content: space-between; box-sizing: border-box; }
+        .merchant-left { width: 35%; height: 100%; display: flex; align-items: center; justify-content: center; border-right: 6px double #5c3a21; background: rgba(0,0,0,0.5); padding: 25px; box-sizing: border-box; }
+        .merchant-left h2 { font-size: 28px; color: #f1c40f; text-shadow: 3px 3px 0px #000; line-height: 1.6; text-align: center; }
+        .merchant-right { width: 65%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 35px; align-content: center; box-sizing: border-box; overflow-y: auto; }
+        
+        .shop-item-card { background: #4a3321; border: 4px solid #1a0f08; padding: 18px; border-radius: 0px; text-align: center; color: white; box-shadow: inset -4px -4px 0px #2c1e14, inset 4px 4px 0px #6d4c31, 0 6px 12px rgba(0,0,0,0.6); }
+        .shop-item-card button { background: linear-gradient(to bottom, #27ae60, #1e7e43); color: white; border: 4px solid #1a0f08; padding: 8px 18px; border-radius: 0px; font-family: 'Jua', sans-serif; cursor: pointer; font-size: 16px; box-shadow: inset -3px -3px 0px #14552d, inset 3px 3px 0px #2ecc71, 0 4px 0px #000; text-shadow: 1px 1px 0px #000; margin-top: 10px; }
+        .shop-item-card button:active { transform: translateY(4px); box-shadow: inset 3px 3px 0px #14552d, 0 0px 0px #000; }
 
-        /* 🏅 레벨 분기 컨테이너 */
-        .level-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 90%; margin-top: 90px; }
-        .level-card { background: #3d2b1f; border: 3px solid #8a5a36; border-radius: 12px; height: 85px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: #fff; font-size: 16px; box-sizing: border-box; }
-        .level-card.locked { background: #444; opacity: 0.5; cursor: not-allowed; }
-        .level-card:not(.locked):hover { background: linear-gradient(135deg, #d35400 0%, #a04000 100%); border-color: #f1c40f; transform: translateY(-3px); }
-        .level-card .status-text { font-size: 11px; margin-top: 4px; color: #f1c40f; }
+        /* 🏅 레벨 분기 컨테이너 (그리드 카드 상자 개방) */
+        .level-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 92%; margin-top: 95px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .level-card { background: linear-gradient(to bottom, #3d2b1f, #251911); border: 4px solid #1a0f08; border-radius: 0px; height: 90px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; color: #fff; font-size: 17px; box-sizing: border-box; box-shadow: inset -4px -4px 0px #110a06, inset 4px 4px 0px #5c3a21; text-shadow: 2px 2px 0px #000; transition: all 0.1s ease; }
+        .level-card.locked { background: #333333 !important; border-color: #111111; opacity: 0.6; cursor: not-allowed; box-shadow: inset -4px -4px 0px #1a1a1a, inset 4px 4px 0px #555 !important; text-shadow: none; }
+        .level-card:not(.locked):hover { background: linear-gradient(to bottom, #d35400, #a04000); border-color: #f1c40f; transform: translateY(-4px); box-shadow: inset -4px -4px 0px #6e2c00, inset 4px 4px 0px #f39c12, 0 6px 12px rgba(0,0,0,0.6); }
+        .level-card .status-text { font-size: 12px; margin-top: 5px; color: #f1c40f; letter-spacing: 1px; }
 
-        /* ✏️ 훈련장 퀴즈 박스 고정식 박형 레이아웃 */
+        /* ✏️ 훈련장 퀴즈 박스 고정식 파이널판타지풍 대화상자 레이아웃 */
         .quiz-box { 
-            background: #fffdf9; 
-            color: #332211; 
-            padding: 20px 35px;     
-            border-radius: 15px; 
-            width: 660px;           
-            height: 380px;          
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+            background: #120c08; 
+            color: #fffbdf; 
+            padding: 25px 40px;     
+            border-radius: 0px; 
+            width: 700px;           
+            height: 410px;          
+            border: 6px double #e5a93c; /* 고전 명작 황금색 겹테두리 */
+            box-shadow: inset -4px -4px 0px #000, inset 4px 4px 0px rgba(255,255,255,0.1), 0 15px 40px rgba(0,0,0,0.8); 
             position: absolute;
-            top: 53%;               
+            top: 54%;                
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
@@ -250,27 +239,38 @@
             justify-content: space-between; 
             box-sizing: border-box;
         }
-        .quiz-progress { font-size: 15px; color: #7f8c8d; margin-bottom: 4px; font-weight: bold; }
-        .quiz-question { font-size: 21px; font-weight: bold; margin-bottom: 15px; color: #2c3e50; line-height: 1.4; }
-        .quiz-options { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-        .option-btn { padding: 10px 20px; border: 2px solid #d4a373; border-radius: 8px; font-family: 'Jua', sans-serif; font-size: 16px; cursor: pointer; background: #fffbf5; text-align: left; color: #4a3321; width: 100%; box-sizing: border-box; }
-        .scramble-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; min-height: 45px; padding: 8px; background: #f3ebe1; border-radius: 8px; border: 2px dashed #a0522d; box-sizing: border-box;}
-        .word-block { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer; box-shadow: 0 3px 0 #962d22; font-size: 16px; }
-        .audio-btn { background: #9b59b6; color: white; border: none; padding: 8px 24px; border-radius: 6px; font-size: 16px; cursor: pointer; margin: 0 auto 10px auto; display: block; font-family: 'Jua', sans-serif; }
-/* ⚔️ 던전 전투 화면 */
-.battle-arena { display: flex; justify-content: space-around; align-items: center; width: 850px; height: 220px; margin-top: 60px; }
-.fighter { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 180px; }
-.hp-bar { font-size: 28px; margin-bottom: 5px; text-shadow: 0 0 10px #000; }
+        .quiz-progress { font-size: 16px; color: #f1c40f; margin-bottom: 5px; text-shadow: 1px 1px 0px #000; font-weight: bold; }
+        .quiz-question { font-size: 22px; font-weight: bold; margin-bottom: 18px; color: #ffffff; text-shadow: 2px 2px 0px #000; line-height: 1.5; border-bottom: 3px double #5c3a21; padding-bottom: 10px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        
+        .option-btn { padding: 12px 24px; border: 4px solid #1a0f08; border-radius: 0px; font-family: 'Jua', sans-serif; font-size: 17px; cursor: pointer; background: linear-gradient(to bottom, #2c1f14, #1c130c); text-align: left; color: #ebb888; width: 100%; box-sizing: border-box; box-shadow: inset -3px -3px 0px #0a0604, inset 3px 3px 0px #4a3525; text-shadow: 1px 1px 0px #000; transition: all 0.1s ease; }
+        .option-btn:hover { background: linear-gradient(to bottom, #422f1f, #2c1f14); color: #ffffff; border-color: #f1c40f; box-shadow: inset -3px -3px 0px #0a0604, inset 3px 3px 0px #634732; }
+        .option-btn:active { transform: translateY(2px); }
+        
+        .scramble-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; min-height: 50px; padding: 10px; background: #0c0805; border-radius: 0px; border: 4px dashed #6d4c31; box-sizing: border-box; box-shadow: inset 2px 2px 5px #000; }
+        .word-block { background: linear-gradient(to bottom, #e67e22, #d35400); color: white; border: 3px solid #1a0f08; padding: 8px 16px; border-radius: 0px; cursor: pointer; box-shadow: inset -2px -2px 0px #962d22, inset 2px 2px 0px #f39c12, 0 4px 0px #000; font-size: 17px; text-shadow: 1px 1px 0px #000; }
+        .word-block:active { transform: translateY(4px); box-shadow: inset 2px 2px 0px #962d22, 0 0px 0px #000; }
+        
+        .audio-btn { background: linear-gradient(to bottom, #9b59b6, #8e44ad); color: white; border: 4px solid #1a0f08; padding: 10px 28px; border-radius: 0px; font-size: 17px; cursor: pointer; margin: 0 auto 12px auto; display: block; font-family: 'Jua', sans-serif; box-shadow: inset -3px -3px 0px #5b326d, inset 3px 3px 0px #c39bd3, 0 4px 0px #000; text-shadow: 1px 1px 0px #000; }
+        .audio-btn:active { transform: translateY(4px); box-shadow: inset 3px 3px 0px #5b326d, 0 0px 0px #000; }
 
-/* 💡 이모지 대신 이미지가 들어갈 도트 스프라이트 스타일 박스 */
-.battle-sprite-img { 
-    width: 120px; 
-    height: 120px; 
-    object-fit: contain; 
-    /* 도트 이미지가 흐려지지 않고 깨끗하게 보이게 하는 필수 옵션 */
-    image-rendering: pixelated; 
-}
+        /* ⚔️ 던전 전투 화면 (격투 게임 스타디움 스타일 프리미엄 정렬) */
+        .battle-arena { display: flex; justify-content: space-around; align-items: center; width: 880px; height: 240px; margin-top: 65px; background: rgba(0,0,0,0.4); border: 4px double rgba(255,255,255,0.1); padding: 10px; box-sizing: border-box; }
+        .fighter { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 200px; }
+        .hp-bar { font-size: 30px; margin-bottom: 6px; filter: drop-shadow(0px 3px 5px #000); letter-spacing: 2px; }
 
+        /* 💡 이모지 대신 이미지가 들어갈 도트 스프라이트 스타일 박스 (선명도 200% 세팅) */
+        .battle-sprite-img { 
+            width: 130px; 
+            height: 130px; 
+            object-fit: contain; 
+            /* 도트 이미지가 흐려지지 않고 깨끗하게 보이게 하는 최고 필수 옵션 */
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated; 
+            image-rendering: crisp-edges;
+            filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.5)); /* 도트 그림자 피팅 */
+        }
 /* 🏃 용사가 오른쪽(몬스터 방향)으로 돌진하는 애니메이션 */
 @keyframes playerAttack {
     0% { transform: translateX(0); }
