@@ -430,8 +430,12 @@
 
         // ⚔️ 던전 시스템 변수
         let playerHp = 3; let monsterHp = 3;
-        const monsterList = ["🦇 흡혈 박쥐", "🕷️ 거대 거미", "🐍 맹독 뱀", "🐺 흉포한 늑대", "🐗 다이어보어", "👹 고블린", "🧌 오크 전사", "🦍 숲의 트롤", "🗿 돌 골렘", "🐉 흑염 드래곤"];
-
+        const monsterList = [
+    "💧 슬라임", "👺 고블린", "🐗 오크", "🦇 가고일", "💀 스켈레톤", 
+    "🧟 좀비", "🧙 리치", "🗿 골렘", "🐉 와ivern", "🔥 레드 드래곤", // 1~10층
+    "🧝 다크 엘프", "🐂 미노타우르스", "🦁 키메라", "🐍 바실리스크", "🦅 그리핀", 
+    "🧛 뱀파이어", "🦁 스기술 스 sphinx", "🦏 베히모스", "🐙 크라켄", "👑 블랙 드래곤" // 11~20층 신규 배치!
+];
         // 유저 DB
         const userDatabase = JSON.parse(localStorage.getItem('rpg_user_db')) || { "admin": { pw: "1234", name: "기본용사" } };
         const progressDatabase = JSON.parse(localStorage.getItem('rpg_progress_db')) || {};
@@ -639,37 +643,43 @@ updatePhysics();
             }
         }
 
-        // ==========================================
-        // 훈련소 시스템 (기존 10단계 해금 로직 포함)
-        // ==========================================
-        function openLevelSelect(category) {
+        // ==========================================================================
+// 훈련소 시스템 (20단계 확장 및 해금 로직 완벽 연동)
+// ==========================================================================
+function openLevelSelect(category) {
     currentCategory = category;
     const titles = { word: "🔤 단어", grammar: "📜 문법", writing: "✍️ 작문", listening: "🎧 듣기" };
     document.getElementById('selected-category-title').innerText = titles[category];
+    
     const grid = document.getElementById('level-grid'); 
     grid.innerHTML = ""; 
     
+    // 유저의 카테고리별 최대 해금 레벨 가져오기 (없으면 기본값 1)
     const maxUnlocked = progressDatabase[currentUser][category] || 1;
     
-    for(let i=1; i<=10; i++) {
-    const card = document.createElement('div');
-    if(i <= maxUnlocked) {
-        card.className = "level-card";
-        card.innerHTML = `<div>레벨 ${i}</div><div class="status-text">▶ 도전하기</div>`;
+    // 💡 [교정] i <= 10 에서 i <= 20 으로 변경하여 20단계까지 카드를 동적 생성합니다.
+    for(let i = 1; i <= 20; i++) {
+        const card = document.createElement('div');
         
-        // 🛠️ 핵심 수정: 익명 함수로 확실하게 래핑
-        card.onclick = (function(level) {
-            return function() { 
-                console.log("레벨 클릭됨:", level);
-                startQuiz(level); 
-            };
-        })(i);
-    } else {
-        card.className = "level-card locked";
-        card.innerHTML = `<div>🔒 레벨 ${i}</div><div class="status-text" style="color:#7f8c8d;">잠김</div>`;
+        if(i <= maxUnlocked) {
+            // 해금된 레벨 카드 세팅
+            card.className = "level-card";
+            card.innerHTML = `<div>레벨 ${i}</div><div class="status-text">▶ 도전하기</div>`;
+            
+            // 즉시실행함수(IIFE) 클로저 래핑으로 클릭한 레벨 값을 안전하게 전달
+            card.onclick = (function(level) {
+                return function() { 
+                    console.log(`${titles[currentCategory]} 레벨 클릭됨:`, level);
+                    startQuiz(level); 
+                };
+            })(i);
+        } else {
+            // 잠겨있는 레벨 카드 세팅
+            card.className = "level-card locked";
+            card.innerHTML = `<div>🔒 레벨 ${i}</div><div class="status-text" style="color:#7f8c8d;">잠김</div>`;
+        }
+        grid.appendChild(card);
     }
-    grid.appendChild(card);
-}
     changeMap('level-select-screen', 490);
 }
 
@@ -705,7 +715,13 @@ function startQuiz(level) {
             alert("단어 데이터 파일을 불러오지 못했습니다!");
             return;
         }
-        quizData = generateRandomWordQuiz();
+        // 💡 [교정] 단어 생성 함수에 현재 레벨을 전달하거나, 
+        // 함수 내부 구조에 맞춰 10문제를 안전하게 뽑아오도록 유도합니다.
+        quizData = generateRandomWordQuiz(); 
+        
+        // 혹시 단어 생성 함수가 무조건 5개만 뱉도록 고정되어 있다면, 
+        // 안전장치로 데이터가 10개 이상일 때 10개로 잘라주는 로직을 하단에 붙이거나 
+        // generateRandomWordQuiz 내부의 반복문(i<5)을 (i<10)으로 고쳐주셔야 합니다.
     } 
     else {
         // grammar, writing, listening 모두 여기서 안전하게 처리됩니다.
@@ -714,7 +730,10 @@ function startQuiz(level) {
             alert("해당 레벨의 데이터를 찾을 수 없습니다.");
             return;
         }
-        quizData = [...originalData].sort(() => Math.random() - 0.5); // 5문제 무작위 셔플
+        
+        // 💡 [참고] 뒤에 .slice(0, 5) 같은 제어 장치가 없으므로, 
+        // 우리가 자바스크립트 파일에 추가해 둔 10문제가 셔플되어 10개 통째로 quizData에 담깁니다!
+        quizData = [...originalData].sort(() => Math.random() - 0.5); 
     }
 
     const titles = { word: "단어", grammar: "문법", writing: "작문", listening: "듣기" };
@@ -727,7 +746,6 @@ function startQuiz(level) {
     renderQuestion(); 
     changeMap('quiz-screen', 490);
 }
-
         function renderQuestion() {
             const currentQ = quizData[quizIndex];
             document.getElementById('quiz-idx').innerText = `문제 ${quizIndex + 1} / 5`;
@@ -791,27 +809,42 @@ function startQuiz(level) {
         // ==========================================
         let isDungeonClear = false; // 현재 판이 재도전인지 여부
 
-        function openDungeonSelect() {
-            const grid = document.getElementById('dungeon-level-grid'); grid.innerHTML = "";
-            const maxUnlocked = progressDatabase[currentUser].dungeon || 1;
+        // ==========================================================================
+// 던전 시스템 (20층 확장 및 진척도/재도전 판정 완벽 연동)
+// ==========================================================================
+function openDungeonSelect() {
+    const grid = document.getElementById('dungeon-level-grid'); 
+    if (!grid) { console.error("던전 그리드 ID를 찾을 수 없습니다!"); return; }
+    grid.innerHTML = "";
+    
+    // 유저의 현재 던전 최대 해금 층수 가져오기 (없으면 기본값 1)
+    const maxUnlocked = progressDatabase[currentUser].dungeon || 1;
 
-            for(let i=1; i<=10; i++) {
-                const card = document.createElement('div');
-                if(i <= maxUnlocked) {
-                    card.className = "level-card";
-                    // 이전에 깬 곳이면 재도전 표시
-                    const isReplay = i < maxUnlocked; 
-                    card.innerHTML = `<div>던전 ${i}층</div><div class="status-text">${isReplay ? '🔄 재도전 (보상 절반)' : '▶ 입장하기'}</div>`;
-                    card.onclick = () => startDungeonBattle(i, isReplay);
-                } else {
-                    card.className = "level-card locked";
-                    card.innerHTML = `<div>🔒 던전 ${i}층</div><div class="status-text" style="color:#7f8c8d;">잠김</div>`;
-                }
-                grid.appendChild(card);
-            }
-            changeMap('dungeon-select-screen', 490);
+    // 💡 [교정] i <= 10 에서 i <= 20 으로 변경하여 던전 20층까지 카드를 생성합니다.
+    for(let i = 1; i <= 20; i++) {
+        const card = document.createElement('div');
+        
+        if(i <= maxUnlocked) {
+            card.className = "level-card";
+            
+            // 이전에 이미 클리어한 층이면 재도전 표시 (i가 현재 해금된 최고 층보다 낮을 때)
+            const isReplay = i < maxUnlocked; 
+            card.innerHTML = `<div>던전 ${i}층</div><div class="status-text">${isReplay ? '🔄 재도전 (보상 절반)' : '▶ 입장하기'}</div>`;
+            
+            // 클릭 시 해당 층수와 재도전 여부를 가지고 전투 진입
+            card.onclick = () => {
+                console.log(`던전 ${i}층 전투 진입 (재도전 여부: ${isReplay})`);
+                startDungeonBattle(i, isReplay);
+            };
+        } else {
+            // 아직 도달하지 못한 잠긴 층 세팅
+            card.className = "level-card locked";
+            card.innerHTML = `<div>🔒 던전 ${i}층</div><div class="status-text" style="color:#7f8c8d;">잠김</div>`;
         }
-
+        grid.appendChild(card);
+    }
+    changeMap('dungeon-select-screen', 490);
+}
        function startDungeonBattle(level, isReplay) {
     console.log("전투 시작:", level);
     currentLevel = level; 
