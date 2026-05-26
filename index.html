@@ -320,9 +320,6 @@
   } else {
     app = firebase.app();
   }
-  
-  // 전역에서 사용할 db 변수 지정
-  const db = firebase.firestore();
     
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -402,6 +399,7 @@
     // ----------------------------------------------------
     let authMode = 'login';
     function setAuthMode(mode) {
+      console.log("모드 변경:", mode);
       authMode = mode;
       document.getElementById('tab-login').classList.toggle('active', mode==='login');
       document.getElementById('tab-register').classList.toggle('active', mode==='register');
@@ -410,6 +408,7 @@
     }
 
     async function handleAuthSubmit() {
+      console.log("제출 처리");
       const user = document.getElementById('auth-username').value.trim();
       const pass = document.getElementById('auth-password').value.trim();
       if(!user || !pass) return alert("아이디와 비밀번호를 입력하세요!");
