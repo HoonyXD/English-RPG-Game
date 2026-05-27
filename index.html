@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드 (스무스 무브 & UI 개선본)</title>
+  <title>초등 영어 RPG 월드 (UI/배경/조작 완벽 패치본)</title>
   
   <script src="words.js"></script>
   <script src="grammarBank.js"></script>
@@ -18,15 +18,16 @@
     @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
     body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #110d0a; display: flex; justify-content: center; align-items: center; font-family: 'Jua', sans-serif; overflow: hidden; user-select: none; }
     
-    #game-container { width: 1024px; height: 576px; position: relative; border: 8px solid #2c1a0e; border-radius: 12px; overflow: hidden; background: #1a120b; box-sizing: border-box; }
+    #game-container { width: 1024px; height: 576px; position: relative; border: 8px solid #2c1a0e; border-radius: 12px; overflow: hidden; background-color: #1a120b; box-sizing: border-box; }
     
     .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; box-sizing: border-box; z-index: 10; }
     
-    #auth-screen { display: flex; background: url('bg_auth.png') no-repeat center center; background-size: 100% 100%; z-index: 100; }
-    #town-screen { background: url('bg_town.png') no-repeat center center; background-size: 100% 100%; }
-    #training-screen { background: url('bg_training_gateway.jpg') no-repeat center center; background-size: 100% 100%; }
-    #quiz-screen { background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('bg_training_gateway.jpg') no-repeat center center; background-size: 100% 100%; }
-    #dungeon-battle-screen { background: url('bg_dungeon.jpg') no-repeat center center; background-size: 100% 100%; }
+    /* [패치] 배경 이미지가 절대 씹히지 않도록 속성 명확히 분리 */
+    #auth-screen { display: flex; background-image: url('bg_auth.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; z-index: 100; }
+    #town-screen { background-image: url('bg_town.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+    #training-screen { background-image: url('bg_training_gateway.jpg'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+    #quiz-screen { background-image: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('bg_training_gateway.jpg'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+    #dungeon-battle-screen { background-image: url('bg_dungeon.jpg'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
     
     #merchant-screen { background-color: #3e2723; }
     #level-select-screen { background: rgba(20, 15, 10, 0.95); padding: 30px; box-sizing: border-box; justify-content: flex-start; align-items: center; }
@@ -34,23 +35,34 @@
     #group-screen { background: linear-gradient(135deg,#0a1628,#1a2d4e,#0a1628); }
     #room-shop-screen { background: linear-gradient(135deg,#1a2e1a,#2d4e1b,#1a2e1a); }
 
-    /* [개선] 금화 UI는 좌상단 유지, 레벨 바와 뱃지는 좌하단 구석으로 분리 배치 */
-    #points-ui { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #f1c40f; border-radius: 8px; padding: 8px 16px; z-index: 500; display: none; color: #f1c40f; font-size: 18px; pointer-events: none; }
+    /* =========================================
+       [패치] UI 4면 가장자리 완벽 분배 (겹침 해소)
+       ========================================= */
+    /* 1. 좌측 상단 (금화 및 그룹) */
+    #points-ui { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #3498db; border-radius: 8px; padding: 8px 16px; z-index: 500; display: none; color: #fff; font-size: 18px; pointer-events: none; }
+    #group-badge { position: absolute; top: 70px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #3498db; border-radius: 8px; padding: 4px 12px; z-index: 500; display: none; color: #3498db; font-size: 13px; pointer-events: none; }
     
-    #xp-ui { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #9b59b6; border-radius: 8px; padding: 8px 14px; z-index: 500; display: none; color: #fff; font-size: 14px; min-width: 180px; pointer-events: none; }
-    #xp-bar-outer { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-top: 6px; }
-    #xp-bar-inner { height: 10px; background: linear-gradient(to right,#9b59b6,#e91e63); border-radius: 5px; transition: width .5s; width: 0%; }
-    #group-badge { position: absolute; bottom: 85px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #3498db; border-radius: 8px; padding: 4px 12px; z-index: 500; display: none; color: #3498db; font-size: 13px; pointer-events: none; }
+    /* 2. 좌측 하단 (레벨 경험치) */
+    #xp-ui { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.85); border: 3px solid #9b59b6; border-radius: 8px; padding: 6px 14px; z-index: 500; display: none; color: #fff; font-size: 13px; min-width: 170px; pointer-events: none; }
+    #xp-bar-outer { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 4px; }
+    #xp-bar-inner { height: 8px; background: linear-gradient(to right,#9b59b6,#e91e63); border-radius: 4px; transition: width .5s; width: 0%; }
     
-    #inventory-ui { position: absolute; top: 20px; right: 20px; width: 140px; background: rgba(0,0,0,0.85); border: 3px solid #e67e22; border-radius: 8px; padding: 10px; z-index: 500; display: none; color: white; box-sizing: border-box; }
-    .inv-title { font-size: 15px; border-bottom: 2px solid #5c3a21; margin-bottom: 6px; padding-bottom: 3px; color: #e67e22; text-align: center; }
+    /* 3. 우측 상단 (가방 인벤토리) */
+    #inventory-ui { position: absolute; top: 20px; right: 20px; width: 140px; background: rgba(0,0,0,0.85); border: 3px solid #f1c40f; border-radius: 8px; padding: 10px; z-index: 500; display: none; color: white; box-sizing: border-box; pointer-events: none; }
+    .inv-title { font-size: 15px; border-bottom: 2px solid #5c3a21; margin-bottom: 6px; padding-bottom: 3px; color: #f1c40f; text-align: center; }
     .inv-list { font-size: 14px; list-style: none; padding: 0; margin: 0; max-height: 120px; overflow-y: auto; text-align: center; }
-    .inv-list li { margin-bottom: 5px; color: #f39c12; }
+    .inv-list li { margin-bottom: 5px; color: #d4a373; }
     
-    .banner { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #5c3a21; border: 4px solid #f1c40f; padding: 8px 30px; border-radius: 8px; font-size: 24px; z-index: 200; color: #f39c12; white-space: nowrap; pointer-events: none; }
-    .back-btn { position: absolute; bottom: 20px; left: 20px; padding: 8px 18px; background: #c0392b; border: 2px solid #d35400; color: white; font-family: 'Jua', sans-serif; font-size: 15px; border-radius: 6px; cursor: pointer; z-index: 1000; }
-    .logout-btn { position: absolute; top: 20px; right: 180px; padding: 8px 16px; background: #e74c3c; color: white; border: 3px solid #c0392b; border-radius: 5px; cursor: pointer; font-family: 'Jua', sans-serif; font-size: 14px; z-index: 200; }
+    /* 4. 우측 하단 (로그아웃 및 뒤로가기 버튼) */
+    .back-btn, .logout-btn { position: absolute; bottom: 20px; right: 20px; padding: 8px 18px; background: #c0392b; border: 2px solid #d35400; color: white; font-family: 'Jua', sans-serif; font-size: 15px; border-radius: 6px; cursor: pointer; z-index: 1000; }
+    
+    /* 5. 중앙 하단 (조작 가이드 배너) */
+    .controls-guide { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(16,12,8,0.9); border: 3px solid #f1c40f; padding: 8px 20px; border-radius: 8px; font-size: 14px; color: #fffbdf; text-align: center; z-index: 150; display: none; pointer-events: none; white-space: nowrap; }
 
+    /* 타이틀 배너 (상단 중앙) */
+    .banner { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: #5c3a21; border: 4px solid #f1c40f; padding: 8px 30px; border-radius: 8px; font-size: 24px; z-index: 200; color: #f39c12; white-space: nowrap; pointer-events: none; }
+
+    /* 로그인 상자 최상단 배치 */
     .auth-box { background: rgba(0,0,0,0.9); padding: 25px; border-radius: 10px; border: 4px solid #f1c40f; text-align: center; width: 320px; margin-top: 50px; z-index: 600; position: relative; }
     .auth-title { font-size: 42px; color: #f1c40f; text-shadow: 3px 3px 0 #000; margin-bottom: 5px; z-index: 600; }
     .menu-tabs { display: flex; margin-bottom: 15px; background: #333; border-radius: 5px; overflow: hidden; }
@@ -59,32 +71,35 @@
     .auth-box input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 2px solid #5c3a21; font-family: 'Jua'; font-size: 16px; text-align: center; box-sizing: border-box; color: #000; background: #fff; }
     .submit-btn { width: 100%; padding: 12px; background: linear-gradient(to bottom, #2ecc71, #27ae60); border: 2px solid #1e7e34; color: white; font-family: 'Jua'; font-size: 18px; border-radius: 5px; cursor: pointer; margin-top: 10px; box-sizing: border-box; }
 
-    /* [개선] 포탈 위치 하향 조정(top: 420px)으로 캐릭터 발 선상과 일치화. 클릭 가능 설정 */
-    .portal { position: absolute; width: 50px; height: 70px; background: radial-gradient(ellipse at center, rgba(142, 68, 173, 0.9) 0%, rgba(108, 52, 131, 0.5) 60%, transparent 100%); border-radius: 50%; box-shadow: 0 0 10px rgba(155, 89, 182, 0.6); display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 50; animation: portalVortex 1.5s infinite alternate linear; }
-    .portal-label { position: absolute; top: -38px; background: rgba(26, 18, 11, 0.95); padding: 4px 10px; border-radius: 8px; font-size: 13px; border: 2px solid #bdc3c7; white-space: nowrap; color: #ecf0f1; pointer-events: none; }
-    @keyframes portalVortex { 0% { transform: scale(1.0); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+    /* =========================================
+       [패치] 포탈 사이즈업(80x100) 및 기준 바닥(410px) 통일
+       ========================================= */
+    /* 포탈: 높이 100px. top: 310px 이므로 바닥 끝선은 310+100 = 410px */
+    .portal { position: absolute; width: 80px; height: 100px; background: radial-gradient(circle at center, rgba(175, 122, 197, 1) 0%, rgba(142, 68, 173, 1) 40%, rgba(108, 52, 131, 0.6) 70%, transparent 100%); border-radius: 50%; box-shadow: 0 0 15px rgba(155, 89, 182, 0.8); display: flex; justify-content: center; align-items: center; z-index: 50; animation: portalVortex 1.2s infinite alternate linear; }
+    .portal-label { position: absolute; top: -30px; background: rgba(26, 18, 11, 0.95); padding: 4px 10px; border-radius: 8px; font-size: 13px; border: 2px solid #bdc3c7; white-space: nowrap; color: #ecf0f1; pointer-events: none; }
+    @keyframes portalVortex { 0% { transform: scale(1.0) rotate(0deg); opacity: 0.9; } 100% { transform: scale(1.05) rotate(3deg); opacity: 1; } }
 
-    #portal-to-training { left: 110px; top: 420px; }
-    #portal-merchant { left: 310px; top: 420px; }
-    #portal-dungeon { left: 510px; top: 420px; }
-    #portal-myroom { left: 710px; top: 420px; }
-    #portal-group { left: 910px; top: 420px; }
+    #portal-to-training { left: 90px; top: 310px; }
+    #portal-merchant { left: 290px; top: 310px; }
+    #portal-dungeon { left: 490px; top: 310px; }
+    #portal-myroom { left: 690px; top: 310px; }
+    #portal-group { left: 890px; top: 310px; }
 
-    #portal-word { left: 110px; top: 420px; }
-    #portal-grammar { left: 330px; top: 420px; }
-    #portal-writing { left: 550px; top: 420px; }
-    #portal-listening { left: 770px; top: 420px; }
+    #portal-word { left: 110px; top: 310px; }
+    #portal-grammar { left: 330px; top: 310px; }
+    #portal-writing { left: 550px; top: 310px; }
+    #portal-listening { left: 770px; top: 310px; }
 
-    /* [개선] 아바타 스무스 이동 엔진 적용을 위해 transition 제거. flip 클래스 추가 */
-    #player { position: absolute; width: 50px; height: 75px; z-index: 99; display: none; flex-direction: column; align-items: center; top: 410px; pointer-events: none; }
+    /* 캐릭터: 높이 75px. top: 335px 이므로 바닥 끝선은 335+75 = 410px (정확히 동일 선상) */
+    #player { position: absolute; width: 50px; height: 75px; z-index: 99; display: none; flex-direction: column; align-items: center; top: 335px; pointer-events: none; }
     .character-avatar { width: 44px; height: 55px; position: relative; display: flex; flex-direction: column; align-items: center; transition: transform 0.1s; }
-    .character-avatar.flip { transform: scaleX(-1); }
     .char-head { width: 32px; height: 28px; background: #ffdbac; border: 3px solid #222; border-radius: 8px; position: relative; z-index: 3; box-shadow: inset 0 8px 0 #5c3a21; }
     .char-head::after { content: ''; position: absolute; top: 12px; right: 4px; width: 6px; height: 6px; background: #222; border-radius: 50%; box-shadow: -10px 0 0 #222; }
     .char-scarf { width: 26px; height: 6px; background: #e74c3c; border: 3px solid #222; border-radius: 4px; z-index: 2; margin-top: -3px; }
     .char-body { width: 24px; height: 18px; background: #3498db; border: 3px solid #222; border-radius: 4px; z-index: 1; margin-top: -3px; position: relative; box-shadow: inset -3px -3px 0 #2980b9; }
     .player-name-tag { background: #110d0a; color: #fff; padding: 2px 10px; font-size: 13px; margin-top: 4px; white-space: nowrap; border: 2px solid #f1c40f; border-radius: 4px; }
 
+    /* 팝업 UI 그리드들 */
     .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 80px; width: 90%; max-height: 380px; overflow-y: auto; padding-right: 10px; box-sizing: border-box; }
     .rpg-card { background: rgba(44, 62, 80, 0.95); border: 3px solid #34495e; border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; box-sizing: border-box; }
     .rpg-card:hover { border-color: #f1c40f; background: rgba(52, 73, 94, 1); transform: translateY(-2px); }
@@ -97,6 +112,7 @@
     .battle-avatar { width: 100px; height: 110px; background: rgba(52, 73, 94, 0.8); border: 4px solid #2c3e50; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 45px; margin-bottom: 5px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: transform 0.2s; }
     .hp-bar-outer { width: 100%; height: 16px; background: #c0392b; border: 2px solid #000; border-radius: 8px; overflow: hidden; margin-top: 5px; }
     .hp-bar-inner { height: 100%; background: #2ecc71; width: 100%; transition: width 0.3s; }
+    
     .quiz-area { width: 90%; background: rgba(0,0,0,0.85); border: 4px solid #f1c40f; border-radius: 12px; padding: 15px; box-sizing: border-box; text-align: center; margin-top: 10px; }
     .quiz-question { font-size: 19px; margin-bottom: 12px; color: #fffbdf; min-height: 45px; display: flex; justify-content: center; align-items: center; white-space: pre-wrap; }
     .quiz-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -109,8 +125,6 @@
     .group-list { max-height: 160px; overflow-y: auto; margin: 15px 0; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: left; }
     .group-mem { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #333; font-size: 15px; }
     
-    /* [개선] 가이드바 위치 미세조정. 자동 입장 삭제 안내 문구 반영 */
-    .controls-guide { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(16,12,8,0.95); border-top: 4px solid #f1c40f; padding: 10px 0; font-size: 15px; color: #fffbdf; text-align: center; z-index: 900; display: none; pointer-events: none; }
     .loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; display:none; justify-content:center; align-items:center; font-size:24px; color:#f1c40f; }
   </style>
 </head>
@@ -120,18 +134,18 @@
     <div id="loading-overlay" class="loading-overlay">데이터 동기화 진행 중...</div>
 
     <div id="points-ui">💰 금화: <span id="player-points">0</span>개</div>
+    <div id="group-badge">🛡️ 연합 가입됨</div>
+
     <div id="xp-ui">
       <div>⭐ 레벨: <span id="player-level">1</span> (<span id="player-xp-text">0</span> XP)</div>
       <div id="xp-bar-outer"><div id="xp-bar-inner"></div></div>
     </div>
-    <div id="group-badge">🛡️ 연합 가입됨</div>
-
+    
     <div id="inventory-ui">
       <div class="inv-title">🎒 가방 인벤토리</div>
       <ul id="inv-items-list" class="inv-list"></ul>
     </div>
 
-    <!-- [SCREEN 1] 인증 화면 -->
     <div class="screen" id="auth-screen" style="display: flex;">
       <div class="auth-title">초등 영어 RPG 월드</div>
       <div class="auth-box">
@@ -146,31 +160,27 @@
       </div>
     </div>
 
-    <!-- [SCREEN 2] 마을 스크린 -->
     <div class="screen" id="town-screen">
       <div class="banner">🏡 평화로운 모험가 마을</div>
       <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
       
-      <!-- 포탈 수동 입장 설정. onclick 시 changeMap 작동 -->
-      <div class="portal" id="portal-to-training" onclick="tryEnterPortal('training-screen', 160)"><div class="portal-label">훈련 게이트</div>🌀</div>
-      <div class="portal" id="portal-merchant" onclick="tryEnterPortal('merchant-screen', 360)"><div class="portal-label">상인 가로쉬</div>🌀</div>
-      <div class="portal" id="portal-dungeon" onclick="tryEnterPortal('level-select-screen', 560)"><div class="portal-label">어둠의 던전 (1~20층)</div>🌀</div>
-      <div class="portal" id="portal-myroom" onclick="tryEnterPortal('myroom-screen', 760)"><div class="portal-label">나의 마이룸</div>🌀</div>
-      <div class="portal" id="portal-group" onclick="tryEnterPortal('group-screen', 820)"><div class="portal-label">길드 그룹 본부</div>🌀</div>
+      <div class="portal" id="portal-to-training"><div class="portal-label">훈련 게이트</div>🌀</div>
+      <div class="portal" id="portal-merchant"><div class="portal-label">상인 가로쉬</div>🌀</div>
+      <div class="portal" id="portal-dungeon"><div class="portal-label">어둠의 던전 (1~20층)</div>🌀</div>
+      <div class="portal" id="portal-myroom"><div class="portal-label">나의 마이룸</div>🌀</div>
+      <div class="portal" id="portal-group"><div class="portal-label">길드 그룹 본부</div>🌀</div>
     </div>
 
-    <!-- [SCREEN 3] 훈련 아카데미 -->
     <div class="screen" id="training-screen">
       <div class="banner">🎯 속성 훈련 아카데미</div>
       <button class="back-btn" onclick="changeMap('town-screen', 160)">🏡 마을로 나가기</button>
       
-      <div class="portal" id="portal-word" onclick="startTraining('word')"><div class="portal-label">영단어 기초반 (랜덤 💰)</div>🌀</div>
-      <div class="portal" id="portal-grammar" onclick="startTraining('grammar')"><div class="portal-label">영문법 숙련반 (랜덤 💰)</div>🌀</div>
-      <div class="portal" id="portal-writing" onclick="startTraining('writing')"><div class="portal-label">영작문 도전반 (랜덤 💰)</div>🌀</div>
-      <div class="portal" id="portal-listening" onclick="startTraining('listening')"><div class="portal-label">리스닝 청취반 (랜덤 💰)</div>🌀</div>
+      <div class="portal" id="portal-word"><div class="portal-label">영단어 기초반</div>🌀</div>
+      <div class="portal" id="portal-grammar"><div class="portal-label">영문법 숙련반</div>🌀</div>
+      <div class="portal" id="portal-writing"><div class="portal-label">영작문 도전반</div>🌀</div>
+      <div class="portal" id="portal-listening"><div class="portal-label">리스닝 청취반</div>🌀</div>
     </div>
 
-    <!-- [SCREEN 4] 퀴즈 스크린 -->
     <div class="screen" id="quiz-screen">
       <div class="banner" id="quiz-banner">훈련 진행 중</div>
       <div class="quiz-area" style="margin-top: 80px;">
@@ -180,7 +190,6 @@
       <button class="back-btn" onclick="changeMap('training-screen', 160)">🏳️ 훈련 포기하기</button>
     </div>
 
-    <!-- [SCREEN 5] 상점 스크린 -->
     <div class="screen" id="merchant-screen">
       <div class="banner">💰 비밀 상점</div>
       <div class="grid-container">
@@ -208,7 +217,6 @@
       <button class="back-btn" onclick="changeMap('town-screen', 360)">🏡 마을로 나가기</button>
     </div>
 
-    <!-- [SCREEN 6] 가구 상점 -->
     <div class="screen" id="room-shop-screen">
       <div class="banner">🛋️ 가구 인테리어 전문점</div>
       <div class="grid-container">
@@ -236,7 +244,6 @@
       <button class="back-btn" onclick="changeMap('merchant-screen', 360)">⬅️ 일반 상점으로</button>
     </div>
 
-    <!-- [SCREEN 7] 마이룸 -->
     <div class="screen" id="myroom-screen">
       <div class="banner">🏰 나의 아늑한 마이룸 공방</div>
       <div class="room-view" id="myroom-display-area"></div>
@@ -246,7 +253,6 @@
       <button class="back-btn" onclick="changeMap('town-screen', 760)">🏡 마을로 나가기</button>
     </div>
 
-    <!-- [SCREEN 8] 길드 본부 -->
     <div class="screen" id="group-screen">
       <div class="banner">🛡️ 길드 그룹 연합 본부</div>
       <div class="group-panel">
@@ -266,7 +272,6 @@
       <button class="back-btn" onclick="changeMap('town-screen', 820)">🏡 마을로 나가기</button>
     </div>
 
-    <!-- [SCREEN 9] 던전 선택 창 -->
     <div class="screen" id="level-select-screen">
       <div class="banner">⚔️ 어둠의 던전 난이도 선택 (1~20층)</div>
       <div class="grid-container" id="dungeon-floor-grid" style="grid-template-columns: repeat(4, 1fr);">
@@ -274,7 +279,6 @@
       <button class="back-btn" onclick="changeMap('town-screen', 560)">🏡 마을로 나가기</button>
     </div>
 
-    <!-- [SCREEN 10] 던전 전투 스크린 -->
     <div class="screen" id="dungeon-battle-screen">
       <div class="banner" id="battle-banner">실시간 던전 결투 구역</div>
       <div class="battle-container">
@@ -298,12 +302,10 @@
       </div>
     </div>
 
-    <!-- 하단 가이드바 안내 문구 수정 -->
-    <div class="controls-guide" id="movement-guide">좌우 이동 후 포탈 앞에서 [위쪽 방향키(↑)] 또는 [포탈 마우스 클릭]으로 입장하세요.</div>
+    <div class="controls-guide" id="movement-guide">원하는 컨텐츠 포탈에 접근해 주세요.</div>
 
-    <!-- 아바타 -->
     <div id="player">
-      <div class="character-avatar" id="player-body">
+      <div class="character-avatar" id="player-avatar-vis">
         <div class="char-head"></div>
         <div class="char-scarf"></div>
         <div class="char-body"></div>
@@ -315,7 +317,7 @@
 
   <script>
     // [1] 파이어베이스 구성
-    const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyBo1KtM2kTV0Vzo02gbt1pO0R_l4FO5_Q8",
   authDomain: "english-rpg-game-5478e.firebaseapp.com",
   projectId: "english-rpg-game-5478e",
@@ -333,13 +335,7 @@
     let currentUser = null;
     let currentUserData = null;
     let currentMap = 'auth-screen';
-    
-    // [개선] 스무스 이동 엔진을 위한 좌표 및 키 입력 상태 변수
     let playerX = 190;
-    let targetX = 190;
-    let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false };
-    let isMoving = false;
-    let facingRight = true;
 
     let activeQuizList = [];
     let activeQuizIndex = 0;
@@ -354,7 +350,7 @@
       "👹 슬라임", "👺 고블린 전사", "🦇 가고일 사냥꾼", "👻 저주받은 영혼", "🕷️ 거대 심연거미",
       "🐺 새도우 울프", "🧟 오염된 좀비병", "💀 해골 암흑술사", "🦎 지옥 리자드맨", "🐂 미노타우르스 족장",
       "🔮 타락한 엘프 전사", "🦅 메카닉 키메라", "🦂 독갑옷 모래전갈", "🛡️ 고대 석상 골렘", "🧊 빙결 서리악마",
-      "🔥 지옥 불꽃 악마", "⚡ 폭풍의 인도자", "🌋 용암 군주 이프리트", "🐉 지옥 심연의 드래곤", "👑 마왕 가로쉬"
+      "🔥 지옥 불꽃 악마", "⚡ 폭풍의 인도자", "🌋 용암 군주 이프리트", "🐉 지옥 심연의 드래곤", "👑 마왕 가로쉬 인스턴스"
     ];
 
     function buildDungeonFloorUI() {
@@ -458,7 +454,7 @@
     }
 
     // 맵 뷰 변경 처리기
-    function changeMap(mapId, spawnX) {
+    function changeMap(mapId, targetX) {
       document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
       
       const targetScreen = document.getElementById(mapId);
@@ -473,74 +469,29 @@
       if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen', 'level-select-screen'].includes(mapId)) {
         p.style.display = 'none';
         guide.style.display = 'none';
-        isMoving = false;
       } else {
         p.style.display = 'flex';
         guide.style.display = 'block';
-        // 좌표 초기화
-        playerX = spawnX;
-        targetX = spawnX;
-        p.style.left = (playerX - 25) + 'px';
-        
         if(mapId === 'town-screen') {
-          guide.innerText = "🏡 모험가 마을: 포탈 앞에서 [↑] 키를 누르거나 클릭하여 입장하세요.";
+          guide.innerText = "이동: 좌우 방향키 ◀ ▶ | 포탈입장: 위 방향키(↑) | 마우스 이동 불가";
         } else if(mapId === 'training-screen') {
-          guide.innerText = "🎯 훈련 아카데미: 원하는 과제의 포탈 앞에서 [↑] 키를 눌러 수련을 시작하세요.";
-        }
-        
-        // 맵 전환 후 무브먼트 루프 가동
-        if(!isMoving) {
-          isMoving = true;
-          requestAnimationFrame(gameLoop);
+          guide.innerText = "이동: 좌우 방향키 ◀ ▶ | 포탈입장: 위 방향키(↑) | 마우스 이동 불가";
         }
       }
+      
+      // 화면 전환 시 캐릭터 안전지대 스폰
+      playerX = Math.max(40, Math.min(960, targetX));
+      document.getElementById('player').style.left = (playerX - 25) + 'px';
     }
 
-    // [개선] 부드러운 이동 루프 엔진 (뚝뚝 끊김 방지)
-    function gameLoop() {
-      if(!isMoving) return;
-      
-      let speed = 4;
-      if(keys.ArrowLeft) targetX -= speed;
-      if(keys.ArrowRight) targetX += speed;
-
-      // 마우스 타겟 위치 추적 및 경계선 고정
-      targetX = Math.max(40, Math.min(960, targetX));
-      
-      // 스무딩 보간
-      playerX += (targetX - playerX) * 0.2;
-      
-      const pBody = document.getElementById('player-body');
-      const pTag = document.getElementById('player');
-      
-      // 이동 방향에 따른 좌우 반전 시각 처리
-      if(targetX > playerX + 1) {
-        facingRight = true;
-        pBody.classList.remove('flip');
-      } else if(targetX < playerX - 1) {
-        facingRight = false;
-        pBody.classList.add('flip');
-      }
-
-      pTag.style.left = (playerX - 25) + 'px';
-
-      // 윗방향키 수동 입장 감지
-      if(keys.ArrowUp) {
-        checkPortalEntry();
-        keys.ArrowUp = false; // 연타 방지
-      }
-
-      requestAnimationFrame(gameLoop);
-    }
-
-    // [개선] 윗키를 눌렀을 때만 발동하는 수동 포탈 감지 시스템
+    // [패치] 포탈 수동 입장 시스템 (위 방향키를 눌렀을 때만 발동)
     function checkPortalEntry() {
-      if(currentMap === 'town-screen') {
-        if(Math.abs(playerX - 110) < 30) changeMap('training-screen', 160); 
-        else if(Math.abs(playerX - 310) < 30) changeMap('merchant-screen', 360);
-        else if(Math.abs(playerX - 510) < 30) changeMap('level-select-screen', 560);
-        else if(Math.abs(playerX - 710) < 30) enterMyRoom();
-        else if(Math.abs(playerX - 910) < 30) enterGroupScreen();
+      if (currentMap === 'town-screen') {
+        if(Math.abs(playerX - 90) < 30) changeMap('training-screen', 160);
+        else if(Math.abs(playerX - 290) < 30) changeMap('merchant-screen', 360);
+        else if(Math.abs(playerX - 490) < 30) changeMap('level-select-screen', 560);
+        else if(Math.abs(playerX - 690) < 30) enterMyRoom();
+        else if(Math.abs(playerX - 890) < 30) enterGroupScreen();
       } else if (currentMap === 'training-screen') {
         if(Math.abs(playerX - 110) < 30) startTraining('word');
         else if(Math.abs(playerX - 330) < 30) startTraining('grammar');
@@ -549,32 +500,49 @@
       }
     }
 
-    // 마우스 클릭 강제 포탈 진입 지원용 (클릭 즉시 허용)
-    function tryEnterPortal(mapId, spawnX) {
-      if(currentMap !== 'town-screen') return;
-      changeMap(mapId, spawnX);
-    }
-
+    // [패치] 키보드 실시간 입력 감지
+    const keys = {};
     window.addEventListener('keydown', e => {
       if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen'].includes(currentMap)) return;
-      if(keys.hasOwnProperty(e.key)) keys[e.key] = true;
+      keys[e.key] = true;
+      
+      // 위 방향키 입력 시에만 포탈 작동
+      if(e.key === 'ArrowUp') {
+        checkPortalEntry();
+      }
     });
 
     window.addEventListener('keyup', e => {
-      if(keys.hasOwnProperty(e.key)) keys[e.key] = false;
+      keys[e.key] = false;
     });
 
-    window.addEventListener('click', e => {
-      if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen'].includes(currentMap)) return;
-      const container = document.getElementById('game-container');
-      const rect = container.getBoundingClientRect();
-      if(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-        // 하단 지면 클릭 시 타겟 좌표 갱신하여 스무스 이동
-        if(e.clientY - rect.top > 200) {
-          targetX = (e.clientX - rect.left) * (1024 / rect.width);
+    // [패치] 60프레임 무한 렌더링 루프 (끊김 완벽 해결 및 좌우 시선 반전 적용)
+    function gameLoop() {
+      if (['town-screen', 'training-screen'].includes(currentMap)) {
+        let moved = false;
+        let avatar = document.getElementById('player-avatar-vis');
+        
+        // 이동 스피드 세팅 (6px 씩 부드럽게)
+        if (keys['ArrowLeft']) { 
+          playerX -= 6; 
+          moved = true; 
+          avatar.style.transform = 'scaleX(-1)'; // 왼쪽 바라보기
+        }
+        if (keys['ArrowRight']) { 
+          playerX += 6; 
+          moved = true; 
+          avatar.style.transform = 'scaleX(1)'; // 오른쪽 바라보기
+        }
+        
+        if (moved) {
+          playerX = Math.max(40, Math.min(960, playerX));
+          document.getElementById('player').style.left = (playerX - 25) + 'px';
         }
       }
-    });
+      requestAnimationFrame(gameLoop);
+    }
+    // 엔진 가동 시작
+    requestAnimationFrame(gameLoop);
 
     function updateUI() {
       if(!currentUserData) return;
