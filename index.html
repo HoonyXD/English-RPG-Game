@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드4</title>
+  <title>초등 영어 RPG 월드5</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -725,18 +725,15 @@
     if (qData.blocks) {
         let selectedBlocks = [];
         
-        // 1. 결과창 (최상단)
+        // 1. 결과창 (상단)
         const resultArea = document.createElement('div');
         resultArea.id = "result-area";
         resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
         optArea.appendChild(resultArea);
 
-        // 2. 단어 컨테이너 (중간 - 여기에 버튼들이 모임)
+        // 2. 단어 카드 컨테이너 (중간)
         const wordContainer = document.createElement('div');
-        wordContainer.style.display = "flex";
-        wordContainer.style.flexWrap = "wrap";
-        wordContainer.style.justifyContent = "center";
-        wordContainer.style.marginBottom = "20px";
+        wordContainer.style.cssText = "display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; margin-bottom: 20px;";
         optArea.appendChild(wordContainer);
 
         [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
@@ -748,13 +745,14 @@
                 resultArea.innerText = selectedBlocks.join(' ');
                 btn.style.display = 'none';
             };
-            wordContainer.appendChild(btn); // optArea가 아닌 wordContainer에 추가
+            wordContainer.appendChild(btn);
         });
 
-        // 3. 제출 버튼 (가장 하단 - 마지막에 추가됨)
+        // 3. 제출 버튼 (하단)
         const submitBtn = document.createElement('button');
         submitBtn.innerText = "문장 완성 제출";
         submitBtn.className = "submit-btn-quiz";
+        submitBtn.style.cssText = "display: block; margin: 0 auto; cursor: pointer;";
         submitBtn.onclick = () => {
             const finalSentence = selectedBlocks.join(' ');
             handleTrainingAnswer(finalSentence === qData.ans);
