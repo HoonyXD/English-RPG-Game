@@ -151,7 +151,7 @@
         <h3 id="auth-box-title">로그인</h3>
         <input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
         <input type="password" id="auth-password" placeholder="비밀번호">
-        <button class="submit-btn" id="auth-submit-btn" onclick="handleAuthSubmit()">게임 시작하기</button>
+        <button class="submit-btn" id="auth-submit-btn" onclick="window.handleAuthSubmit()">게임 시작하기</button>
       </div>
     </div>
 
@@ -333,7 +333,8 @@
   messagingSenderId: "419282044565",
   appId: "1:419282044565:web:cb7aac385519cbc979fd9c",
   measurementId: "G-314HEG3L5V"
-};firebase.apps.length) firebase.initializeApp(firebaseConfig);
+};
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     const RANK_REWARDS = ["👑 마왕의 왕관", "💎 전설의 다이아", "🌟 황금 훈장"];
