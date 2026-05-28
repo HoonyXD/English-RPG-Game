@@ -468,30 +468,32 @@
       changeMap('auth-screen', 230);
     }
 
-    function changeMap(mapId, targetX) {
+    function changeMap(mapId, targetX = 490) { // targetX가 없을 때를 대비해 기본값 490 설정
+    // 1. 모든 화면 숨기기
     document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
     
+    // 2. 선택한 화면 보이기
     const targetScreen = document.getElementById(mapId);
-    if(targetScreen) {
+    if (targetScreen) {
         targetScreen.style.display = 'flex';
     }
     currentMap = mapId;
     
+    // 3. 캐릭터 숨길 목록 정의
     const p = document.getElementById('player');
     const guide = document.getElementById('movement-guide');
-    
-    // 🚨 플레이어를 숨겨야 하는 화면 목록 (여기에 추가했습니다)
     const screensToHidePlayer = [
         'auth-screen', 
         'quiz-screen', 
         'dungeon-battle-screen', 
         'level-select-screen',
-        'merchant-screen',      // 상점
-        'room-shop-screen',     // 가구 상점
-        'myroom-screen',         // 마이룸
+        'merchant-screen',
+        'room-shop-screen',
+        'myroom-screen',
         'group-screen'
     ];
     
+    // 4. 플레이어 표시/숨김 로직
     if (screensToHidePlayer.includes(mapId)) {
         p.style.display = 'none';
         guide.style.display = 'none';
@@ -503,14 +505,10 @@
         }
     }
     
-    if (targetX !== undefined) {
-        playerX = Math.max(40, Math.min(960, targetX));
-        document.getElementById('player').style.left = (playerX - 25) + 'px';
-    }
-}
-      
-      playerX = Math.max(40, Math.min(960, targetX));
-      document.getElementById('player').style.left = (playerX - 25) + 'px';  
+    // 5. 플레이어 위치 조정 (함수 내부에서만 처리!)
+    playerX = Math.max(40, Math.min(960, targetX));
+    document.getElementById('player').style.left = (playerX - 25) + 'px';
+}  
 
     function checkPortalEntry() {
       if (currentMap === 'town-screen') {
