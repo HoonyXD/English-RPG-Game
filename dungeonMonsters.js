@@ -1,0 +1,22 @@
+const dungeonMonsters = [
+    { name: "고블린", img: "images/고블린.png" },
+    { name: "가고일", img: "images/가고일.png" },
+    { name: "골렘", img: "images/골렘.png" },
+    { name: "그리핀", img: "images/그리핀.png" },
+    { name: "다크 엘프", img: "images/다크 엘프.png" },
+    { name: "레드 드래곤", img: "images/레드 드래곤.png" },
+    { name: "리치", img: "images/리치.png" },
+    { name: "미노타우르스", img: "images/미노타우르스.png" },
+    { name: "바실리스크", img: "images/바실리스크.png" },
+    { name: "뱀파이어", img: "images/뱀파이어.png" },
+    { name: "베히모스", img: "images/베히모스.png" },
+    { name: "블랙 드래곤", img: "images/블랙 드래곤.png" },
+    { name: "스켈레톤", img: "images/스켈레톤.png" },
+    { name: "스핑크스", img: "images/스핑크스.png" },
+    { name: "슬라임", img: "images/슬라임.png" },
+    { name: "오크", img: "images/오크.png" },
+    { name: "와이번", img: "images/와이번.png" },
+    { name: "좀비", img: "images/좀비.png" },
+    { name: "크라켄", img: "images/크라켄.png" },
+    { name: "키메라", img: "images/키메라.png" }
+];
