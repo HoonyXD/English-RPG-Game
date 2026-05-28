@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드22</title>
+  <title>초등 영어 RPG 월드23</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -46,11 +46,12 @@
     position: absolute; top: 0; left: 0; 
     display: none; 
     flex-direction: column; 
-    justify-content: center; 
-    align-items: center; 
+    align-items: center; /* 가로 중앙 정렬 */
+    justify-content: flex-start; /* 위에서부터 정렬 */
     color: white; 
     box-sizing: border-box; 
-    z-index: 10; 
+    z-index: 10;
+    padding-top: 80px; /* 배너와의 간격 확보 */
 }
     
     /* 🚨 깃허브 스크린샷과 정확히 일치하도록 .png 로 전부 수정했습니다! 🚨 */
@@ -63,9 +64,8 @@
     #merchant-screen { background-color: #3e2723; }
    #level-select-screen {
     display: flex;
-    flex-direction: column;
-    overflow-y: auto; /* 화면 넘치면 스크롤 */
-    max-height: 100%;
+    overflow-y: auto; 
+    padding-bottom: 50px;
 }
     #myroom-screen { 
     background: linear-gradient(135deg,#1a0e2e,#2d1b4e,#1a0e2e);
@@ -157,11 +157,10 @@
 
     .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* 유연한 그리드 */
-    gap: 20px;
-    margin: 80px auto 0 auto; /* 상단 80px, 좌우 자동 */
-    width: 80%;
-    padding: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    width: 90%;
+    margin-top: 20px;
 }
     .rpg-card { background: rgba(44, 62, 80, 0.95); border: 3px solid #34495e; border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; box-sizing: border-box; }
     .rpg-card:hover { border-color: #f1c40f; background: rgba(52, 73, 94, 1); transform: translateY(-2px); }
