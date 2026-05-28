@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드25</title>
+  <title>초등 영어 RPG 월드26</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -47,12 +47,12 @@
     position: absolute; top: 0; left: 0; 
     display: none; 
     flex-direction: column; 
-    align-items: center;      /* 가로 중앙 정렬 */
-    justify-content: center;  /* 세로 중앙 정렬 */
+    align-items: center;      /* 가로 중앙 */
+    justify-content: flex-start; /* 세로 정렬을 위쪽으로 변경 */
+    padding-top: 100px;       /* 배너 아래에 컨텐츠가 오도록 여백 확보 */
     color: white; 
     box-sizing: border-box; 
     z-index: 10; 
-    padding: 20px; /* 내부 여백 추가 */
 }
     
     /* 🚨 깃허브 스크린샷과 정확히 일치하도록 .png 로 전부 수정했습니다! 🚨 */
@@ -158,12 +158,14 @@
 
     .grid-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* 4열 고정 */
     gap: 15px;
     width: 90%;
-    margin: 0 auto; /* 중앙 정렬 */
+    max-width: 900px;
+    margin: 0 auto; /* 상단 margin-top 제거, 부모가 flex이므로 auto로 중앙 */
     padding: 20px;
-    justify-items: center; /* 그리드 내부 항목도 중앙 정렬 */
+    overflow-y: auto;
+    max-height: 400px; /* 높이 제한을 주어야 스크롤이 생김 */
 }
     .rpg-card { background: rgba(44, 62, 80, 0.95); border: 3px solid #34495e; border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; box-sizing: border-box; }
     .rpg-card:hover { border-color: #f1c40f; background: rgba(52, 73, 94, 1); transform: translateY(-2px); }
@@ -356,6 +358,10 @@
     .group-mem { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #333; font-size: 15px; }
     
     .loading-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; display:none; justify-content:center; align-items:center; font-size:24px; color:#f1c40f; }
+    #auth-submit-btn {
+    z-index: 99999 !important;
+    position: relative;
+}
   </style>
 </head>
 <body>
