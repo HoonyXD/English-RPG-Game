@@ -626,24 +626,19 @@
 }
         
       else if(partType === 'writing') {
-        activeRewardGold = 10; activeRewardXp = 20;
-        let allWriting = [];
-        Object.keys(quizBank.writing).forEach(k => {
-          allWriting = allWriting.concat(quizBank.writing[k]);
-        });
-        let rawSelected = allWriting.sort(() => Math.random() - 0.5).slice(0, 5);
-        rawSelected.forEach(item => {
-          let wrongOptions = allWriting.filter(w => w.ans !== item.ans)
-                                       .sort(() => Math.random() - 0.5)
-                                       .slice(0, 3).map(w => w.ans);
-          let rawChoices = [item.ans, ...wrongOptions].sort(() => Math.random() - 0.5);
-          activeQuizList.push({
-            q: `[국문 연계 영작문 문제]\n다음 지문의 올바른 영단어 배열 배열 완성형은?\n\n"${item.q || item.blocks.join(' ')}"`,
-            a: rawChoices,
-            c: rawChoices.indexOf(item.ans)
-          });
-        });
-      } 
+    activeRewardGold = 10; 
+    activeRewardXp = 20;
+    let allWriting = [];
+    
+    // 1. 모든 영작문 데이터를 가져옵니다.
+    Object.keys(quizBank.writing).forEach(k => {
+        allWriting = allWriting.concat(quizBank.writing[k]);
+    });
+    
+    // 2. 랜덤하게 5개만 골라서 activeQuizList에 바로 넣습니다.
+    // 기존처럼 rawChoices를 만들거나 push하는 복잡한 로직이 필요 없습니다!
+    activeQuizList = allWriting.sort(() => Math.random() - 0.5).slice(0, 5);
+} 
       else if(partType === 'listening') {
         activeRewardGold = 8; activeRewardXp = 15;
         let allListening = [];
@@ -658,32 +653,63 @@
     }
 
     function renderTrainingQuestion() {
-  const qData = activeQuizList[activeQuizIndex];
-  document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
-  
-  // 1. 기존 텍스트 대신 질문만 표시
-  document.getElementById('quiz-question-text').innerText = qData.q;
-  
-  // 2. 만약 청취 문제(speak 데이터가 있음)라면 자동으로 음성 재생
-  if(qData.speak) {
-    const utterance = new SpeechSynthesisUtterance(qData.speak);
-    utterance.lang = 'en-US'; // 영어로 설정
-    utterance.rate = 0.9;     // 약간 천천히 읽기
-    speechSynthesis.speak(utterance);
+    const qData = activeQuizList[activeQuizIndex];
+    document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
     
-    // 필요 시 화면에 "🔊 소리 듣기" 버튼을 추가하여 다시 듣게 할 수 있습니다.
-    // 여기서는 자동 재생 후 화면에서 지문 텍스트는 숨기도록 처리
-  }
-  
-  const optArea = document.getElementById('quiz-options-area');
-  optArea.innerHTML = '';
-  
-  qData.a.forEach((opt, idx) => {
-    const btn = document.createElement('button');
-    btn.innerText = opt;
-    btn.onclick = () => handleTrainingAnswer(idx === qData.c);
-    optArea.appendChild(btn);
-  });
+    // 1. 문제 질문 표시
+    document.getElementById('quiz-question-text').innerText = qData.q;
+    
+    // 2. 청취 문제일 경우 음성 자동 재생
+    if(qData.speak) {
+        const utterance = new SpeechSynthesisUtterance(qData.speak);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        speechSynthesis.speak(utterance);
+    }
+    
+    const optArea = document.getElementById('quiz-options-area');
+    optArea.innerHTML = '';
+    
+    // 3. [수정 부분] 영작문(blocks 데이터 있음) vs 일반 객관식 구분
+    if (qData.blocks) {
+        let selectedBlocks = [];
+        
+        // 결과 표시 영역
+        const resultArea = document.createElement('div');
+        resultArea.style = "margin-bottom:15px; padding:10px; border:2px dashed #f1c40f; color:#f1c40f; min-height:30px; font-size:18px;";
+        optArea.appendChild(resultArea);
+
+        // 단어 블록을 무작위로 섞어서 생성
+        [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
+            const btn = document.createElement('button');
+            btn.innerText = word;
+            btn.style = "margin: 5px; padding: 10px;";
+            btn.onclick = () => {
+                selectedBlocks.push(word);
+                resultArea.innerText = selectedBlocks.join(' ');
+                btn.style.display = 'none'; // 선택한 단어는 숨김
+            };
+            optArea.appendChild(btn);
+        });
+
+        // 제출 버튼
+        const submitBtn = document.createElement('button');
+        submitBtn.innerText = "문장 완성 제출";
+        submitBtn.style = "display: block; margin: 10px auto; background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;";
+        submitBtn.onclick = () => {
+            const finalSentence = selectedBlocks.join(' ');
+            handleTrainingAnswer(finalSentence === qData.ans);
+        };
+        optArea.appendChild(submitBtn);
+    } else {
+        // 기존 객관식 퀴즈 (단어, 문법, 리스닝)
+        qData.a.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => handleTrainingAnswer(idx === qData.c);
+            optArea.appendChild(btn);
+        });
+    }
 }
 
     async function handleTrainingAnswer(isCorrect) {
