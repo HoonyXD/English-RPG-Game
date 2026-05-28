@@ -78,11 +78,7 @@
 ------------------------------------------- */
 /* 마이룸 전체 배경 (조금 더 포근한 밤 분위기) */
 #myroom-screen {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important; /* 상단 패딩 무시하고 중앙 정렬 */
-    padding-top: 0 !important;
-    align-items: center !important;
+    background: linear-gradient(135deg, #16102b, #2b1d42, #16102b) !important;
 }
 
 /* 1. 마이룸 방(벽면과 바닥) 디테일 업그레이드 */
@@ -113,12 +109,6 @@
     border-top: 4px solid #3e2723;
     box-shadow: inset 0 20px 20px rgba(0,0,0,0.3);
     z-index: 0; 
-}
-    /* HUD(금화, 경험치바)가 마이룸 컨텐츠와 겹치는 문제 방지 */
-#myroom-screen #points-ui,
-#myroom-screen #xp-ui,
-#myroom-screen #inventory-ui {
-    display: none !important; /* 마이룸 안에서는 깔끔하게 HUD 숨기기 */
 }
 
 /* 하단 버튼 그룹 정렬 */
