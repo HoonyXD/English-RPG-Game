@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드12</title>
+  <title>초등 영어 RPG 월드13</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -213,24 +213,24 @@
     text-align: center;
 }
 
-    .dungeon-quiz-area {
-    width: 90% !important;   /* 약간 더 넓게 */
-    padding: 10px !important; /* 패딩을 확 줄임 */
-    margin-top: 10px !important; /* 위쪽 여백 줄임 */
+    .dungeon-layout-fix {
+    margin-top: -30px !important; /* 위로 30px만큼 강제 이동 */
 }
 
-.dungeon-quiz-area .quiz-options button, 
-.dungeon-quiz-area .word-btn {
-    padding: 6px 10px !important; /* 버튼 내부 여백 축소 */
-    font-size: 13px !important;   /* 글자 크기 축소 */
-    margin: 2px !important;       /* 버튼 간격 축소 */
+.dungeon-layout-fix .quiz-area {
+    padding: 15px !important;    /* 박스 내부 여백 축소 */
+    margin-top: 10px !important;  /* 박스 위 여백 축소 */
 }
 
-/* 결과창 높이 축소 */
-.dungeon-quiz-area #result-area {
-    min-height: 30px !important;
-    margin: 5px auto !important;
+.dungeon-layout-fix .quiz-question {
+    font-size: 16px !important;   /* 질문 글자 크기 축소 */
+    margin-bottom: 10px !important;
 }
+
+.dungeon-layout-fix .quiz-options button {
+    padding: 8px !important;      /* 버튼 높이 축소 */
+    font-size: 14px !important;   /* 버튼 글자 크기 축소 */
+}    
 
     .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
     .room-item { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px dashed #9b59b6; display: flex; justify-content: center; align-items: center; font-size: 32px; border-radius: 8px; }
@@ -865,9 +865,13 @@
     }
 
     function startDungeonFloor(floorNum) {
-    const expBar = document.getElementById('exp-bar-container'); // 실제 ID 확인하세요
+    // 1. 던전 화면 레이아웃 고정 및 경험치 바 숨기기
+    const battleScreen = document.getElementById('dungeon-battle-screen');
+    if(battleScreen) battleScreen.classList.add('dungeon-layout-fix');
+    
+    const expBar = document.getElementById('exp-bar-container');
     if(expBar) expBar.style.display = 'none';
-      
+
     currentFloor = floorNum;
     playerHp = 3;
     monsterHp = 3;
@@ -875,23 +879,20 @@
 
     const monster = dungeonMonsters[floorNum - 1] || { name: "심연의 크리처", img: "" };
     
-    // 아바타 영역 초기화
+    // 아바타 영역 초기화 및 이미지 추가
     const monsterAvatar = document.getElementById('monster-avatar');
-    monsterAvatar.innerHTML = ''; // 이전 내용 삭제
+    monsterAvatar.innerHTML = ''; 
     
-    // 이미지 추가
     if (monster.img) {
         const img = document.createElement('img');
         img.src = monster.img;
-        img.className = 'dungeon-monster-img'; // CSS 클래스 적용
+        img.className = 'dungeon-monster-img'; 
         monsterAvatar.appendChild(img);
     } else {
         monsterAvatar.innerText = "👹"; 
     }
     
     document.getElementById('monster-name').innerText = monster.name;
-    
-    // 아바타 박스 전체 크기 조정
     monsterAvatar.style.transform = `scale(${1 + (floorNum * 0.05)})`;
 
     let sourceKey = floorNum;
@@ -907,12 +908,17 @@
 }
 
     function exitDungeon() {
+    // 1. 던전용 클래스 및 레이아웃 수정사항 제거
+    const battleScreen = document.getElementById('dungeon-battle-screen');
+    if(battleScreen) battleScreen.classList.remove('dungeon-layout-fix');
+    
     const quizArea = document.getElementById('quiz-area');
-    if(quizArea) quizArea.classList.remove('dungeon-quiz-area'); // 제거!
+    if(quizArea) quizArea.classList.remove('dungeon-quiz-area');
 
+    // 2. 경험치 바 복구
     const expBar = document.getElementById('exp-bar-container');
     if(expBar) expBar.style.display = 'block'; 
-
+    
     changeMap('main-screen');
 }
 
