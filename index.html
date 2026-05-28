@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드5</title>
+  <title>초등 영어 RPG 월드6</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -11,6 +11,7 @@
   <script src="writingBank.js"></script>
   <script src="listeningBank.js"></script>
   <script src="dungeonBank.js"></script>
+  <script src="dungeonMonsters.js"></script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -402,31 +403,26 @@
     let playerHp = 3;
     let monsterHp = 3;
 
-    const dungeonMonsters = [
-      "👹 슬라임", "👺 고블린 전사", "🦇 가고일 사냥꾼", "👻 저주받은 영혼", "🕷️ 거대 심연거미",
-      "🐺 새도우 울프", "🧟 오염된 좀비병", "💀 해골 암흑술사", "🦎 지옥 리자드맨", "🐂 미노타우르스 족장",
-      "🔮 타락한 엘프 전사", "🦅 메카닉 키메라", "🦂 독갑옷 모래전갈", "🛡️ 고대 석상 골렘", "🧊 빙결 서리악마",
-      "🔥 지옥 불꽃 악마", "⚡ 폭풍의 인도자", "🌋 용암 군주 이프리트", "🐉 지옥 심연의 드래곤", "👑 마왕 가로쉬 인스턴스"
-    ];
-
     function buildDungeonFloorUI() {
-      const grid = document.getElementById('dungeon-floor-grid');
-      grid.innerHTML = '';
-      for (let i = 1; i <= 20; i++) {
+    const grid = document.getElementById('dungeon-floor-grid');
+    grid.innerHTML = '';
+    for (let i = 1; i <= 20; i++) {
         const card = document.createElement('div');
         card.className = 'rpg-card';
         card.style.padding = '8px';
         card.onclick = () => startDungeonFloor(i);
         
-        const monsterName = dungeonMonsters[i - 1] || "👹 심연의 크리처";
+        const monster = dungeonMonsters[i - 1] || { name: "심연의 크리처" };
+        const displayName = monster.name;
+
         card.innerHTML = `
           <h3 style="font-size:15px; margin:0; color:#f1c40f;">${i}층</h3>
-          <p style="font-size:11px; margin:2px 0; color:#fff;">${monsterName.split(' ')[1] || monsterName}</p>
+          <p style="font-size:12px; margin:2px 0; color:#fff;">${displayName}</p>
           <span style="font-size:10px; color:#2ecc71;">클리어 💰${i * 5}</span>
         `;
         grid.appendChild(card);
-      }
     }
+}
 
     function uRef(uid) { return db.collection("users").doc(uid); }
     function gRef(code) { return db.collection("groups").doc(code); }
@@ -797,28 +793,38 @@
     }
 
     function startDungeonFloor(floorNum) {
-      currentFloor = floorNum;
-      playerHp = 3;
-      monsterHp = 3;
-      activeQuizIndex = 0;
+    currentFloor = floorNum;
+    playerHp = 3;
+    monsterHp = 3;
+    activeQuizIndex = 0;
 
-      const fullMonsterStr = dungeonMonsters[floorNum - 1] || "👹 심연의 크리처";
-      document.getElementById('monster-avatar').innerText = fullMonsterStr.split(' ')[0];
-      document.getElementById('monster-name').innerText = fullMonsterStr;
-      
-      document.getElementById('monster-avatar').style.transform = `scale(${1 + (floorNum * 0.05)})`;
-
-      let sourceKey = floorNum;
-      if(sourceKey > 10) sourceKey = (floorNum % 10) + 1;
-
-      let rawBank = quizBank.dungeon[sourceKey] || quizBank.dungeon[1];
-      activeQuizList = [...rawBank].sort(() => Math.random() - 0.5).slice(0, 3);
-      monsterHp = activeQuizList.length;
-
-      updateBattleUI();
-      changeMap('dungeon-battle-screen', 490);
-      renderDungeonQuestion();
+    // 객체에서 데이터 가져오기
+    const monster = dungeonMonsters[floorNum - 1] || { name: "심연의 크리처", img: "" };
+    
+    // 아바타 영역에 이미지 적용
+    const monsterAvatar = document.getElementById('monster-avatar');
+    if (monster.img) {
+        monsterAvatar.innerHTML = `<img src="${monster.img}" style="width: 100%; height: 100%; object-fit: contain;">`;
+    } else {
+        monsterAvatar.innerText = "👹"; // 이미지가 없을 때의 대체재
     }
+    
+    document.getElementById('monster-name').innerText = monster.name;
+    
+    // 아바타 크기 조절
+    monsterAvatar.style.transform = `scale(${1 + (floorNum * 0.05)})`;
+
+    let sourceKey = floorNum;
+    if(sourceKey > 10) sourceKey = (floorNum % 10) + 1;
+
+    let rawBank = quizBank.dungeon[sourceKey] || quizBank.dungeon[1];
+    activeQuizList = [...rawBank].sort(() => Math.random() - 0.5).slice(0, 3);
+    monsterHp = activeQuizList.length;
+
+    updateBattleUI();
+    changeMap('dungeon-battle-screen', 490);
+    renderDungeonQuestion();
+}
 
     function updateBattleUI() {
       document.getElementById('player-hp-text').innerText = playerHp;
