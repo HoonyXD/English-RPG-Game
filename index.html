@@ -972,7 +972,7 @@
       document.getElementById('monster-hp-bar').style.width = (monsterHp / activeQuizList.length * 100) + '%';
     }
 
-    function renderDungeonQuestion() {
+function renderDungeonQuestion() {
       const quizArea = document.getElementById('quiz-area');
       if(quizArea) quizArea.classList.add('dungeon-quiz-area');
       
@@ -987,39 +987,39 @@
         const btn = document.createElement('button');
         btn.innerText = opt;
         btn.className = 'word-btn';
+        
+        // 여기에 onclick 로직 시작
         btn.onclick = () => {
-    const allBtns = optArea.querySelectorAll('button');
-    allBtns.forEach(b => b.disabled = true);
-      
-    if(idx === qData.c) {
-        // 정답 시: 애니메이션 -> 몬스터 HP 감소 -> (다음 단계로 갈지 확인)
-        alert("⚔️ 정답! 용사의 짜릿한 치명타 데미지 강격!");
-        triggerBattleAnimation(true, () => {
-            monsterHp--;
-            updateBattleUI();
-            
-            // 몬스터 HP가 다 깎였을 때만 클리어 로직 실행
-            if (monsterHp <= 0) {
-                clearDungeonFloor(); // 여기서 클리어 처리를 해야 합니다!
+            const allBtns = optArea.querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+                
+            if(idx === qData.c) {
+                alert("⚔️ 정답! 용사의 짜릿한 치명타 데미지 강격!");
+                triggerBattleAnimation(true, () => {
+                    monsterHp--;
+                    updateBattleUI();
+                    if (monsterHp <= 0) {
+                        clearDungeonFloor();
+                    } else {
+                        nextDungeonStep();
+                    }
+                });
             } else {
-                nextDungeonStep(); // 몬스터가 아직 살아있으면 다음 문제로
+                alert("💥 오답! 크리처의 강력한 습격 가해 감지!");
+                triggerBattleAnimation(false, () => {
+                    playerHp--;
+                    updateBattleUI();
+                    if (playerHp <= 0) {
+                        gameOver();
+                    } else {
+                        nextDungeonStep();
+                    }
+                });
             }
-        });
-    } else {
-        // 오답 시: 애니메이션 -> 플레이어 HP 감소 -> (사망 확인)
-        alert("💥 오답! 크리처의 강력한 습격 가해 감지!");
-        triggerBattleAnimation(false, () => {
-            playerHp--;
-            updateBattleUI();
-            
-            if (playerHp <= 0) {
-                gameOver(); // 게임 오버 처리
-            } else {
-                nextDungeonStep(); // 다음 문제로
-            }
-        });
-    }
-};
+        }; // <--- [중요] btn.onclick 닫는 괄호
+        optArea.appendChild(btn);
+      }); // <--- [중요] forEach 닫는 괄호
+    } // <--- [중요] renderDungeonQuestion 전체 닫는 괄호
 
     function triggerBattleAnimation(isPlayerAttack, callback) {
       const pUnit = document.getElementById('battle-player-vis');
