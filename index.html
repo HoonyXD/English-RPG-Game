@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드</title>
+  <title>초등 영어 RPG 월드1</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -104,11 +104,57 @@
     .hp-bar-outer { width: 100%; height: 16px; background: #c0392b; border: 2px solid #000; border-radius: 8px; overflow: hidden; margin-top: 5px; }
     .hp-bar-inner { height: 100%; background: #2ecc71; width: 100%; transition: width 0.3s; }
     
-    .quiz-area { width: 90%; background: rgba(0,0,0,0.85); border: 4px solid #f1c40f; border-radius: 12px; padding: 15px; box-sizing: border-box; text-align: center; margin-top: 10px; }
-    .quiz-question { font-size: 19px; margin-bottom: 12px; color: #fffbdf; min-height: 45px; display: flex; justify-content: center; align-items: center; white-space: pre-wrap; }
+    .quiz-area { width: 80%; background: rgba(0,0,0,0.85); border: 4px solid #f1c40f; border-radius: 12px; padding: 25px; text-align: center; margin-top: 40px; }
+    .quiz-question { font-size: 22px; margin-bottom: 20px; color: #fffbdf; }
     .quiz-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .quiz-options button { padding: 12px; font-family: 'Jua', sans-serif; font-size: 16px; background: #34495e; color: white; border: 2px solid #2c3e50; border-radius: 6px; cursor: pointer; }
     .quiz-options button:hover { background: #f1c40f; color: black; border-color: #f39c12; }
+
+    /* 문장 조합 결과창 (대시 보드) */
+    #result-area {
+        width: 90%;
+        min-height: 50px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed #f1c40f;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        margin: 0 auto 20px auto;
+        font-size: 20px;
+        color: #f1c40f;
+        box-sizing: border-box;
+    }
+
+    /* 단어 블록 버튼 스타일 */
+    .word-btn {
+        background: #34495e;
+        color: white;
+        padding: 12px 20px;
+        border: 2px solid #2c3e50;
+        border-radius: 8px;
+        margin: 6px;
+        cursor: pointer;
+        font-family: 'Jua', sans-serif;
+        font-size: 18px;
+        transition: 0.2s;
+    }
+    .word-btn:hover { background: #f1c40f; color: #000; transform: translateY(-3px); }
+
+    /* 제출 버튼 */
+    .submit-btn-quiz {
+        display: block;
+        margin: 20px auto;
+        padding: 12px 40px;
+        background: #27ae60;
+        border: 3px solid #1e7e34;
+        color: white;
+        font-family: 'Jua';
+        font-size: 18px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
 
     .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
     .room-item { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px dashed #9b59b6; display: flex; justify-content: center; align-items: center; font-size: 32px; border-radius: 8px; }
