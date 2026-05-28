@@ -461,29 +461,45 @@
     }
 
     function changeMap(mapId, targetX) {
-      document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-      
-      const targetScreen = document.getElementById(mapId);
-      if(targetScreen) {
-         targetScreen.style.display = 'flex';
-      }
-      currentMap = mapId;
-      
-      const p = document.getElementById('player');
-      const guide = document.getElementById('movement-guide');
-      
-      if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen', 'level-select-screen'].includes(mapId)) {
+    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+    
+    const targetScreen = document.getElementById(mapId);
+    if(targetScreen) {
+        targetScreen.style.display = 'flex';
+    }
+    currentMap = mapId;
+    
+    const p = document.getElementById('player');
+    const guide = document.getElementById('movement-guide');
+    
+    // 🚨 플레이어를 숨겨야 하는 화면 목록 (여기에 추가했습니다)
+    const screensToHidePlayer = [
+        'auth-screen', 
+        'quiz-screen', 
+        'dungeon-battle-screen', 
+        'level-select-screen',
+        'merchant-screen',      // 상점
+        'room-shop-screen',     // 가구 상점
+        'myroom-screen',         // 마이룸
+        'group-screen'
+    ];
+    
+    if (screensToHidePlayer.includes(mapId)) {
         p.style.display = 'none';
         guide.style.display = 'none';
-      } else {
+    } else {
         p.style.display = 'flex';
         guide.style.display = 'block';
-        if(mapId === 'town-screen') {
-          guide.innerText = "이동: 좌우 방향키 ◀ ▶ | 포탈입장: 위 방향키(↑) | 마우스 이동 불가";
-        } else if(mapId === 'training-screen') {
-          guide.innerText = "이동: 좌우 방향키 ◀ ▶ | 포탈입장: 위 방향키(↑) | 마우스 이동 불가";
+        if (mapId === 'town-screen' || mapId === 'training-screen') {
+            guide.innerText = "이동: 좌우 방향키 ◀ ▶ | 포탈입장: 위 방향키(↑) | 마우스 이동 불가";
         }
-      }
+    }
+    
+    if (targetX !== undefined) {
+        playerX = Math.max(40, Math.min(960, targetX));
+        document.getElementById('player').style.left = (playerX - 25) + 'px';
+    }
+}
       
       playerX = Math.max(40, Math.min(960, targetX));
       document.getElementById('player').style.left = (playerX - 25) + 'px';
@@ -637,23 +653,33 @@
     }
 
     function renderTrainingQuestion() {
-      const qData = activeQuizList[activeQuizIndex];
-      document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
-      
-      let questionString = qData.q;
-      if(qData.speak) questionString += `\n(🔊 청취 대사 지문: "${qData.speak}")`;
-      document.getElementById('quiz-question-text').innerText = questionString;
-      
-      const optArea = document.getElementById('quiz-options-area');
-      optArea.innerHTML = '';
-      
-      qData.a.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.innerText = opt;
-        btn.onclick = () => handleTrainingAnswer(idx === qData.c);
-        optArea.appendChild(btn);
-      });
-    }
+  const qData = activeQuizList[activeQuizIndex];
+  document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
+  
+  // 1. 기존 텍스트 대신 질문만 표시
+  document.getElementById('quiz-question-text').innerText = qData.q;
+  
+  // 2. 만약 청취 문제(speak 데이터가 있음)라면 자동으로 음성 재생
+  if(qData.speak) {
+    const utterance = new SpeechSynthesisUtterance(qData.speak);
+    utterance.lang = 'en-US'; // 영어로 설정
+    utterance.rate = 0.9;     // 약간 천천히 읽기
+    speechSynthesis.speak(utterance);
+    
+    // 필요 시 화면에 "🔊 소리 듣기" 버튼을 추가하여 다시 듣게 할 수 있습니다.
+    // 여기서는 자동 재생 후 화면에서 지문 텍스트는 숨기도록 처리
+  }
+  
+  const optArea = document.getElementById('quiz-options-area');
+  optArea.innerHTML = '';
+  
+  qData.a.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.innerText = opt;
+    btn.onclick = () => handleTrainingAnswer(idx === qData.c);
+    optArea.appendChild(btn);
+  });
+}
 
     async function handleTrainingAnswer(isCorrect) {
       if(isCorrect) {
