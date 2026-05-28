@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드11</title>
+  <title>초등 영어 RPG 월드12</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -211,6 +211,25 @@
     border-radius: 6px;
     cursor: pointer;
     text-align: center;
+}
+
+    .dungeon-quiz-area {
+    width: 90% !important;   /* 약간 더 넓게 */
+    padding: 10px !important; /* 패딩을 확 줄임 */
+    margin-top: 10px !important; /* 위쪽 여백 줄임 */
+}
+
+.dungeon-quiz-area .quiz-options button, 
+.dungeon-quiz-area .word-btn {
+    padding: 6px 10px !important; /* 버튼 내부 여백 축소 */
+    font-size: 13px !important;   /* 글자 크기 축소 */
+    margin: 2px !important;       /* 버튼 간격 축소 */
+}
+
+/* 결과창 높이 축소 */
+.dungeon-quiz-area #result-area {
+    min-height: 30px !important;
+    margin: 5px auto !important;
 }
 
     .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
@@ -888,11 +907,12 @@
 }
 
     function exitDungeon() {
-    // 1. 경험치 바 다시 보이기
+    const quizArea = document.getElementById('quiz-area');
+    if(quizArea) quizArea.classList.remove('dungeon-quiz-area'); // 제거!
+
     const expBar = document.getElementById('exp-bar-container');
     if(expBar) expBar.style.display = 'block'; 
-    
-    // 2. 맵 이동
+
     changeMap('main-screen');
 }
 
@@ -904,6 +924,9 @@
     }
 
     function renderDungeonQuestion() {
+      const quizArea = document.getElementById('quiz-area');
+      if(quizArea) quizArea.classList.add('dungeon-quiz-area');
+      
       const qData = activeQuizList[activeQuizIndex];
       document.getElementById('battle-banner').innerText = `⚔️ 던전 결투 층수: ${currentFloor}층 (${activeQuizIndex + 1}/${activeQuizList.length})`;
       document.getElementById('dungeon-question-text').innerText = qData.q;
@@ -914,19 +937,20 @@
       qData.a.forEach((opt, idx) => {
         const btn = document.createElement('button');
         btn.innerText = opt;
+        btn.className = 'word-btn';
         btn.onclick = () => {
           const allBtns = optArea.querySelectorAll('button');
           allBtns.forEach(b => b.disabled = true);
           
           if(idx === qData.c) {
-            alert("⚔️ 정답! 용사의 짜릿한 치명타 데미지 강격!");
+            alert("⚔️ 정답! 용사의 데미지 강격!");
             triggerBattleAnimation(true, () => {
                 monsterHp--;
                 updateBattleUI();
                 nextDungeonStep();
             });
           } else {
-            alert("💥 오답! 크리처의 강력한 습격 가해 감지!");
+            alert("💥 오답! 크리처의 강력한 공격!");
             triggerBattleAnimation(false, () => {
                 playerHp--;
                 updateBattleUI();
