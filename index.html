@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드15</title>
+  <title>초등 영어 RPG 월드16</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -1086,29 +1086,50 @@ function enterMyRoom() {
 }
 
 // [4] 마이룸 뷰 렌더링 (보유 가구 및 배치 관리)
+// 1. 가구 배치 함수 (드래그 없이 클릭으로 배치)
+function placeFurniture(itemName) {
+    const roomArea = document.getElementById('myroom-display-area');
+    
+    // 이미 배치된 가구인지 확인 (중복 배치 방지)
+    const existing = roomArea.querySelector(`[data-name="${itemName}"]`);
+    if (existing) {
+        alert("이미 방에 배치되어 있습니다!");
+        return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'placed-item';
+    div.innerHTML = itemName.split(' ')[0]; // 이모지 표시
+    div.dataset.name = itemName; // 이름 저장용
+    
+    // 배치 스타일
+    div.style.position = 'absolute';
+    div.style.left = '50%'; // 중앙 초기 배치
+    div.style.top = '50%';
+    div.style.cursor = 'move';
+    
+    // 클릭하면 제거 (회수)
+    div.onclick = () => {
+        div.remove();
+        alert(itemName + "을(를) 보관함으로 회수했습니다.");
+    };
+
+    roomArea.appendChild(div);
+}
+
+// 2. 인벤토리 목록 그리기 (클릭 시 배치 호출)
 function renderMyRoomView() {
-    const display = document.getElementById('myroom-display-area');
-    const invList = document.getElementById('inventory-list-inner'); // HTML에 이 div 추가 필요
-    display.innerHTML = '';
+    const invList = document.getElementById('inventory-list-inner');
     invList.innerHTML = '';
 
-    // 1. 방에 배치된 가구 그리기 (자유 배치)
-    (currentUserData.placedItems || []).forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'placed-item';
-        div.innerHTML = f.split(' ')[0]; // 이모지
-        
-        // 클릭 시 인벤토리로 회수 (토글)
-        div.onclick = () => toggleFurniturePlacement(f);
-        
-        // [중요] 드래그 구현 (HTML5 Drag API)
-        div.draggable = true;
-        div.ondragend = (e) => {
-            div.style.left = e.clientX + 'px';
-            div.style.top = e.clientY + 'px';
-        };
-        display.appendChild(div);
+    (currentUserData.inventory || []).filter(i => isFurniture(i)).forEach(f => {
+        const btn = document.createElement('button'); // 버튼으로 변경
+        btn.innerHTML = f;
+        btn.className = 'rpg-btn'; // 기존 스타일 사용
+        btn.onclick = () => placeFurniture(f); // 클릭하면 방에 배치
+        invList.appendChild(btn);
     });
+}
 
 function isFurniture(itemName) {
     return itemName.startsWith('🛏️') || itemName.startsWith('🎨') || 
