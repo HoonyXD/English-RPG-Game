@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드17</title>
+  <title>초등 영어 RPG 월드18</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -980,28 +980,38 @@
         btn.innerText = opt;
         btn.className = 'word-btn';
         btn.onclick = () => {
-          const allBtns = optArea.querySelectorAll('button');
-          allBtns.forEach(b => b.disabled = true);
-          
-          if(idx === qData.c) {
-            alert("⚔️ 정답! 용사의 데미지 강격!");
-            triggerBattleAnimation(true, () => {
-                monsterHp--;
-                updateBattleUI();
-                nextDungeonStep();
-            });
-          } else {
-            alert("💥 오답! 크리처의 강력한 공격!");
-            triggerBattleAnimation(false, () => {
-                playerHp--;
-                updateBattleUI();
-                nextDungeonStep();
-            });
-          }
-        };
-        optArea.appendChild(btn);
-      });
+    const allBtns = optArea.querySelectorAll('button');
+    allBtns.forEach(b => b.disabled = true);
+      
+    if(idx === qData.c) {
+        // 정답 시: 애니메이션 -> 몬스터 HP 감소 -> (다음 단계로 갈지 확인)
+        alert("⚔️ 정답! 용사의 짜릿한 치명타 데미지 강격!");
+        triggerBattleAnimation(true, () => {
+            monsterHp--;
+            updateBattleUI();
+            
+            // 몬스터 HP가 다 깎였을 때만 클리어 로직 실행
+            if (monsterHp <= 0) {
+                clearDungeonFloor(); // 여기서 클리어 처리를 해야 합니다!
+            } else {
+                nextDungeonStep(); // 몬스터가 아직 살아있으면 다음 문제로
+            }
+        });
+    } else {
+        // 오답 시: 애니메이션 -> 플레이어 HP 감소 -> (사망 확인)
+        alert("💥 오답! 크리처의 강력한 습격 가해 감지!");
+        triggerBattleAnimation(false, () => {
+            playerHp--;
+            updateBattleUI();
+            
+            if (playerHp <= 0) {
+                gameOver(); // 게임 오버 처리
+            } else {
+                nextDungeonStep(); // 다음 문제로
+            }
+        });
     }
+};
 
     function triggerBattleAnimation(isPlayerAttack, callback) {
       const pUnit = document.getElementById('battle-player-vis');
@@ -1040,25 +1050,30 @@
     }
 
     async function winDungeonFloor() {
-      let goldReward = currentFloor * 5;
-      let xpReward = currentFloor * 10;
-      alert(`🎉 던전 ${currentFloor}층 제압 성공!\n🎁 클리어 정복 보상: 금화 +${goldReward}💰 / 경험치 +${xpReward}⭐`);
-      
-      showLoading();
-      try {
+    let goldReward = currentFloor * 5;
+    let xpReward = currentFloor * 10;
+    
+    alert(`🎉 던전 ${currentFloor}층 제압 성공!\n🎁 클리어 정복 보상: 금화 +${goldReward}💰 / 경험치 +${xpReward}⭐`);
+    
+    showLoading();
+    try {
         const newXp = (currentUserData.totalXp || 0) + xpReward;
         await uRef(currentUser).update({
-          points: firebase.firestore.FieldValue.increment(goldReward),
-          totalXp: newXp,
-          level: Math.floor(newXp / 100) + 1
+            points: firebase.firestore.FieldValue.increment(goldReward),
+            totalXp: newXp,
+            level: Math.floor(newXp / 100) + 1
         });
+        
         currentUserData = await getUser(currentUser);
         updateUI();
-      } finally {
+    } catch (e) {
+        console.error("보상 업데이트 실패:", e);
+    } finally {
         hideLoading();
-        changeMap('level-select-screen', 560);
-      }
+        // [중요] 보상 완료 후 exitDungeon()을 호출하여 깔끔하게 정리
+        exitDungeon(); 
     }
+}
 
     // [1] 가구 상점 열기
 function openRoomShop() { 
