@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드27</title>
+  <title>초등 영어 RPG 월드28</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -73,36 +73,42 @@
     overflow-y: auto; 
     padding-bottom: 50px;
 }
-    #myroom-screen { 
-    background: linear-gradient(135deg,#1a0e2e,#2d1b4e,#1a0e2e);
-    display: flex; /* 요소를 중앙 정렬하기 위해 추가 */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-top: 60px; /* 상단 배너와 겹치지 않게 여백 추가 */
+    /* -------------------------------------------
+   🏰 마이룸 UI 대대적 업그레이드
+------------------------------------------- */
+/* 마이룸 전체 배경 (조금 더 포근한 밤 분위기) */
+#myroom-screen {
+    background: linear-gradient(135deg, #16102b, #2b1d42, #16102b) !important;
 }
 
+/* 1. 마이룸 방(벽면과 바닥) 디테일 업그레이드 */
 #myroom-display-area {
     position: relative;
-    width: 90%;   /* 100%에서 90%로 줄여서 좌우 여백 확보 */
-    max-width: 900px; /* 너무 커지지 않게 제한 */
-    height: 350px; /* 400px에서 350px로 약간 축소 */
-    background: linear-gradient(to bottom, #34495e 0%, #2c3e50 100%);
-    border: 4px solid #4a3728;
-    border-radius: 12px;
+    width: 85%; 
+    max-width: 850px;
+    height: 380px;
+    /* 고급스러운 네이비 톤의 벽지 느낌 */
+    background: linear-gradient(to bottom, #4b6584 0%, #3d516b 100%);
+    border: 6px solid #3e2723;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-    margin-bottom: 20px; /* 하단 버튼과의 간격 */
+    /* 방 안쪽에 깊은 그림자를 줘서 입체감 부여 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 60px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
 }
 
+/* 2. 마이룸 바닥 (아늑한 우드톤 느낌) */
 #myroom-display-area::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: 0; left: 0;
     width: 100%;
-    height: 80px; /* 바닥 높이 약간 축소 */
-    background: rgba(0,0,0,0.2);
-    border-top: 2px solid #5d4037;
+    height: 110px; /* 바닥 비율 증가 */
+    /* 나무 바닥 느낌의 색상 배열 */
+    background: linear-gradient(to bottom, #6d4c41 0%, #4e342e 100%);
+    border-top: 4px solid #3e2723;
+    box-shadow: inset 0 20px 20px rgba(0,0,0,0.3);
+    z-index: 0; 
 }
     #group-screen { background: linear-gradient(135deg,#0a1628,#1a2d4e,#0a1628); }
     #room-shop-screen { background: linear-gradient(135deg,#1a2e1a,#2d4e1b,#1a2e1a); }
@@ -320,33 +326,63 @@
     font-size: 14px !important;   /* 버튼 글자 크기 축소 */
 }    
 
-    .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
-    .room-item {
-    position: absolute;      /* 아이템이 마이룸 안에서 자유롭게 위치하도록 */
-    font-size: 40px;
-    cursor: pointer;
-    transition: all 0.3s;
-    width: 60px;             /* 기존 크기 유지 */
-    height: 60px;
-    background: rgba(255,255,255,0.1);
-    border: 2px dashed #9b59b6;
-    display: flex;
+    .placed-item {
+    position: absolute; /* 랜덤 배치를 위한 절대 위치 */
+    display: inline-flex;
     justify-content: center;
     align-items: center;
-    border-radius: 8px;
+    width: 65px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.4); /* 실선으로 변경 */
+    border-radius: 12px; /* 둥근 모서리 */
+    font-size: 40px; /* 이모지(가구) 크기 확대 */
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    backdrop-filter: blur(3px); /* 뒤쪽 배경(벽/바닥)을 살짝 흐리게 */
+    z-index: 5; /* 바닥 레이어보다 위로 오게 설정 */
 }
 
-    .placed-item {
-    display: inline-block;
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px dashed #f1c40f;
-    margin: 5px;
-    text-align: center;
-    line-height: 60px;
-    font-size: 30px;
-    cursor: pointer;
+/* 가구에 마우스를 올렸을 때 애니메이션 */
+.placed-item:hover {
+    transform: scale(1.1) translateY(-5px); /* 살짝 튀어오름 */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+    border-color: #f1c40f; /* 테두리가 금색으로 빛남 */
+}
+
+/* 4. 하단 가구 보관함(인벤토리) 전용 패널 디자인 */
+#inventory-list-inner {
+    width: 85%;
+    max-width: 850px;
+    min-height: 60px;
+    background: rgba(0, 0, 0, 0.6); /* 반투명 검은 패널 */
+    border: 3px solid #5c3a21;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+}
+
+/* 보관함이 비어있을 때 안내 문구 추가 */
+#inventory-list-inner:empty::before {
+    content: '📦 현재 보관함에 가구가 없습니다. 가구 상점을 방문해 보세요!';
+    color: #95a5a6;
+    font-size: 15px;
+}
+
+/* 보관함 안의 버튼 디자인 다듬기 */
+#inventory-list-inner .rpg-btn {
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
     
     .group-panel { 
@@ -778,6 +814,12 @@
       keys[e.key] = false;
     });
 
+    window.addEventListener('blur', () => {
+      for (let key in keys) {
+        keys[key] = false; /* 화면 밖으로 나가면 모든 키 입력 취소 */
+      }
+    });
+
     function gameLoop() {
       if (['town-screen', 'training-screen'].includes(currentMap)) {
         let moved = false;
@@ -1170,27 +1212,39 @@ function openRoomShop() {
 
 // [2] 통합된 구매 처리 (Firebase 연동)
 async function buyItem(itemName, cost) {
+    // 1. 금화 부족 확인
     if ((currentUserData.points || 0) < cost) return alert("보유한 금화가 부족합니다.");
     
-    // 중복 방지 (포션 제외)
-    if (currentUserData.inventory && currentUserData.inventory.includes(itemName) && !itemName.includes("포션")) {
-        return alert("이미 보유 중인 가구입니다.");
+    // 2. 중복 방지 로직 (인벤토리 + 방 배치 확인)
+    const hasInInventory = currentUserData.inventory && currentUserData.inventory.includes(itemName);
+    const hasInRoom = currentUserData.placedItems && currentUserData.placedItems.includes(itemName);
+
+    // 포션류를 제외하고, 인벤토리나 방에 이미 있다면 구매 불가
+    if ((hasInInventory || hasInRoom) && !itemName.includes("포션")) {
+        return alert("이미 보유 중이거나 마이룸에 배치된 가구입니다.");
     }
 
     showLoading();
     try {
+        // 3. 파이어베이스 데이터 업데이트
         await uRef(currentUser).update({
             points: firebase.firestore.FieldValue.increment(-cost),
             inventory: firebase.firestore.FieldValue.arrayUnion(itemName)
         });
+        
         alert(`🛒 [ ${itemName} ] 구매 완료! 마이룸에서 확인하세요.`);
         
-        // 데이터 갱신
+        // 4. 데이터 갱신 및 UI 반영
         currentUserData = await getUser(currentUser);
         updateUI();
-        if (['room-shop-screen', 'myroom-screen'].includes(currentMap)) renderMyRoomView();
+        
+        // 상점이나 마이룸 화면에 있을 경우 리렌더링
+        if (['room-shop-screen', 'myroom-screen'].includes(currentMap)) {
+            renderMyRoomView();
+        }
     } catch (error) {
         console.error("구매 오류:", error);
+        alert("구매 중 오류가 발생했습니다.");
     } finally {
         hideLoading();
     }
@@ -1200,38 +1254,6 @@ async function buyItem(itemName, cost) {
 function enterMyRoom() { 
     changeMap('myroom-screen', 760); 
     renderMyRoomView(); 
-}
-
-// [4] 마이룸 뷰 렌더링 (보유 가구 및 배치 관리)
-// 1. 가구 배치 함수 (드래그 없이 클릭으로 배치)
-function placeFurniture(itemName) {
-    const roomArea = document.getElementById('myroom-display-area');
-    
-    // 이미 배치된 가구인지 확인 (중복 배치 방지)
-    const existing = roomArea.querySelector(`[data-name="${itemName}"]`);
-    if (existing) {
-        alert("이미 방에 배치되어 있습니다!");
-        return;
-    }
-
-    const div = document.createElement('div');
-    div.className = 'placed-item';
-    div.innerHTML = itemName.split(' ')[0]; // 이모지 표시
-    div.dataset.name = itemName; // 이름 저장용
-    
-    // 배치 스타일
-    div.style.position = 'absolute';
-    div.style.left = '50%'; // 중앙 초기 배치
-    div.style.top = '50%';
-    div.style.cursor = 'move';
-    
-    // 클릭하면 제거 (회수)
-    div.onclick = () => {
-        div.remove();
-        alert(itemName + "을(를) 보관함으로 회수했습니다.");
-    };
-
-    roomArea.appendChild(div);
 }
 
 // 2. 인벤토리 목록 그리기 (클릭 시 배치 호출)
@@ -1321,31 +1343,6 @@ async function toggleFurniturePlacement(itemName) {
     currentUserData = await getUser(currentUser);
     renderMyRoomView(); // 화면 갱신
 }
-
-    // 가구 배치 시 호출되는 함수
-function createDraggableItem(itemName) {
-    const item = document.createElement('div');
-    item.className = 'placed-item';
-    item.innerHTML = itemName.split(' ')[0]; // 이모지
-    item.draggable = true;
-
-    // 드래그 시작 시 위치 저장
-    item.ondragstart = (e) => {
-        e.dataTransfer.setData('text/plain', itemName);
-    };
-
-    return item;
-}
-
-// 방에 드롭했을 때 위치 이동
-const roomArea = document.getElementById('myroom-display-area');
-roomArea.ondragover = (e) => e.preventDefault();
-roomArea.ondrop = (e) => {
-    e.preventDefault();
-    const item = document.querySelector('.dragging'); // 현재 드래그 중인 아이템
-    item.style.left = e.offsetX + 'px';
-    item.style.top = e.offsetY + 'px';
-};
 
     function enterGroupScreen() { changeMap('group-screen', 820); refreshGroupUI(); }
     async function refreshGroupUI() {
