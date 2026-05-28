@@ -1343,24 +1343,28 @@ roomArea.ondrop = (e) => {
     }
 
     async function checkWeeklyRewards(code) {
-      try {
-        const snap = await gRef(code).get(); if(!snap.exists) return;
-        const grp = snap.data(); if((grp.weeklyReset || 0) >= getWeekStart()) return;
-        const members = grp.members || [];
-        const users = await Promise.all(members.map(uid => getUser(uid)));
-        const ranking = users.map((u, i) => ({ uid: members[i], xp: u?.totalXp||0, level: u?.level||1 })).sort((a,b) => b.level-a.level || b.xp-a.xp);
-        const batch = db.batch();
-        RANK_REWARDS.forEach((r, i) => {
-          if(ranking[i]) {
-            batch.set(uRef(ranking[i].uid), { weeklyRewardItems: firebase.firestore.FieldValue.arrayUnion(r), inventory: firebase.firestore.FieldValue.arrayUnion(r) }, { merge: true });
-          }
-        });
-        // 기존 checkWeeklyRewards 함수의 마지막 부분부터 파일 끝까지를 아래로 교체
+    try {
+      const snap = await gRef(code).get(); 
+      if(!snap.exists) return;
+      const grp = snap.data(); 
+      if((grp.weeklyReset || 0) >= getWeekStart()) return;
+      
+      const members = grp.members || [];
+      const users = await Promise.all(members.map(uid => getUser(uid)));
+      const ranking = users.map((u, i) => ({ uid: members[i], xp: u?.totalXp||0, level: u?.level||1 })).sort((a,b) => b.level-a.level || b.xp-a.xp);
+      
+      const batch = db.batch();
+      RANK_REWARDS.forEach((r, i) => {
+        if(ranking[i]) {
+          batch.set(uRef(ranking[i].uid), { weeklyRewardItems: firebase.firestore.FieldValue.arrayUnion(r), inventory: firebase.firestore.FieldValue.arrayUnion(r) }, { merge: true });
+        }
+      });
+      
       batch.update(gRef(code), { weeklyReset: getWeekStart() });
       await batch.commit();
     } catch(e) { 
       console.error(e); 
     }
-  } // <-- checkWeeklyRewards 함수를 닫는 괄호
+  }
 </script> </body>
 </html>
