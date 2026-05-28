@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드26</title>
+  <title>초등 영어 RPG 월드27</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -46,13 +46,18 @@
     width: 100%; height: 100%; 
     position: absolute; top: 0; left: 0; 
     display: none; 
-    flex-direction: column; 
-    align-items: center;      /* 가로 중앙 */
-    justify-content: flex-start; /* 세로 정렬을 위쪽으로 변경 */
-    padding-top: 100px;       /* 배너 아래에 컨텐츠가 오도록 여백 확보 */
+    flex-direction: column !important;      /* 강제 세로 배치 */
+    justify-content: flex-start !important; /* 위에서부터 아래로 쌓이게 */
+    align-items: center !important;         /* 모든 요소를 무조건 가로 정중앙 고정! */
+    padding-top: 90px !important;           /* 상단 배너와 겹치지 않게 여백 강제 확보 */
     color: white; 
     box-sizing: border-box; 
     z-index: 10; 
+}
+
+    #auth-screen, #myroom-screen {
+    justify-content: center !important;
+    padding-top: 0 !important;
 }
     
     /* 🚨 깃허브 스크린샷과 정확히 일치하도록 .png 로 전부 수정했습니다! 🚨 */
@@ -177,8 +182,8 @@
     display: flex; 
     width: 90%; 
     justify-content: space-between; 
-    align-items: flex-end; /* 아래쪽으로 정렬되도록 변경 */
-    margin-top: 150px;    /* 이 수치를 키울수록 유닛 전체가 밑으로 내려갑니다! */
+    align-items: flex-end; 
+    margin: 20px auto 20px auto !important; /* 가로 중앙 강제 고정 */
     height: 220px; 
     position: relative; 
 }
@@ -390,9 +395,9 @@
       <div class="auth-title">초등 영어 RPG 월드</div>
       <div class="auth-box">
         <div class="menu-tabs">
-          <button class="tab-btn active" id="tab-login">로그인</button>
-            <button class="tab-btn" id="tab-register">회원가입</button>
-        </div>
+    <button class="tab-btn active" id="tab-login" onclick="setAuthMode('login')">로그인</button>
+    <button class="tab-btn" id="tab-register" onclick="setAuthMode('register')">회원가입</button>
+</div>
         <h3 id="auth-box-title">로그인</h3>
         <input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
         <input type="password" id="auth-password" placeholder="비밀번호">
