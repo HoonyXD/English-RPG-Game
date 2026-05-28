@@ -539,7 +539,15 @@
     async function getUser(uid) {
       const snap = await uRef(uid).get();
       if(snap.exists) return snap.data();
-      const defaultData = { points: 0, level: 1, totalXp: 0, groupCode: null, inventory: [], weeklyRewardItems: [] };
+      const defaultData = { 
+    points: 0, 
+    level: 1, 
+    totalXp: 0, 
+    groupCode: null, 
+    inventory: [], 
+    placedItems: [], // <--- 이거 추가!
+    weeklyRewardItems: [] 
+};
       await uRef(uid).set(defaultData);
       return defaultData;
     }
@@ -627,7 +635,7 @@
     // 2. 선택한 화면 보이기
     const targetScreen = document.getElementById(mapId);
     if (targetScreen) {
-        targetScreen.style.display = 'flex';
+        targetScreen.style.display = (mapId === 'auth-screen') ? 'flex' : 'block';
     }
     currentMap = mapId;
     
