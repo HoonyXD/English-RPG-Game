@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드1</title>
+  <title>초등 영어 RPG 월드2</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -110,51 +110,51 @@
     .quiz-options button { padding: 12px; font-family: 'Jua', sans-serif; font-size: 16px; background: #34495e; color: white; border: 2px solid #2c3e50; border-radius: 6px; cursor: pointer; }
     .quiz-options button:hover { background: #f1c40f; color: black; border-color: #f39c12; }
 
-    /* 문장 조합 결과창 (대시 보드) */
-    #result-area {
-        width: 90%;
-        min-height: 50px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px dashed #f1c40f;
-        border-radius: 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 15px;
-        margin: 0 auto 20px auto;
-        font-size: 20px;
-        color: #f1c40f;
-        box-sizing: border-box;
-    }
+    /* 문장 조합 결과창: 깔끔한 라인과 여백 추가 */
+#result-area {
+    width: 85%;
+    min-height: 50px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px dashed #f1c40f;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    margin: 10px auto 20px auto;
+    font-size: 18px;
+    color: #fff;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
 
-    /* 단어 블록 버튼 스타일 */
-    .word-btn {
-        background: #34495e;
-        color: white;
-        padding: 12px 20px;
-        border: 2px solid #2c3e50;
-        border-radius: 8px;
-        margin: 6px;
-        cursor: pointer;
-        font-family: 'Jua', sans-serif;
-        font-size: 18px;
-        transition: 0.2s;
-    }
-    .word-btn:hover { background: #f1c40f; color: #000; transform: translateY(-3px); }
+/* 단어 버튼: 가시성을 높이고 크기를 조정 */
+.word-btn {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 8px 16px; /* 버튼 크기 축소 */
+    border: 2px solid #34495e;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Jua', sans-serif;
+    font-size: 15px;
+    margin: 4px;
+    transition: all 0.2s;
+    min-width: 80px; /* 너무 작아지지 않게 최소 너비 설정 */
+}
+.word-btn:hover { background: #34495e; border-color: #f1c40f; color: #f1c40f; }
 
-    /* 제출 버튼 */
-    .submit-btn-quiz {
-        display: block;
-        margin: 20px auto;
-        padding: 12px 40px;
-        background: #27ae60;
-        border: 3px solid #1e7e34;
-        color: white;
-        font-family: 'Jua';
-        font-size: 18px;
-        border-radius: 8px;
-        cursor: pointer;
-    }
+/* 제출 버튼: 하단에 명확하게 배치 */
+.submit-btn-quiz {
+    margin-top: 20px;
+    padding: 10px 30px;
+    background: #27ae60;
+    border: none;
+    color: white;
+    font-family: 'Jua';
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
     .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
     .room-item { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px dashed #9b59b6; display: flex; justify-content: center; align-items: center; font-size: 32px; border-radius: 8px; }
@@ -717,41 +717,40 @@
     optArea.innerHTML = '';
     
     // 3. [수정 부분] 영작문(blocks 데이터 있음) vs 일반 객관식 구분
-    if (qData.blocks) {
-        let selectedBlocks = [];
-        
-        // 결과 표시 영역
-        const resultArea = document.createElement('div');
-        resultArea.style = "margin-bottom:15px; padding:10px; border:2px dashed #f1c40f; color:#f1c40f; min-height:30px; font-size:18px;";
+    const resultArea = document.createElement('div');
+        resultArea.id = "result-area";
+        resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
         optArea.appendChild(resultArea);
 
-        // 단어 블록을 무작위로 섞어서 생성
+        // 단어 버튼 생성
         [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
             const btn = document.createElement('button');
             btn.innerText = word;
-            btn.style = "margin: 5px; padding: 10px;";
+            btn.className = "word-btn"; // CSS 클래스 적용
             btn.onclick = () => {
                 selectedBlocks.push(word);
                 resultArea.innerText = selectedBlocks.join(' ');
-                btn.style.display = 'none'; // 선택한 단어는 숨김
+                btn.style.display = 'none'; // 클릭 시 숨김
             };
             optArea.appendChild(btn);
         });
 
-        // 제출 버튼
+        // 제출 버튼 생성
         const submitBtn = document.createElement('button');
         submitBtn.innerText = "문장 완성 제출";
-        submitBtn.style = "display: block; margin: 10px auto; background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;";
+        submitBtn.className = "submit-btn-quiz"; // CSS 클래스 적용
         submitBtn.onclick = () => {
             const finalSentence = selectedBlocks.join(' ');
             handleTrainingAnswer(finalSentence === qData.ans);
         };
         optArea.appendChild(submitBtn);
+
     } else {
-        // 기존 객관식 퀴즈 (단어, 문법, 리스닝)
+        // 2. 일반 객관식 모드 (단어, 문법, 리스닝)
         qData.a.forEach((opt, idx) => {
             const btn = document.createElement('button');
             btn.innerText = opt;
+            btn.className = "word-btn"; // 객관식도 동일한 버튼 스타일 공유
             btn.onclick = () => handleTrainingAnswer(idx === qData.c);
             optArea.appendChild(btn);
         });
