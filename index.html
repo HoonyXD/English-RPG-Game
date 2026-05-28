@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드2</title>
+  <title>초등 영어 RPG 월드3</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -191,8 +191,8 @@
       <div class="auth-title">초등 영어 RPG 월드</div>
       <div class="auth-box">
         <div class="menu-tabs">
-          <button class="tab-btn active" id="tab-login" onclick="setAuthMode('login')">로그인</button>
-          <button class="tab-btn" id="tab-register" onclick="setAuthMode('register')">회원가입</button>
+          <button class="tab-btn active" id="tab-login">로그인</button>
+            <button class="tab-btn" id="tab-register">회원가입</button>
         </div>
         <h3 id="auth-box-title">로그인</h3>
         <input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
@@ -738,7 +738,7 @@
         // 제출 버튼 생성
         const submitBtn = document.createElement('button');
         submitBtn.innerText = "문장 완성 제출";
-        submitBtn.className = "submit-btn-quiz"; // CSS 클래스 적용
+        submitBtn.className = "submit-btn-quiz";
         submitBtn.onclick = () => {
             const finalSentence = selectedBlocks.join(' ');
             handleTrainingAnswer(finalSentence === qData.ans);
@@ -746,11 +746,11 @@
         optArea.appendChild(submitBtn);
 
     } else {
-        // 2. 일반 객관식 모드 (단어, 문법, 리스닝)
+        // 2. 일반 객관식 모드
         qData.a.forEach((opt, idx) => {
             const btn = document.createElement('button');
             btn.innerText = opt;
-            btn.className = "word-btn"; // 객관식도 동일한 버튼 스타일 공유
+            btn.className = "word-btn";
             btn.onclick = () => handleTrainingAnswer(idx === qData.c);
             optArea.appendChild(btn);
         });
