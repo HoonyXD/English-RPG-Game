@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드20</title>
+  <title>초등 영어 RPG 월드21</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -33,8 +33,13 @@
     #dungeon-battle-screen { background-color: #8e44ad; background-image: url('bg_dungeon.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
     
     #merchant-screen { background-color: #3e2723; }
-    #level-select-screen { background: rgba(20, 15, 10, 0.95); padding: 30px; box-sizing: border-box; justify-content: flex-start; align-items: center; }
-   #myroom-screen { 
+   #level-select-screen {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* 화면 넘치면 스크롤 */
+    max-height: 100%;
+}
+    #myroom-screen { 
     background: linear-gradient(135deg,#1a0e2e,#2d1b4e,#1a0e2e);
     display: flex; /* 요소를 중앙 정렬하기 위해 추가 */
     flex-direction: column;
