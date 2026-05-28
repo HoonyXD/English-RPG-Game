@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드 (완벽 패치본)</title>
+  <title>초등 영어 RPG 월드 (배경 확장자 패치본)</title>
   
+  <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
   <script src="grammarBank.js"></script>
   <script src="writingBank.js"></script>
   <script src="listeningBank.js"></script>
   <script src="dungeonBank.js"></script>
 
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   
@@ -22,12 +24,12 @@
     
     .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; box-sizing: border-box; z-index: 10; }
     
-    /* 🚨 레포지토리 파일명과 100% 동일하게 수정 완료 🚨 */
+    /* 🚨 깃허브 스크린샷과 정확히 일치하도록 .png 로 전부 수정했습니다! 🚨 */
     #auth-screen { display: flex; background-color: #1a120b; background-image: url('bg_auth.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; z-index: 100; }
     #town-screen { background-color: #2c3e50; background-image: url('bg_town.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
-    #training-screen { background-color: #27ae60; background-image: url('bg_training_gateway.jpg'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
-    #quiz-screen { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('bg_training_gateway.jpg'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
-    #dungeon-battle-screen { background-color: #8e44ad; background-image: url('bg_dungeon.jpg'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+    #training-screen { background-color: #27ae60; background-image: url('bg_training_gateway.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+    #quiz-screen { background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('bg_training_gateway.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+    #dungeon-battle-screen { background-color: #8e44ad; background-image: url('bg_dungeon.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
     
     #merchant-screen { background-color: #3e2723; }
     #level-select-screen { background: rgba(20, 15, 10, 0.95); padding: 30px; box-sizing: border-box; justify-content: flex-start; align-items: center; }
@@ -122,19 +124,23 @@
   <div id="game-container">
     <div id="loading-overlay" class="loading-overlay">데이터 동기화 진행 중...</div>
 
+    <!-- 좌측 상단 HUD -->
     <div id="points-ui">💰 금화: <span id="player-points">0</span>개</div>
     <div id="group-badge">🛡️ 연합 가입됨</div>
 
+    <!-- 좌측 하단 HUD -->
     <div id="xp-ui">
       <div>⭐ 레벨: <span id="player-level">1</span> (<span id="player-xp-text">0</span> XP)</div>
       <div id="xp-bar-outer"><div id="xp-bar-inner"></div></div>
     </div>
     
+    <!-- 우측 상단 HUD -->
     <div id="inventory-ui">
       <div class="inv-title">🎒 가방 인벤토리</div>
       <ul id="inv-items-list" class="inv-list"></ul>
     </div>
 
+    <!-- [SCREEN 1] 인증 화면 -->
     <div class="screen" id="auth-screen" style="display: flex;">
       <div class="auth-title">초등 영어 RPG 월드</div>
       <div class="auth-box">
@@ -149,6 +155,7 @@
       </div>
     </div>
 
+    <!-- [SCREEN 2] 마을 스크린 -->
     <div class="screen" id="town-screen">
       <div class="banner">🏡 평화로운 모험가 마을</div>
       <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
@@ -160,6 +167,7 @@
       <div class="portal" id="portal-group"><div class="portal-label">길드 그룹 본부</div>🌀</div>
     </div>
 
+    <!-- [SCREEN 3] 훈련 아카데미 -->
     <div class="screen" id="training-screen">
       <div class="banner">🎯 속성 훈련 아카데미</div>
       <button class="back-btn" onclick="changeMap('town-screen', 230)">🏡 마을로 나가기</button>
@@ -170,6 +178,7 @@
       <div class="portal" id="portal-listening"><div class="portal-label">리스닝 청취반</div>🌀</div>
     </div>
 
+    <!-- [SCREEN 4] 퀴즈 스크린 -->
     <div class="screen" id="quiz-screen">
       <div class="banner" id="quiz-banner">훈련 진행 중</div>
       <div class="quiz-area" style="margin-top: 80px;">
@@ -179,6 +188,7 @@
       <button class="back-btn" onclick="changeMap('training-screen', 260)">🏳️ 훈련 포기하기</button>
     </div>
 
+    <!-- [SCREEN 5] 상점 스크린 -->
     <div class="screen" id="merchant-screen">
       <div class="banner">💰 비밀 상점</div>
       <div class="grid-container">
@@ -206,6 +216,7 @@
       <button class="back-btn" onclick="changeMap('town-screen', 430)">🏡 마을로 나가기</button>
     </div>
 
+    <!-- [SCREEN 6] 가구 상점 -->
     <div class="screen" id="room-shop-screen">
       <div class="banner">🛋️ 가구 인테리어 전문점</div>
       <div class="grid-container">
@@ -233,6 +244,7 @@
       <button class="back-btn" onclick="changeMap('merchant-screen', 430)">⬅️ 일반 상점으로</button>
     </div>
 
+    <!-- [SCREEN 7] 마이룸 -->
     <div class="screen" id="myroom-screen">
       <div class="banner">🏰 나의 아늑한 마이룸 공방</div>
       <div class="room-view" id="myroom-display-area"></div>
@@ -242,6 +254,7 @@
       <button class="back-btn" onclick="changeMap('town-screen', 830)">🏡 마을로 나가기</button>
     </div>
 
+    <!-- [SCREEN 8] 길드 본부 -->
     <div class="screen" id="group-screen">
       <div class="banner">🛡️ 길드 그룹 연합 본부</div>
       <div class="group-panel">
@@ -261,6 +274,7 @@
       <button class="back-btn" onclick="changeMap('town-screen', 830)">🏡 마을로 나가기</button>
     </div>
 
+    <!-- [SCREEN 9] 던전 선택 창 -->
     <div class="screen" id="level-select-screen">
       <div class="banner">⚔️ 어둠의 던전 난이도 선택 (1~20층)</div>
       <div class="grid-container" id="dungeon-floor-grid" style="grid-template-columns: repeat(4, 1fr);">
@@ -268,6 +282,7 @@
       <button class="back-btn" onclick="changeMap('town-screen', 630)">🏡 마을로 나가기</button>
     </div>
 
+    <!-- [SCREEN 10] 던전 전투 스크린 -->
     <div class="screen" id="dungeon-battle-screen">
       <div class="banner" id="battle-banner">실시간 던전 결투 구역</div>
       <div class="battle-container">
@@ -289,11 +304,14 @@
         <div class="quiz-question" id="dungeon-question-text">퀴즈 추출 진행 중...</div>
         <div class="quiz-options" id="dungeon-options-area"></div>
       </div>
+      <!-- 던전 도망치기 버튼 -->
       <button class="back-btn" onclick="changeMap('level-select-screen', 630)">🏃 도망치기</button>
     </div>
 
+    <!-- 하단 조작 가이드바 -->
     <div class="controls-guide" id="movement-guide">원하는 컨텐츠 포탈에 접근해 주세요.</div>
 
+    <!-- 아바타 -->
     <div id="player">
       <div class="character-avatar" id="player-avatar-vis">
         <div class="char-head"></div>
@@ -315,8 +333,7 @@
   messagingSenderId: "419282044565",
   appId: "1:419282044565:web:cb7aac385519cbc979fd9c",
   measurementId: "G-314HEG3L5V"
-};
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+};firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     const RANK_REWARDS = ["👑 마왕의 왕관", "💎 전설의 다이아", "🌟 황금 훈장"];
