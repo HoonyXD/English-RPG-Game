@@ -701,41 +701,45 @@
     function renderTrainingQuestion() {
     const qData = activeQuizList[activeQuizIndex];
     document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
-    
-    // 1. 문제 질문 표시
     document.getElementById('quiz-question-text').innerText = qData.q;
-    
-    // 2. 청취 문제일 경우 음성 자동 재생
+
     if(qData.speak) {
         const utterance = new SpeechSynthesisUtterance(qData.speak);
         utterance.lang = 'en-US';
         utterance.rate = 0.9;
         speechSynthesis.speak(utterance);
     }
-    
+
     const optArea = document.getElementById('quiz-options-area');
     optArea.innerHTML = '';
     
-    // 3. [수정 부분] 영작문(blocks 데이터 있음) vs 일반 객관식 구분
-    const resultArea = document.createElement('div');
+    // UI 정렬을 위한 스타일
+    optArea.style.display = "flex";
+    optArea.style.flexWrap = "wrap";
+    optArea.style.justifyContent = "center";
+    optArea.style.gap = "8px";
+
+    // [영작문 문제일 경우]
+    if (qData.blocks) {
+        let selectedBlocks = [];
+        
+        const resultArea = document.createElement('div');
         resultArea.id = "result-area";
         resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
         optArea.appendChild(resultArea);
 
-        // 단어 버튼 생성
         [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
             const btn = document.createElement('button');
             btn.innerText = word;
-            btn.className = "word-btn"; // CSS 클래스 적용
+            btn.className = "word-btn";
             btn.onclick = () => {
                 selectedBlocks.push(word);
                 resultArea.innerText = selectedBlocks.join(' ');
-                btn.style.display = 'none'; // 클릭 시 숨김
+                btn.style.display = 'none';
             };
             optArea.appendChild(btn);
         });
 
-        // 제출 버튼 생성
         const submitBtn = document.createElement('button');
         submitBtn.innerText = "문장 완성 제출";
         submitBtn.className = "submit-btn-quiz";
@@ -746,7 +750,7 @@
         optArea.appendChild(submitBtn);
 
     } else {
-        // 2. 일반 객관식 모드
+        // [객관식 문제일 경우]
         qData.a.forEach((opt, idx) => {
             const btn = document.createElement('button');
             btn.innerText = opt;
@@ -755,7 +759,7 @@
             optArea.appendChild(btn);
         });
     }
-}
+} // <--- 이 괄호가 renderTrainingQuestion 함수 전체를 닫아줍니다.
 
     async function handleTrainingAnswer(isCorrect) {
       if(isCorrect) {
