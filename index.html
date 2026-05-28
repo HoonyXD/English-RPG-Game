@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드3</title>
+  <title>초등 영어 RPG 월드4</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -129,24 +129,26 @@
 
 /* 단어 버튼: 가시성을 높이고 크기를 조정 */
 .word-btn {
-    background: #2c3e50;
+    background: #34495e;
     color: #ecf0f1;
-    padding: 8px 16px; /* 버튼 크기 축소 */
-    border: 2px solid #34495e;
+    padding: 10px 15px; /* 크기 약간 축소 */
+    border: 2px solid #2c3e50;
     border-radius: 6px;
     cursor: pointer;
     font-family: 'Jua', sans-serif;
     font-size: 15px;
     margin: 4px;
     transition: all 0.2s;
-    min-width: 80px; /* 너무 작아지지 않게 최소 너비 설정 */
+    min-width: 60px;
 }
 .word-btn:hover { background: #34495e; border-color: #f1c40f; color: #f1c40f; }
 
 /* 제출 버튼: 하단에 명확하게 배치 */
 .submit-btn-quiz {
-    margin-top: 20px;
-    padding: 10px 30px;
+    display: block;
+    width: 150px; /* 고정 너비로 안정감 확보 */
+    margin: 20px auto 0 auto; /* 위쪽 여백을 줘서 버튼들과 분리 */
+    padding: 10px 0;
     background: #27ae60;
     border: none;
     color: white;
@@ -154,6 +156,7 @@
     font-size: 16px;
     border-radius: 6px;
     cursor: pointer;
+    text-align: center;
 }
 
     .room-view { width: 80%; height: 240px; background: rgba(0,0,0,0.5); border: 4px double #9b59b6; border-radius: 12px; margin-top: 70px; display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; padding: 15px; }
@@ -719,14 +722,22 @@
     optArea.style.justifyContent = "center";
     optArea.style.gap = "8px";
 
-    // [영작문 문제일 경우]
     if (qData.blocks) {
         let selectedBlocks = [];
         
+        // 1. 결과창 (최상단)
         const resultArea = document.createElement('div');
         resultArea.id = "result-area";
         resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
         optArea.appendChild(resultArea);
+
+        // 2. 단어 컨테이너 (중간 - 여기에 버튼들이 모임)
+        const wordContainer = document.createElement('div');
+        wordContainer.style.display = "flex";
+        wordContainer.style.flexWrap = "wrap";
+        wordContainer.style.justifyContent = "center";
+        wordContainer.style.marginBottom = "20px";
+        optArea.appendChild(wordContainer);
 
         [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
             const btn = document.createElement('button');
@@ -737,9 +748,10 @@
                 resultArea.innerText = selectedBlocks.join(' ');
                 btn.style.display = 'none';
             };
-            optArea.appendChild(btn);
+            wordContainer.appendChild(btn); // optArea가 아닌 wordContainer에 추가
         });
 
+        // 3. 제출 버튼 (가장 하단 - 마지막에 추가됨)
         const submitBtn = document.createElement('button');
         submitBtn.innerText = "문장 완성 제출";
         submitBtn.className = "submit-btn-quiz";
@@ -748,7 +760,6 @@
             handleTrainingAnswer(finalSentence === qData.ans);
         };
         optArea.appendChild(submitBtn);
-
     } else {
         // [객관식 문제일 경우]
         qData.a.forEach((opt, idx) => {
