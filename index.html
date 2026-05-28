@@ -151,7 +151,7 @@
         <h3 id="auth-box-title">로그인</h3>
         <input type="text" id="auth-username" placeholder="아이디 (영문/숫자)">
         <input type="password" id="auth-password" placeholder="비밀번호">
-        <button class="submit-btn" id="auth-submit-btn" onclick="window.handleAuthSubmit()">게임 시작하기</button>
+        <button class="submit-btn" id="auth-submit-btn">게임 시작하기</button>
       </div>
     </div>
 
@@ -407,6 +407,14 @@
       document.getElementById('auth-submit-btn').innerText = mode==='login' ? '게임 시작하기' : '새 계정 생성';
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+    // 버튼을 찾아서 클릭 이벤트를 직접 연결합니다.
+    const authBtn = document.getElementById('auth-submit-btn');
+    if (authBtn) {
+        authBtn.addEventListener('click', handleAuthSubmit);
+    }
+});
+
     async function handleAuthSubmit() {
       const user = document.getElementById('auth-username').value.trim();
       const pass = document.getElementById('auth-password').value.trim();
@@ -502,8 +510,7 @@
 }
       
       playerX = Math.max(40, Math.min(960, targetX));
-      document.getElementById('player').style.left = (playerX - 25) + 'px';
-    }
+      document.getElementById('player').style.left = (playerX - 25) + 'px';  
 
     function checkPortalEntry() {
       if (currentMap === 'town-screen') {
