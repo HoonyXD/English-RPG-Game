@@ -1355,10 +1355,12 @@ roomArea.ondrop = (e) => {
             batch.set(uRef(ranking[i].uid), { weeklyRewardItems: firebase.firestore.FieldValue.arrayUnion(r), inventory: firebase.firestore.FieldValue.arrayUnion(r) }, { merge: true });
           }
         });
-        batch.update(gRef(code), { weeklyReset: getWeekStart() });
-        await batch.commit();
-      } catch(e) { console.error(e); }
+        // 기존 checkWeeklyRewards 함수의 마지막 부분부터 파일 끝까지를 아래로 교체
+      batch.update(gRef(code), { weeklyReset: getWeekStart() });
+      await batch.commit();
+    } catch(e) { 
+      console.error(e); 
     }
-</script>
-</body>
+  } // <-- checkWeeklyRewards 함수를 닫는 괄호
+</script> </body>
 </html>
