@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드8</title>
+  <title>초등 영어 RPG 월드10</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -99,18 +99,27 @@
     .rpg-card p { margin: 0; color: #bdc3c7; font-size: 13px; }
     .rpg-btn { background: linear-gradient(to bottom, #2980b9, #1a5276); color: white; border: 3px solid #1a0f08; padding: 6px 12px; font-family: 'Jua', sans-serif; font-size: 14px; cursor: pointer; margin: 4px; border-radius: 5px; }
 
-    .battle-container { display: flex; width: 90%; justify-content: space-between; align-items: center; margin-top: 60px; height: 220px; position: relative; }
-    .battle-unit {
-    width: 40%;
+    .battle-container { 
+    display: flex; 
+    width: 90%; 
+    justify-content: space-between; 
+    align-items: flex-start; /* 윗줄 정렬로 변경하여 위쪽 공간 확보 */
+    margin-top: 20px;       /* 전체를 살짝 위로 올려서 아래쪽 여유 확보 */
+    height: 250px;          /* 높이를 살짝 늘려줌 */
+    position: relative; 
+}
+
+.battle-unit {
+    width: 45%; 
     display: flex;
-    flex-direction: column; /* 세로 정렬로 변경 */
+    flex-direction: column;
     align-items: center;
     position: relative;
     transition: all 0.3s;
-    justify-content: flex-start; /* 위쪽 정렬 */
+    justify-content: flex-start;
 }
-    
-    .battle-avatar {
+
+.battle-avatar {
     width: 120px;
     height: 120px;
     background: transparent !important;
@@ -119,25 +128,33 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px; /* 여기서 텍스트와 간격을 확실히 벌림 */
+    margin-bottom: 30px; /* 텍스트와 간격을 더 벌림 (20px -> 30px) */
     transition: transform 0.2s;
 }
 
-/* 이미지 자체가 박스를 뚫지 않도록 제한 */
 .battle-avatar img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
-    .hp-bar-outer {
+
+.hp-bar-outer {
     width: 100%;
-    max-width: 150px; /* 너무 길어지지 않게 제한 */
+    max-width: 150px;
     height: 16px;
     background: #c0392b;
     border: 2px solid #000;
     border-radius: 8px;
     overflow: hidden;
-    margin-top: 10px; /* 이름과 간격 추가 */
+    margin-top: 15px; /* 이름과의 간격을 조금 더 넓힘 */
+}
+
+/* 추가: 이름 텍스트가 예쁘게 보이도록 */
+#monster-name {
+    margin-top: 10px;
+    font-size: 16px;
+    color: white;
+    text-shadow: 1px 1px 2px #000; /* 글자 그림자 추가로 가독성 향상 */
 }
     .hp-bar-inner { height: 100%; background: #2ecc71; width: 100%; transition: width 0.3s; }
     
@@ -829,6 +846,9 @@
     }
 
     function startDungeonFloor(floorNum) {
+    const expBar = document.getElementById('exp-bar-container'); // 실제 ID 확인하세요
+    if(expBar) expBar.style.display = 'none';
+      
     currentFloor = floorNum;
     playerHp = 3;
     monsterHp = 3;
@@ -865,6 +885,15 @@
     updateBattleUI();
     changeMap('dungeon-battle-screen', 490);
     renderDungeonQuestion();
+}
+
+    function exitDungeon() {
+    // 1. 경험치 바 다시 보이기
+    const expBar = document.getElementById('exp-bar-container');
+    if(expBar) expBar.style.display = 'block'; 
+    
+    // 2. 맵 이동
+    changeMap('main-screen');
 }
 
     function updateBattleUI() {
