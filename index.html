@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드24</title>
+  <title>초등 영어 RPG 월드25</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -38,7 +38,8 @@
     border-radius: 12px; 
     overflow: hidden; 
     background-color: #1a120b; 
-    box-sizing: border-box; 
+    box-sizing: border-box;
+    margin: auto; /* 중요: 부모가 flex일 때 중앙 정렬 */
 }
     
 .screen { 
@@ -51,6 +52,7 @@
     color: white; 
     box-sizing: border-box; 
     z-index: 10; 
+    padding: 20px; /* 내부 여백 추가 */
 }
     
     /* 🚨 깃허브 스크린샷과 정확히 일치하도록 .png 로 전부 수정했습니다! 🚨 */
@@ -230,12 +232,13 @@
     
     .quiz-area { 
     width: 80%; 
+    max-width: 800px; /* 너무 커지지 않게 제한 */
     background: rgba(0,0,0,0.85); 
     border: 4px solid #f1c40f; 
     border-radius: 12px; 
-    padding: 25px; 
-    text-align: center; 
-    margin-top: 50px; /* 배너 아래로 공간 확보 */
+    padding: 30px; 
+    text-align: center;
+    margin: 0 auto; /* 가로 중앙 고정 */
 }
     .quiz-question { font-size: 22px; margin-bottom: 20px; color: #fffbdf; }
     .quiz-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
