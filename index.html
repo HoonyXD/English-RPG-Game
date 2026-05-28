@@ -588,13 +588,22 @@
         });
       } 
       else if(partType === 'grammar') {
-        activeRewardGold = 7; activeRewardXp = 15;
-        let allGrammar = [];
-        Object.keys(quizBankData.grammar).forEach(k => {
-          allGrammar = allGrammar.concat(quizBankData.grammar[k]);
+    activeRewardGold = 7; 
+    activeRewardXp = 15;
+    let allGrammar = [];
+    
+    // 이제 quizBankData 대신 quizBank를 사용합니다
+    if (typeof quizBank !== 'undefined' && quizBank.grammar) {
+        Object.keys(quizBank.grammar).forEach(k => {
+            allGrammar = allGrammar.concat(quizBank.grammar[k]);
         });
         activeQuizList = allGrammar.sort(() => Math.random() - 0.5).slice(0, 5);
-      } 
+    } else {
+        alert("문법 데이터(grammarBank)를 불러올 수 없습니다. 파일 이름을 확인하세요.");
+        return;
+    }
+}
+        
       else if(partType === 'writing') {
         activeRewardGold = 10; activeRewardXp = 20;
         let allWriting = [];
