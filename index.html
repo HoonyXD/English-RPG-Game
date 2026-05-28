@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드21</title>
+  <title>초등 영어 RPG 월드22</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -19,11 +19,33 @@
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; display: flex; justify-content: center; align-items: center; font-family: 'Jua', sans-serif; overflow: hidden; user-select: none; }
-    
-    #game-container { width: 1024px; height: 576px; position: relative; border: 8px solid #2c1a0e; border-radius: 12px; overflow: hidden; background-color: #1a120b; box-sizing: border-box; }
-    
-    .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; box-sizing: border-box; z-index: 10; }
+    body, html {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background-color: #000;
+    font-family: 'Jua', sans-serif;
+    overflow: hidden;
+}
+
+/* 2. game-container를 중앙으로 강제 배치 */
+#game-container {
+    width: 1024px; height: 576px;
+    position: absolute; /* 중앙 정렬용 */
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: 8px solid #2c1a0e;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #1a120b;
+}
+
+/* 3. 각 스크린을 단순하게 설정 (flex 충돌 방지) */
+.screen {
+    width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0;
+    display: none;
+    box-sizing: border-box;
+}
     
     /* 🚨 깃허브 스크린샷과 정확히 일치하도록 .png 로 전부 수정했습니다! 🚨 */
     #auth-screen { display: flex; background-color: #1a120b; background-image: url('bg_auth.png'); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; z-index: 100; }
