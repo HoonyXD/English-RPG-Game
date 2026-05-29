@@ -1098,19 +1098,20 @@ function startTraining(partType, level = 1) {
 }
 
     function exitDungeon() {
-    // 1. 던전용 클래스 및 레이아웃 수정사항 제거
-    const battleScreen = document.getElementById('dungeon-battle-screen');
-    if(battleScreen) battleScreen.classList.remove('dungeon-layout-fix');
-    
-    const quizArea = document.getElementById('quiz-area');
-    if(quizArea) quizArea.classList.remove('dungeon-quiz-area');
+      // 1. 던전용 클래스 및 레이아웃 수정사항 제거
+      const battleScreen = document.getElementById('dungeon-battle-screen');
+      if(battleScreen) battleScreen.classList.remove('dungeon-layout-fix');
+      
+      const quizArea = document.getElementById('quiz-area');
+      if(quizArea) quizArea.classList.remove('dungeon-quiz-area');
 
-    // 2. 경험치 바 복구
-    const expBar = document.getElementById('exp-bar-container');
-    if(expBar) expBar.style.display = 'block'; 
-    
-    changeMap('main-screen');
-}
+      // 2. 경험치 바 복구
+      const expBar = document.getElementById('exp-bar-container');
+      if(expBar) expBar.style.display = 'block'; 
+      
+      // 🚨 이곳이 범인이었습니다! 'main-screen'을 아래처럼 고쳐주세요. 🚨
+      changeMap('level-select-screen', 630); 
+    }
 
     function updateBattleUI() {
       document.getElementById('player-hp-text').innerText = playerHp;
