@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드33</title>
+  <title>초등 영어 RPG 월드34</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -177,13 +177,13 @@
    /* 1. 플레이어 전체 박스 크기 및 높이(top) 조정 */
 #player { 
     position: absolute; 
-    width: 100px;   /* 기존 50px에서 2배 확대 */
-    height: 130px;  /* 기존 75px에서 확대 */
+    width: 100px;   
+    height: 130px;  
     z-index: 99; 
     display: none; 
     flex-direction: column; 
     align-items: center; 
-    top: 260px;     /* 포탈(310px)과 발을 맞추기 위해 위로 끌어올림 */
+    top: 310px !important; /* 👈 여기를 260px에서 310px로 고치면 포탈과 발이 맞습니다! */
     pointer-events: none; 
 }
 
@@ -852,24 +852,32 @@
       }
     }
 
-    const keys = {};
-    window.addEventListener('keydown', e => {
-      if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen'].includes(currentMap)) return;
-      keys[e.key] = true;
-      if(e.key === 'ArrowUp') checkPortalEntry();
-    });
+    // ------------------------------------
+// 🏃‍♂️ 캐릭터 움직임 및 키보드 조작 코드
+// ------------------------------------
+const keys = {};
 
-    window.addEventListener('keyup', e => {
-      keys[e.key] = false;
-    });
+window.addEventListener('keydown', e => {
+    // 특정 화면에서는 키보드 이동 막기
+    if(['auth-screen', 'quiz-screen', 'dungeon-battle-screen', 'academy-level-screen'].includes(currentMap)) return;
+    keys[e.key] = true;
+    
+    // 위 방향키 누르면 포탈 입장 검사
+    if(e.key === 'ArrowUp') checkPortalEntry();
+});
 
-    window.addEventListener('blur', () => {
-      for (let key in keys) {
-        keys[key] = false; /* 화면 밖으로 나가면 모든 키 입력 취소 */
-      }
-    });
+window.addEventListener('keyup', e => {
+    keys[e.key] = false;
+});
 
-    function gameLoop() {
+// 브라우저 밖을 클릭했을 때 무한 걷기 방지
+window.addEventListener('blur', () => {
+    for (let key in keys) {
+        keys[key] = false;
+    }
+});
+
+function gameLoop() {
     if (['town-screen', 'training-screen'].includes(currentMap)) {
         let moved = false;
         let avatar = document.getElementById('player-avatar-vis');
@@ -877,24 +885,27 @@
         if (keys['ArrowLeft']) { 
             playerX -= 6; 
             moved = true; 
-            // 원본이 왼쪽을 보므로 1 (그대로)
-            avatar.style.transform = 'scaleX(1)'; 
+            if (avatar) avatar.style.transform = 'scaleX(1)'; // 왼쪽 볼 땐 원본 그대로
         }
         if (keys['ArrowRight']) { 
             playerX += 6; 
             moved = true; 
-            // 오른쪽으로 갈 때 좌우 반전
-            avatar.style.transform = 'scaleX(-1)'; 
+            if (avatar) avatar.style.transform = 'scaleX(-1)'; // 오른쪽 볼 땐 좌우 반전
         }
         
         if (moved) {
+            // 화면 밖으로 나가지 못하게 제한
             playerX = Math.max(40, Math.min(960, playerX));
-            // 캐릭터 중심점 조정 (너비가 커졌으므로 -25에서 -50으로 변경)
+            // 캐릭터 중앙 정렬 (너비에 맞게 -50px)
             document.getElementById('player').style.left = (playerX - 50) + 'px';
         }
     }
     requestAnimationFrame(gameLoop);
 }
+
+// 게임 루프 최초 실행
+requestAnimationFrame(gameLoop);
+// ------------------------------------
 
     function updateUI() {
       if(!currentUserData) return;
