@@ -805,6 +805,7 @@
     currentMap = mapId;
     
     // 3. 캐릭터 숨길 목록 정의
+    // 3. 캐릭터 숨길 목록 정의
     const p = document.getElementById('player');
     const guide = document.getElementById('movement-guide');
     const screensToHidePlayer = [
@@ -815,7 +816,8 @@
         'merchant-screen',
         'room-shop-screen',
         'myroom-screen',
-        'group-screen'
+        'group-screen',
+        'academy-level-screen' /* 👈 이 줄을 맨 밑에 추가해 주세요! */
     ];
     
     // 4. 플레이어 표시/숨김 로직
