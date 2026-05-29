@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드34</title>
+  <title>초등 영어 RPG 월드35</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -837,18 +837,19 @@
 
     function checkPortalEntry() {
       if (currentMap === 'town-screen') {
-        // 포탈 중심점: 130, 330, 530, 730, 930
+        // 마을 포탈 중심점: 130, 330, 530, 730, 930
         if(Math.abs(playerX - 130) < 40) changeMap('training-screen', 230);
         else if(Math.abs(playerX - 330) < 40) changeMap('merchant-screen', 430);
         else if(Math.abs(playerX - 530) < 40) changeMap('level-select-screen', 630);
         else if(Math.abs(playerX - 730) < 40) enterMyRoom();
         else if(Math.abs(playerX - 930) < 40) enterGroupScreen();
       } else if (currentMap === 'training-screen') {
-        // 포탈 중심점: 150, 370, 590, 810
-        if(Math.abs(playerX - 150) < 40) startTraining('word');
-        else if(Math.abs(playerX - 370) < 40) startTraining('grammar');
-        else if(Math.abs(playerX - 590) < 40) startTraining('writing');
-        else if(Math.abs(playerX - 810) < 40) startTraining('listening');
+        // 훈련장 포탈 중심점: 150, 370, 590, 810
+        // 🚨 여기가 수정된 부분입니다! startTraining 대신 openAcademyLevelSelect를 호출합니다.
+        if(Math.abs(playerX - 150) < 40) openAcademyLevelSelect('word');
+        else if(Math.abs(playerX - 370) < 40) openAcademyLevelSelect('grammar');
+        else if(Math.abs(playerX - 590) < 40) openAcademyLevelSelect('writing');
+        else if(Math.abs(playerX - 810) < 40) openAcademyLevelSelect('listening');
       }
     }
 
@@ -1005,74 +1006,106 @@ function startTraining(partType, level = 1) {
     renderTrainingQuestion();
 }
     function renderTrainingQuestion() {
-    const qData = activeQuizList[activeQuizIndex];
-    document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
-    document.getElementById('quiz-question-text').innerText = qData.q;
+        const qData = activeQuizList[activeQuizIndex];
+        document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
+        document.getElementById('quiz-question-text').innerText = qData.q;
 
-    if(qData.speak) {
-        const utterance = new SpeechSynthesisUtterance(qData.speak);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.9;
-        speechSynthesis.speak(utterance);
-    }
+        if(qData.speak) {
+            const utterance = new SpeechSynthesisUtterance(qData.speak);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            speechSynthesis.speak(utterance);
+        }
 
-    const optArea = document.getElementById('quiz-options-area');
-    optArea.innerHTML = '';
-    
-    // UI 정렬을 위한 스타일
-    optArea.style.display = "flex";
-    optArea.style.flexWrap = "wrap";
-    optArea.style.justifyContent = "center";
-    optArea.style.gap = "8px";
-
-    if (qData.blocks) {
-        let selectedBlocks = [];
+        const optArea = document.getElementById('quiz-options-area');
+        optArea.innerHTML = '';
         
-        // 1. 결과창 (상단)
-        const resultArea = document.createElement('div');
-        resultArea.id = "result-area";
-        resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
-        optArea.appendChild(resultArea);
+        // UI 정렬을 위한 스타일
+        optArea.style.display = "flex";
+        optArea.style.flexWrap = "wrap";
+        optArea.style.justifyContent = "center";
+        optArea.style.gap = "8px";
 
-        // 2. 단어 카드 컨테이너 (중간)
-        const wordContainer = document.createElement('div');
-        wordContainer.style.cssText = "display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; margin-bottom: 20px;";
-        optArea.appendChild(wordContainer);
+        if (qData.blocks) {
+            let selectedBlocks = [];
+            let selectedButtons = []; // 👈 추가된 부분: 눌렀던 버튼들을 순서대로 기억하는 배열
+            
+            // 1. 결과창 (상단)
+            const resultArea = document.createElement('div');
+            resultArea.id = "result-area";
+            resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
+            optArea.appendChild(resultArea);
 
-        [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
-            const btn = document.createElement('button');
-            btn.innerText = word;
-            btn.className = "word-btn";
-            btn.onclick = () => {
-                selectedBlocks.push(word);
-                resultArea.innerText = selectedBlocks.join(' ');
-                btn.style.display = 'none';
+            // 2. 단어 카드 컨테이너 (중간)
+            const wordContainer = document.createElement('div');
+            wordContainer.style.cssText = "display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; margin-bottom: 20px;";
+            optArea.appendChild(wordContainer);
+
+            [...qData.blocks].sort(() => Math.random() - 0.5).forEach(word => {
+                const btn = document.createElement('button');
+                btn.innerText = word;
+                btn.className = "word-btn";
+                btn.onclick = () => {
+                    selectedBlocks.push(word);
+                    selectedButtons.push(btn); // 👈 눌렀던 버튼 자체를 배열에 저장
+                    resultArea.innerText = selectedBlocks.join(' ');
+                    btn.style.display = 'none'; // 누른 버튼은 숨김
+                };
+                wordContainer.appendChild(btn);
+            });
+
+            // 3. 하단 버튼 영역 (취소 버튼 + 제출 버튼을 나란히 배치)
+            const actionContainer = document.createElement('div');
+            actionContainer.style.cssText = "display: flex; justify-content: center; gap: 15px; width: 100%; margin-top: 10px;";
+
+            // ↩️ 한 단어 취소 버튼 (새로 추가됨!)
+            const undoBtn = document.createElement('button');
+            undoBtn.innerText = "↩️ 한 단어 취소";
+            undoBtn.className = "submit-btn-quiz";
+            undoBtn.style.background = "#d35400"; // 눈에 띄는 짙은 주황색
+            undoBtn.style.margin = "0"; 
+            undoBtn.onclick = () => {
+                if(selectedBlocks.length > 0) {
+                    selectedBlocks.pop(); // 결과 문장에서 마지막 단어 빼기
+                    const restoredBtn = selectedButtons.pop(); // 숨겼던 마지막 버튼 꺼내기
+                    restoredBtn.style.display = 'inline-block'; // 그 버튼을 다시 화면에 보이게 함
+                    
+                    // 글자가 남아있으면 업데이트, 다 지워졌으면 안내 문구 출력
+                    if(selectedBlocks.length > 0) {
+                        resultArea.innerText = selectedBlocks.join(' ');
+                    } else {
+                        resultArea.innerText = "단어를 클릭하여 문장을 조합하세요.";
+                    }
+                }
             };
-            wordContainer.appendChild(btn);
-        });
 
-        // 3. 제출 버튼 (하단)
-        const submitBtn = document.createElement('button');
-        submitBtn.innerText = "문장 완성 제출";
-        submitBtn.className = "submit-btn-quiz";
-        submitBtn.style.cssText = "display: block; margin: 0 auto; cursor: pointer;";
-        submitBtn.onclick = () => {
-            const finalSentence = selectedBlocks.join(' ');
-            handleTrainingAnswer(finalSentence === qData.ans);
-        };
-        optArea.appendChild(submitBtn);
-    } else {
-        // [객관식 문제일 경우]
-        qData.a.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.innerText = opt;
-            btn.className = "word-btn";
-            btn.onclick = () => handleTrainingAnswer(idx === qData.c);
-            optArea.appendChild(btn);
-        });
+            // ✅ 제출 버튼 (기존 기능)
+            const submitBtn = document.createElement('button');
+            submitBtn.innerText = "✅ 문장 완성 제출";
+            submitBtn.className = "submit-btn-quiz";
+            submitBtn.style.margin = "0";
+            submitBtn.onclick = () => {
+                const finalSentence = selectedBlocks.join(' ');
+                handleTrainingAnswer(finalSentence === qData.ans);
+            };
+            
+            // 컨테이너에 두 버튼을 넣고 화면에 출력
+            actionContainer.appendChild(undoBtn);
+            actionContainer.appendChild(submitBtn);
+            optArea.appendChild(actionContainer);
+
+        } else {
+            // [객관식 문제일 경우]
+            qData.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.className = "word-btn";
+                btn.onclick = () => handleTrainingAnswer(idx === qData.c);
+                optArea.appendChild(btn);
+            });
+        }
     }
-} // <--- 이 괄호가 renderTrainingQuestion 함수 전체를 닫아줍니다.
-
+    
     async function handleTrainingAnswer(isCorrect) {
       if(isCorrect) {
         alert(`⭕ 정답! 금화 +${activeRewardGold}💰 / 경험치 +${activeRewardXp}⭐를 취득했습니다.`);
@@ -1166,22 +1199,21 @@ function startTraining(partType, level = 1) {
     }
 
 function renderDungeonQuestion() {
-      const quizArea = document.getElementById('quiz-area');
-      if(quizArea) quizArea.classList.add('dungeon-quiz-area');
-      
-      const qData = activeQuizList[activeQuizIndex];
-      document.getElementById('battle-banner').innerText = `⚔️ 던전 결투 층수: ${currentFloor}층 (${activeQuizIndex + 1}/${activeQuizList.length})`;
-      document.getElementById('dungeon-question-text').innerText = qData.q;
-      
-      const optArea = document.getElementById('dungeon-options-area');
-      optArea.innerHTML = '';
-      
-      qData.a.forEach((opt, idx) => {
+    const quizArea = document.getElementById('quiz-area');
+    if(quizArea) quizArea.classList.add('dungeon-quiz-area');
+    
+    const qData = activeQuizList[activeQuizIndex];
+    document.getElementById('battle-banner').innerText = `⚔️ 던전 결투 층수: ${currentFloor}층 (${activeQuizIndex + 1}/${activeQuizList.length})`;
+    document.getElementById('dungeon-question-text').innerText = qData.q;
+    
+    const optArea = document.getElementById('dungeon-options-area');
+    optArea.innerHTML = '';
+    
+    qData.a.forEach((opt, idx) => {
         const btn = document.createElement('button');
         btn.innerText = opt;
         btn.className = 'word-btn';
         
-        // 여기에 onclick 로직 시작
         btn.onclick = () => {
             const allBtns = optArea.querySelectorAll('button');
             allBtns.forEach(b => b.disabled = true);
@@ -1191,28 +1223,22 @@ function renderDungeonQuestion() {
                 triggerBattleAnimation(true, () => {
                     monsterHp--;
                     updateBattleUI();
-                    if (monsterHp <= 0) {
-                        winDungeonFloor();
-                    } else {
-                        nextDungeonStep();
-                    }
+                    // HP가 0인지 검사하는 건 nextDungeonStep에 맡깁니다.
+                    nextDungeonStep(); 
                 });
             } else {
                 alert("💥 오답! 크리처의 강력한 습격 가해 감지!");
                 triggerBattleAnimation(false, () => {
                     playerHp--;
                     updateBattleUI();
-                    if (playerHp <= 0) {
-                        gameOver();
-                    } else {
-                        nextDungeonStep();
-                    }
+                    // HP가 0인지 검사하는 건 nextDungeonStep에 맡깁니다.
+                    nextDungeonStep(); 
                 });
             }
-        }; // <--- [중요] btn.onclick 닫는 괄호
+        }; 
         optArea.appendChild(btn);
-      }); // <--- [중요] forEach 닫는 괄호
-    } // <--- [중요] renderDungeonQuestion 전체 닫는 괄호
+    }); 
+}
 
     function triggerBattleAnimation(isPlayerAttack, callback) {
       const pUnit = document.getElementById('battle-player-vis');
@@ -1238,17 +1264,25 @@ function renderDungeonQuestion() {
     }
 
     function nextDungeonStep() {
-      if(playerHp <= 0) {
+    if(playerHp <= 0) {
+        // 플레이어 패배
         alert("☠️ 무력화되어 전사했습니다... 모험가 마을에서 체력을 비축하세요.");
-        changeMap('level-select-screen', 560);
-      } else if(monsterHp <= 0) {
+        changeMap('level-select-screen', 630);
+    } else if(monsterHp <= 0) {
+        // 몬스터 처치 성공
         winDungeonFloor();
-      } else {
+    } else {
+        // 둘 다 살아있으면 다음 문제로!
         activeQuizIndex++;
-        if(activeQuizIndex < activeQuizList.length) renderDungeonQuestion();
-        else winDungeonFloor();
-      }
+        
+        // 🚨 핵심 수정: 문제가 다 떨어지면 승리하는 게 아니라, 처음 문제로 돌아가서 계속 싸웁니다!
+        if(activeQuizIndex >= activeQuizList.length) {
+            activeQuizIndex = 0; 
+        }
+        
+        renderDungeonQuestion();
     }
+}
 
     async function winDungeonFloor() {
     let goldReward = currentFloor * 5;
