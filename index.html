@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드30</title>
+  <title>초등 영어 RPG 월드31</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -119,7 +119,13 @@
 #myroom-screen .rpg-btn {
     margin-top: 10px;
 }
-    #group-screen { background: linear-gradient(135deg,#0a1628,#1a2d4e,#0a1628); }
+    #group-screen { 
+    background-color: #0a1628; 
+    background-image: url('bg_group.png'); 
+    background-size: 100% 100%; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+}
     #room-shop-screen { background: linear-gradient(135deg,#1a2e1a,#2d4e1b,#1a2e1a); }
 
     /* UI 영역 */
@@ -569,7 +575,9 @@
       <div class="banner" id="battle-banner">실시간 던전 결투 구역</div>
       <div class="battle-container">
         <div class="battle-unit" id="player-unit">
-          <div class="battle-avatar" id="battle-player-vis">🧙</div>
+          <div class="battle-avatar" id="battle-player-vis">
+    <img src="dungeon_player.png" style="width: 100%; height: 100%; object-fit: contain;">
+</div>
           <div><strong id="battle-p-name">용사</strong></div>
           <div class="hp-bar-outer"><div class="hp-bar-inner" id="player-hp-bar"></div></div>
           <div style="font-size:14px; margin-top:3px;">HP: <span id="player-hp-text">3</span> / 3</div>
@@ -596,9 +604,7 @@
     <!-- 아바타 -->
     <div id="player">
       <div class="character-avatar" id="player-avatar-vis">
-        <div class="char-head"></div>
-        <div class="char-scarf"></div>
-        <div class="char-body"></div>
+        <img src="town_player.jpg" style="width: 100%; height: 100%; object-fit: contain;">
       </div>
       <div class="player-name-tag" id="player-tag-name">모험가</div>
     </div>
@@ -1283,40 +1289,76 @@ function enterMyRoom() {
 }
 
 // 2. 인벤토리 목록 그리기 (클릭 시 배치 호출)
+// [4] 마이룸 화면 그리기 (가구 인벤토리 & 드래그 기능)
 function renderMyRoomView() {
-    // 0. 가드 코드: 데이터가 없으면 실행 안 함
     if (!currentUserData) return;
 
-    const display = document.getElementById('myroom-display-area'); // 실제 방 영역
-    const invList = document.getElementById('inventory-list-inner'); // 인벤토리 버튼 영역
+    const display = document.getElementById('myroom-display-area'); 
+    const invList = document.getElementById('inventory-list-inner'); 
     
     display.innerHTML = '';
     invList.innerHTML = '';
 
     // 1. [방 영역] 배치된 가구 그리기
-    (currentUserData.placedItems || []).forEach(f => {
+    (currentUserData.placedItems || []).forEach((f, index) => {
         const div = document.createElement('div');
-        div.className = 'placed-item'; // CSS에 .placed-item 스타일 필요
-        div.innerHTML = f.split(' ')[0]; // 이모지 표시
-        div.title = f;
+        div.className = 'placed-item'; 
+        div.innerHTML = f.split(' ')[0]; // 이모지만 추출
+        div.title = "마우스로 끌어서 이동, 더블클릭으로 회수";
         
-        // 클릭하면 인벤토리로 회수
-        div.onclick = () => toggleFurniturePlacement(f);
+        // 겹치지 않게 초기 위치를 흩뿌리기
+        div.style.left = (10 + (index * 15) % 70) + '%';
+        div.style.top = (20 + (index * 10) % 50) + '%';
+        
+        // [핵심] 더블클릭하면 인벤토리로 다시 들어감
+        div.ondblclick = () => toggleFurniturePlacement(f);
+        
+        // 마우스로 드래그해서 움직이는 기능 적용
+        makeDraggable(div);
         
         display.appendChild(div);
     });
 
-    // 2. [인벤토리 영역] 보관 중인 가구 그리기
+    // 2. [인벤토리 영역] 보관 중인 가구 (클릭 시 방으로 배치)
     (currentUserData.inventory || []).filter(i => isFurniture(i)).forEach(f => {
         const btn = document.createElement('button');
-        btn.className = 'rpg-btn'; // 기존 상점 버튼 스타일 재사용
+        btn.className = 'rpg-btn'; 
         btn.innerHTML = f;
-        
-        // 클릭하면 방으로 배치
         btn.onclick = () => toggleFurniturePlacement(f);
-        
         invList.appendChild(btn);
     });
+}
+
+// [5] 가구를 마우스로 끌고 다닐 수 있게 해주는 마법의 함수
+function makeDraggable(element) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    element.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+        element.style.zIndex = 100; // 잡았을 때 맨 위로
+    }
+
+    function elementDrag(e) {
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // 가구를 마우스를 따라 이동시킴
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        element.style.zIndex = 5; // 놓으면 원래 높이로
+    }
 }
 
 function isFurniture(itemName) {
@@ -1326,48 +1368,40 @@ function isFurniture(itemName) {
            itemName.startsWith('🕯️') || itemName.startsWith('🐱');
 }
 
+// [8] 가구 자동 재배치 (버튼용)
 async function arrangeRoom() {
-    // 1. 배치된 가구(placedItems)가 없으면 종료
     if (!currentUserData.placedItems || currentUserData.placedItems.length === 0) {
         return alert("배치된 가구가 없습니다!");
     }
-
-    // 2. 현재 방 화면에 있는 가구 요소들(DOM)을 찾아 랜덤 위치 지정
     const items = document.querySelectorAll('.placed-item');
-    const display = document.getElementById('myroom-display-area');
-    
-    // 방의 가로/세로 영역(%) 내에서 겹치지 않게 배치
-    items.forEach((item, index) => {
-        // 80% 가로, 60% 세로 공간 내에서 랜덤하게 배치
+    items.forEach((item) => {
         const randomLeft = 10 + Math.random() * 70; 
         const randomTop = 10 + Math.random() * 50;
-        
         item.style.left = randomLeft + '%';
         item.style.top = randomTop + '%';
     });
-
-    alert("🛋️ 가구 레이아웃이 깔끔하게 재편되었습니다.");
+    alert("🛋️ 가구 레이아웃이 랜덤으로 재편되었습니다.");
 }
+    
     // [핵심 로직]
 async function toggleFurniturePlacement(itemName) {
-    // 1. 이미 방에 있는지 확인
     const isPlaced = currentUserData.placedItems && currentUserData.placedItems.includes(itemName);
 
     if (isPlaced) {
-        // [방 -> 인벤토리] 이동
+        // [방 -> 인벤토리] 회수
         await uRef(currentUser).update({
             inventory: firebase.firestore.FieldValue.arrayUnion(itemName),
             placedItems: firebase.firestore.FieldValue.arrayRemove(itemName)
         });
     } else {
-        // [인벤토리 -> 방] 이동
+        // [인벤토리 -> 방] 배치
         await uRef(currentUser).update({
             inventory: firebase.firestore.FieldValue.arrayRemove(itemName),
             placedItems: firebase.firestore.FieldValue.arrayUnion(itemName)
         });
     }
     currentUserData = await getUser(currentUser);
-    renderMyRoomView(); // 화면 갱신
+    renderMyRoomView(); // 화면 새로고침
 }
 
     function enterGroupScreen() { changeMap('group-screen', 820); refreshGroupUI(); }
