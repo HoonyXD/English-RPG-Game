@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드29</title>
+  <title>초등 영어 RPG 월드30</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -78,7 +78,11 @@
 ------------------------------------------- */
 /* 마이룸 전체 배경 (조금 더 포근한 밤 분위기) */
 #myroom-screen {
-    background: linear-gradient(135deg, #16102b, #2b1d42, #16102b) !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    padding-top: 0 !important;
+    align-items: center !important;
+    background: linear-gradient(135deg, #16102b, #2b1d42, #16102b);
 }
 
 /* 1. 마이룸 방(벽면과 바닥) 디테일 업그레이드 */
@@ -599,6 +603,14 @@
       <div class="player-name-tag" id="player-tag-name">모험가</div>
     </div>
 
+    <!-- [SCREEN 11] 아카데미 단계 선택 창 -->
+    <div class="screen" id="academy-level-screen">
+      <div class="banner">🎯 <span id="academy-type-name">훈련</span> 단계 선택 (1~20단계)</div>
+      <div class="grid-container" id="academy-floor-grid" style="grid-template-columns: repeat(4, 1fr);">
+      </div>
+      <button class="back-btn" onclick="changeMap('training-screen', 260)">⬅️ 뒤로 가기</button>
+    </div>
+    
   </div>
 
   <script>
@@ -756,7 +768,7 @@
     // 2. 선택한 화면 보이기
     const targetScreen = document.getElementById(mapId);
     if (targetScreen) {
-        targetScreen.style.display = (mapId === 'auth-screen') ? 'flex' : 'block';
+        targetScreen.style.display = 'flex';
     }
     currentMap = mapId;
     
@@ -875,70 +887,78 @@
       }
     }
 
-    function startTraining(partType) {
-      activeQuizIndex = 0;
-      activeQuizList = [];
-
-      if(partType === 'word') {
-        activeRewardGold = 5; activeRewardXp = 10;
-        let pool = [...wordPool].sort(() => Math.random() - 0.5).slice(0, 5);
-        pool.forEach(item => {
-          let corrects = item.meaning;
-          let wrongs = [...wordPool].filter(w => w.meaning !== corrects)
-                                    .sort(() => Math.random() - 0.5)
-                                    .slice(0, 3).map(w => w.meaning);
-          let rawChoices = [corrects, ...wrongs].sort(() => Math.random() - 0.5);
-          activeQuizList.push({
-            q: `단어 [ ${item.word} ] 의 알맞은 한국어 뜻을 선택하십시오.`,
-            a: rawChoices,
-            c: rawChoices.indexOf(corrects)
-          });
-        });
-      } 
-      else if(partType === 'grammar') {
-    activeRewardGold = 7; 
-    activeRewardXp = 15;
-    let allGrammar = [];
     
-    // 이제 quizBankData 대신 quizBank를 사용합니다
-    if (typeof quizBank !== 'undefined' && quizBank.grammar) {
-        Object.keys(quizBank.grammar).forEach(k => {
-            allGrammar = allGrammar.concat(quizBank.grammar[k]);
-        });
-        activeQuizList = allGrammar.sort(() => Math.random() - 0.5).slice(0, 5);
-    } else {
-        alert("문법 데이터(grammarBank)를 불러올 수 없습니다. 파일 이름을 확인하세요.");
-        return;
+    // 새로운 단계 선택 창 열기 함수
+function openAcademyLevelSelect(partType) {
+    const typeName = partType === 'word' ? '영단어 기초반' :
+                     partType === 'grammar' ? '영문법 숙련반' :
+                     partType === 'writing' ? '영작문 도전반' : '리스닝 청취반';
+    document.getElementById('academy-type-name').innerText = typeName;
+
+    const grid = document.getElementById('academy-floor-grid');
+    grid.innerHTML = '';
+    
+    // 1~20단계 버튼 생성
+    for (let i = 1; i <= 20; i++) {
+        const card = document.createElement('div');
+        card.className = 'rpg-card';
+        card.style.padding = '8px';
+        card.onclick = () => startTraining(partType, i); // 단계(i) 값 전달
+        card.innerHTML = `
+            <h3 style="font-size:16px; margin:0; color:#f1c40f;">${i}단계</h3>
+            <p style="font-size:12px; margin:5px 0; color:#fff;">복습/도전 코스</p>
+            <button class="rpg-btn" style="padding:4px 8px; font-size:12px;">입장</button>
+        `;
+        grid.appendChild(card);
     }
+    changeMap('academy-level-screen', 490);
 }
-        
-      else if(partType === 'writing') {
-    activeRewardGold = 10; 
-    activeRewardXp = 20;
-    let allWriting = [];
-    
-    // 1. 모든 영작문 데이터를 가져옵니다.
-    Object.keys(quizBank.writing).forEach(k => {
-        allWriting = allWriting.concat(quizBank.writing[k]);
-    });
-    
-    // 2. 랜덤하게 5개만 골라서 activeQuizList에 바로 넣습니다.
-    // 기존처럼 rawChoices를 만들거나 push하는 복잡한 로직이 필요 없습니다!
-    activeQuizList = allWriting.sort(() => Math.random() - 0.5).slice(0, 5);
-} 
-      else if(partType === 'listening') {
-        activeRewardGold = 8; activeRewardXp = 15;
-        let allListening = [];
-        Object.keys(quizBank.listening).forEach(k => {
-          allListening = allListening.concat(quizBank.listening[k]);
-        });
-        activeQuizList = allListening.sort(() => Math.random() - 0.5).slice(0, 5);
-      }
 
-      changeMap('quiz-screen', 490);
-      renderTrainingQuestion();
+// 훈련 시작 함수 (단계별 난이도 및 보상 적용)
+function startTraining(partType, level = 1) {
+    activeQuizIndex = 0;
+    activeQuizList = [];
+    activeRewardGold = 5 + Math.floor(level / 2); // 레벨이 오를수록 보상 증가
+    activeRewardXp = 10 + level;
+
+    let sourceData = [];
+    if(partType === 'word') {
+        sourceData = [...wordPool];
+    } else if(partType === 'grammar') {
+        Object.keys(quizBank.grammar).forEach(k => sourceData = sourceData.concat(quizBank.grammar[k]));
+    } else if(partType === 'writing') {
+        Object.keys(quizBank.writing).forEach(k => sourceData = sourceData.concat(quizBank.writing[k]));
+    } else if(partType === 'listening') {
+        Object.keys(quizBank.listening).forEach(k => sourceData = sourceData.concat(quizBank.listening[k]));
     }
 
+    // 1단계는 0~4번, 2단계는 5~9번 데이터 등 순차적으로 문제를 추출
+    let startIndex = (level - 1) * 5;
+    if (startIndex >= sourceData.length) startIndex = startIndex % sourceData.length; // 데이터가 모자라면 다시 처음부터 순환
+
+    let pool = sourceData.slice(startIndex, startIndex + 5);
+    while(pool.length < 5) {
+        pool.push(sourceData[Math.floor(Math.random() * sourceData.length)]);
+    }
+
+    if(partType === 'word') {
+        pool.forEach(item => {
+            let corrects = item.meaning;
+            let wrongs = sourceData.filter(w => w.meaning !== corrects).sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.meaning);
+            let rawChoices = [corrects, ...wrongs].sort(() => Math.random() - 0.5);
+            activeQuizList.push({
+                q: `단어 [ ${item.word} ] 의 알맞은 한국어 뜻을 선택하십시오.`,
+                a: rawChoices,
+                c: rawChoices.indexOf(corrects)
+            });
+        });
+    } else {
+        activeQuizList = pool.sort(() => Math.random() - 0.5);
+    }
+
+    changeMap('quiz-screen', 490);
+    renderTrainingQuestion();
+}
     function renderTrainingQuestion() {
     const qData = activeQuizList[activeQuizIndex];
     document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
@@ -1126,7 +1146,7 @@ function renderDungeonQuestion() {
                     monsterHp--;
                     updateBattleUI();
                     if (monsterHp <= 0) {
-                        clearDungeonFloor();
+                        winDungeonFloor();
                     } else {
                         nextDungeonStep();
                     }
@@ -1376,17 +1396,29 @@ async function toggleFurniturePlacement(itemName) {
       }
     }
 
-    async function createGroup() {
-      const randCode = Math.random().toString(36).substring(2,8).toUpperCase();
-      showLoading();
-      try {
-        await gRef(randCode).set({ members: [currentUser], weeklyReset: getWeekStart() });
-        await uRef(currentUser).update({ groupCode: randCode });
+    // 기존 createGroup 함수를 아래 코드로 완전히 덮어쓰세요
+async function createGroup() {
+    const customName = prompt("창설할 연합의 이름을 입력하세요 (예: 최강초등반):");
+    if (!customName || customName.trim() === "") return;
+    const code = customName.trim();
+
+    showLoading();
+    try {
+        const gSnap = await gRef(code).get();
+        if(gSnap.exists) {
+            alert("이미 존재하는 연합 이름입니다. 다른 이름을 사용하세요.");
+            return;
+        }
+        await gRef(code).set({ members: [currentUser], weeklyReset: getWeekStart() });
+        await uRef(currentUser).update({ groupCode: code });
         currentUserData = await getUser(currentUser);
         updateUI(); refreshGroupUI();
-        alert(`새 동맹 길드그룹 [ ${randCode} ] 인스턴스가 성립되었습니다.`);
-      } finally { hideLoading(); }
-    }
+        alert(`새 연합 [ ${code} ] 창설이 완료되었습니다!`);
+    } catch(e) { 
+        console.error(e);
+        alert("연합 창설 중 오류가 발생했습니다.");
+    } finally { hideLoading(); }
+}
 
     async function joinGroup() {
       const code = document.getElementById('join-group-code').value.trim().toUpperCase();
