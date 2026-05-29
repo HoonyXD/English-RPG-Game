@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드31</title>
+  <title>초등 영어 RPG 월드32</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -418,6 +418,11 @@
     z-index: 99999 !important;
     position: relative;
 }
+    /* 던전 용사 이미지 크기 특별 확대 */
+#battle-player-vis {
+    width: 180px !important;  /* 기존 120px에서 180px로 확대 */
+    height: 180px !important; /* 기존 120px에서 180px로 확대 */
+}
   </style>
 </head>
 <body>
@@ -604,7 +609,7 @@
     <!-- 아바타 -->
     <div id="player">
       <div class="character-avatar" id="player-avatar-vis">
-        <img src="town_player.jpg" style="width: 100%; height: 100%; object-fit: contain;">
+        <img src="town_player.png" style="width: 100%; height: 100%; object-fit: contain;">
       </div>
       <div class="player-name-tag" id="player-tag-name">모험가</div>
     </div>
