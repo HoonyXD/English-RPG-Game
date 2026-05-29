@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드32</title>
+  <title>초등 영어 RPG 월드33</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -174,8 +174,29 @@
     #portal-listening { left: 770px; top: 310px; }
 
     /* 캐릭터 아바타 (바닥선 일치) */
-    #player { position: absolute; width: 50px; height: 75px; z-index: 99; display: none; flex-direction: column; align-items: center; top: 335px; pointer-events: none; }
-    .character-avatar { width: 44px; height: 55px; position: relative; display: flex; flex-direction: column; align-items: center; transition: transform 0.1s; }
+   /* 1. 플레이어 전체 박스 크기 및 높이(top) 조정 */
+#player { 
+    position: absolute; 
+    width: 100px;   /* 기존 50px에서 2배 확대 */
+    height: 130px;  /* 기존 75px에서 확대 */
+    z-index: 99; 
+    display: none; 
+    flex-direction: column; 
+    align-items: center; 
+    top: 260px;     /* 포탈(310px)과 발을 맞추기 위해 위로 끌어올림 */
+    pointer-events: none; 
+}
+
+/* 2. 실제 아바타 이미지 영역 크기 조정 */
+.character-avatar { 
+    width: 90px;   /* 기존 44px에서 확대 */
+    height: 100px; /* 기존 55px에서 확대 */
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    transition: transform 0.1s; 
+}
     .char-head { width: 32px; height: 28px; background: #ffdbac; border: 3px solid #222; border-radius: 8px; position: relative; z-index: 3; box-shadow: inset 0 8px 0 #5c3a21; }
     .char-head::after { content: ''; position: absolute; top: 12px; right: 4px; width: 6px; height: 6px; background: #222; border-radius: 50%; box-shadow: -10px 0 0 #222; }
     .char-scarf { width: 26px; height: 6px; background: #e74c3c; border: 3px solid #222; border-radius: 4px; z-index: 2; margin-top: -3px; }
@@ -849,29 +870,31 @@
     });
 
     function gameLoop() {
-      if (['town-screen', 'training-screen'].includes(currentMap)) {
+    if (['town-screen', 'training-screen'].includes(currentMap)) {
         let moved = false;
         let avatar = document.getElementById('player-avatar-vis');
         
         if (keys['ArrowLeft']) { 
-          playerX -= 6; 
-          moved = true; 
-          avatar.style.transform = 'scaleX(-1)'; 
+            playerX -= 6; 
+            moved = true; 
+            // 원본이 왼쪽을 보므로 1 (그대로)
+            avatar.style.transform = 'scaleX(1)'; 
         }
         if (keys['ArrowRight']) { 
-          playerX += 6; 
-          moved = true; 
-          avatar.style.transform = 'scaleX(1)'; 
+            playerX += 6; 
+            moved = true; 
+            // 오른쪽으로 갈 때 좌우 반전
+            avatar.style.transform = 'scaleX(-1)'; 
         }
         
         if (moved) {
-          playerX = Math.max(40, Math.min(960, playerX));
-          document.getElementById('player').style.left = (playerX - 25) + 'px';
+            playerX = Math.max(40, Math.min(960, playerX));
+            // 캐릭터 중심점 조정 (너비가 커졌으므로 -25에서 -50으로 변경)
+            document.getElementById('player').style.left = (playerX - 50) + 'px';
         }
-      }
-      requestAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
+}
 
     function updateUI() {
       if(!currentUserData) return;
