@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>초등 영어 RPG 월드35</title>
+  <title>English Story🍁</title>
   
   <!-- 외부 퀴즈/단어 데이터 파일 링크 로더 -->
   <script src="words.js"></script>
@@ -519,8 +519,8 @@
     <div class="screen" id="merchant-screen">
       <div class="banner">💰 비밀 상점</div>
       <div class="grid-container">
-        <div class="rpg-card" onclick="buyItem('🔥 마법의 검', 25)">
-          <h3>🔥 마법의 검</h3>
+        <div class="rpg-card" onclick="buyItem('⚔ 마법의 검', 25)">
+          <h3>⚔ 마법의 검</h3>
           <p>공격력을 올려주는 모험가용 강철 검</p>
           <button class="rpg-btn" style="margin-top:8px;">구매 (25 💰)</button>
         </div>
@@ -590,7 +590,7 @@
 
     <!-- [SCREEN 9] 던전 선택 창 -->
     <div class="screen" id="level-select-screen">
-      <div class="banner">⚔️ 어둠의 던전 난이도 선택 (1~20층)</div>
+      <div class="banner">⚔️ 어둠의 던전 (1~20층)</div>
       <div class="grid-container" id="dungeon-floor-grid" style="grid-template-columns: repeat(4, 1fr);">
       </div>
       <button class="back-btn" onclick="changeMap('town-screen', 630)">🏡 마을로 나가기</button>
@@ -598,7 +598,7 @@
 
     <!-- [SCREEN 10] 던전 전투 스크린 -->
     <div class="screen" id="dungeon-battle-screen">
-      <div class="banner" id="battle-banner">실시간 던전 결투 구역</div>
+      <div class="banner" id="battle-banner">던전 결투 구역</div>
       <div class="battle-container">
         <div class="battle-unit" id="player-unit">
           <div class="battle-avatar" id="battle-player-vis">
@@ -938,9 +938,9 @@ requestAnimationFrame(gameLoop);
     
     // 새로운 단계 선택 창 열기 함수
 function openAcademyLevelSelect(partType) {
-    const typeName = partType === 'word' ? '영단어 기초반' :
-                     partType === 'grammar' ? '영문법 숙련반' :
-                     partType === 'writing' ? '영작문 도전반' : '리스닝 청취반';
+    const typeName = partType === 'word' ? '영단어 훈련장' :
+                     partType === 'grammar' ? '영문법 훈련장' :
+                     partType === 'writing' ? '영작문 훈련장' : '리스닝 훈련장';
     document.getElementById('academy-type-name').innerText = typeName;
 
     const grid = document.getElementById('academy-floor-grid');
@@ -1009,7 +1009,7 @@ function startTraining(partType, level = 1) {
 }
     function renderTrainingQuestion() {
         const qData = activeQuizList[activeQuizIndex];
-        document.getElementById('quiz-banner').innerText = `🎯 랜덤 속성 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
+        document.getElementById('quiz-banner').innerText = `🎯 랜덤 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
         document.getElementById('quiz-question-text').innerText = qData.q;
 
         if(qData.speak) {
@@ -1129,7 +1129,7 @@ function startTraining(partType, level = 1) {
       activeQuizIndex++;
       if(activeQuizIndex < 5) renderTrainingQuestion();
       else {
-        alert("🏁 속성 아카데미 5문항 퀴즈 원정이 모두 끝났습니다!");
+        alert("🏁 아카데미 5문항 퀴즈 원정이 모두 끝났습니다!");
         changeMap('training-screen', 260);
       }
     }
@@ -1221,7 +1221,7 @@ function renderDungeonQuestion() {
             allBtns.forEach(b => b.disabled = true);
                 
             if(idx === qData.c) {
-                alert("⚔️ 정답! 용사의 짜릿한 치명타 데미지 강격!");
+                alert("⚔️ 정답! 용사의 강력한 공격!");
                 triggerBattleAnimation(true, () => {
                     monsterHp--;
                     updateBattleUI();
@@ -1229,7 +1229,7 @@ function renderDungeonQuestion() {
                     nextDungeonStep(); 
                 });
             } else {
-                alert("💥 오답! 크리처의 강력한 습격 가해 감지!");
+                alert("💥 오답! 크리처의 강력한 습격!");
                 triggerBattleAnimation(false, () => {
                     playerHp--;
                     updateBattleUI();
