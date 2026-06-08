@@ -963,10 +963,11 @@ function openAcademyLevelSelect(partType) {
 }
 
 // 훈련 시작 함수 (단계별 난이도 및 보상 적용)
+// 훈련 시작 함수 (랜덤 문제 추출 및 자동 힌트 장착)
 function startTraining(partType, level = 1) {
     activeQuizIndex = 0;
     activeQuizList = [];
-    activeRewardGold = 5 + Math.floor(level / 2); // 레벨이 오를수록 보상 증가
+    activeRewardGold = 5 + Math.floor(level / 2); 
     activeRewardXp = 10 + level;
 
     let sourceData = [];
@@ -980,33 +981,41 @@ function startTraining(partType, level = 1) {
         Object.keys(quizBank.listening).forEach(k => sourceData = sourceData.concat(quizBank.listening[k]));
     }
 
-    // 1단계는 0~4번, 2단계는 5~9번 데이터 등 순차적으로 문제를 추출
     let startIndex = (level - 1) * 5;
-    if (startIndex >= sourceData.length) startIndex = startIndex % sourceData.length; // 데이터가 모자라면 다시 처음부터 순환
+    if (startIndex >= sourceData.length) startIndex = startIndex % sourceData.length;
 
     let pool = sourceData.slice(startIndex, startIndex + 5);
     while(pool.length < 5) {
         pool.push(sourceData[Math.floor(Math.random() * sourceData.length)]);
     }
 
+    // 👇 🚨 핵심 수정: 문제가 만들어질 때 힌트도 자동으로 생성해서 넣습니다.
     if(partType === 'word') {
         pool.forEach(item => {
             let corrects = item.meaning;
             let wrongs = sourceData.filter(w => w.meaning !== corrects).sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.meaning);
             let rawChoices = [corrects, ...wrongs].sort(() => Math.random() - 0.5);
+            
             activeQuizList.push({
                 q: `단어 [ ${item.word} ] 의 알맞은 한국어 뜻을 선택하십시오.`,
                 a: rawChoices,
-                c: rawChoices.indexOf(corrects)
+                c: rawChoices.indexOf(corrects),
+                // 단어 문제용 자동 힌트 생성
+                hint: `영단어 '${item.word}'의 올바른 뜻은 '${corrects}'입니다. 소리내어 다시 읽어보세요!`
             });
         });
     } else {
-        activeQuizList = pool.sort(() => Math.random() - 0.5);
+        // 문법/작문 문제는 데이터에 적힌 힌트가 있으면 쓰고, 없으면 기본 힌트 제공
+        activeQuizList = pool.sort(() => Math.random() - 0.5).map(q => ({
+            ...q, // 기존 문제 데이터 복사
+            hint: q.hint ? q.hint : "단어의 순서와 문법 구조를 다시 한번 차분히 살펴보세요."
+        }));
     }
 
     changeMap('quiz-screen', 490);
     renderTrainingQuestion();
 }
+    
     function renderTrainingQuestion() {
         const qData = activeQuizList[activeQuizIndex];
         document.getElementById('quiz-banner').innerText = `🎯 랜덤 아카데미 코스 진행 중 (${activeQuizIndex + 1}/5)`;
@@ -1108,7 +1117,9 @@ function startTraining(partType, level = 1) {
         }
     }
     
-    async function handleTrainingAnswer(isCorrect) {
+   async function handleTrainingAnswer(isCorrect) {
+      const qData = activeQuizList[activeQuizIndex];
+
       if(isCorrect) {
         alert(`⭕ 정답! 금화 +${activeRewardGold}💰 / 경험치 +${activeRewardXp}⭐를 취득했습니다.`);
         showLoading();
@@ -1123,13 +1134,30 @@ function startTraining(partType, level = 1) {
           updateUI();
         } finally { hideLoading(); }
       } else {
-        alert("❌ 오답입니다! 틀린 원인을 다시 점검해 보십시오.");
+        // 🚨 오답 시 즉각 피드백 (자동 생성 시스템 적용)
+        let feedbackMsg = "❌ 아쉽게도 오답입니다.\n\n";
+        
+        // 1. 무슨 문제가 나와도 진짜 정답이 무엇인지 무조건 알려줌
+        if (qData.ans) {
+            feedbackMsg += `💡 정답 문장: ${qData.ans}\n`;
+        } else if (qData.a && qData.c !== undefined) {
+            feedbackMsg += `💡 정답 단어: ${qData.a[qData.c]}\n`;
+        }
+
+        // 2. startTraining에서 자동으로 만들어둔 힌트를 출력
+        if (qData.hint) {
+            feedbackMsg += `\n📖 학습 팁: ${qData.hint}`;
+        }
+
+        // 알림창으로 즉각 표시!
+        alert(feedbackMsg); 
       }
 
+      // 틀렸든 맞았든 확인 버튼을 누르면 다음 문제로 넘어감
       activeQuizIndex++;
       if(activeQuizIndex < 5) renderTrainingQuestion();
       else {
-        alert("🏁 아카데미 5문항 퀴즈 원정이 모두 끝났습니다!");
+        alert("🏁 속성 아카데미 5문항 퀴즈 원정이 모두 끝났습니다!");
         changeMap('training-screen', 260);
       }
     }
