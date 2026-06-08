@@ -1123,13 +1123,21 @@ function startTraining(partType, level = 1) {
         }
     }
     
-   async function handleTrainingAnswer(isCorrect) {
+  async function handleTrainingAnswer(isCorrect) {
       const qData = activeQuizList[activeQuizIndex];
 
       if(isCorrect) {
         alert(`⭕ 정답! 금화 +${activeRewardGold}💰 / 경험치 +${activeRewardXp}⭐를 취득했습니다.`);
         showLoading();
         try {
+          // 🚨 복습 모드에서 정답을 맞췄다면 오답 노트에서 삭제! 
+          if (isReviewMode) {
+              await uRef(currentUser).update({
+                  incorrectNotes: firebase.firestore.FieldValue.arrayRemove(qData)
+              });
+              alert("🎉 완벽히 이해하셨군요! 이 문제는 오답 노트에서 영구 삭제됩니다.");
+          }
+
           const newXp = (currentUserData.totalXp || 0) + activeRewardXp;
           await uRef(currentUser).update({
             points: firebase.firestore.FieldValue.increment(activeRewardGold),
@@ -1140,31 +1148,28 @@ function startTraining(partType, level = 1) {
           updateUI();
         } finally { hideLoading(); }
       } else {
-        // 🚨 오답 시 즉각 피드백 (자동 생성 시스템 적용)
         let feedbackMsg = "❌ 아쉽게도 오답입니다.\n\n";
         
-        // 1. 무슨 문제가 나와도 진짜 정답이 무엇인지 무조건 알려줌
-        if (qData.ans) {
-            feedbackMsg += `💡 정답 문장: ${qData.ans}\n`;
-        } else if (qData.a && qData.c !== undefined) {
-            feedbackMsg += `💡 정답 단어: ${qData.a[qData.c]}\n`;
-        }
+        if (qData.ans) feedbackMsg += `💡 정답 문장: ${qData.ans}\n`;
+        else if (qData.a && qData.c !== undefined) feedbackMsg += `💡 정답 단어: ${qData.a[qData.c]}\n`;
 
-        // 2. startTraining에서 자동으로 만들어둔 힌트를 출력
-        if (qData.hint) {
-            feedbackMsg += `\n📖 학습 팁: ${qData.hint}`;
-        }
+        if (qData.hint) feedbackMsg += `\n📖 학습 팁: ${qData.hint}`;
 
-        // 알림창으로 즉각 표시!
         alert(feedbackMsg); 
+
+        // 🚨 일반 훈련 중 틀렸다면 오답 노트에 자동 저장!
+        if (!isReviewMode) {
+            saveIncorrectNote(qData);
+        }
       }
 
-      // 틀렸든 맞았든 확인 버튼을 누르면 다음 문제로 넘어감
       activeQuizIndex++;
-      if(activeQuizIndex < 5) renderTrainingQuestion();
-      else {
-        alert("🏁 속성 아카데미 5문항 퀴즈 원정이 모두 끝났습니다!");
-        changeMap('training-screen', 260);
+      if(activeQuizIndex < activeQuizList.length) {
+          renderTrainingQuestion();
+      } else {
+          alert(isReviewMode ? "🏁 오답 복습을 훌륭하게 마쳤습니다!" : "🏁 속성 아카데미 5문항 퀴즈 원정이 모두 끝났습니다!");
+          isReviewMode = false; // 훈련 종료 시 복습 모드 OFF
+          changeMap('training-screen', 260);
       }
     }
 
