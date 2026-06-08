@@ -709,16 +709,18 @@
     async function getUser(uid) {
       const snap = await uRef(uid).get();
       if(snap.exists) return snap.data();
+      
       const defaultData = { 
-    points: 0, 
-    level: 1, 
-    totalXp: 0, 
-    groupCode: null, 
-    inventory: [], 
-    placedItems: [], // <--- 이거 추가!
-    weeklyRewardItems: [] 
-    incorrectNotes: [] // 👈 새로 추가! (틀린 문제 보관함)
-};
+        points: 0, 
+        level: 1, 
+        totalXp: 0, 
+        groupCode: null, 
+        inventory: [], 
+        placedItems: [], 
+        weeklyRewardItems: [], // 👈 여기 쉼표가 꼭 있어야 합니다!
+        incorrectNotes: []     // 👈 여기가 새로 추가된 줄입니다.
+      };
+      
       await uRef(uid).set(defaultData);
       return defaultData;
     }
