@@ -495,10 +495,13 @@
     </div>
 
     <!-- [SCREEN 3] 훈련 아카데미 -->
+    <!-- [SCREEN 3] 훈련 아카데미 -->
     <div class="screen" id="training-screen">
       <div class="banner">🎯 속성 훈련 아카데미</div>
       <button class="back-btn" onclick="changeMap('town-screen', 230)">🏡 마을로 나가기</button>
-      
+      <button class="rpg-btn" onclick="startReviewTraining()" style="position: absolute; top: 120px; background: #e67e22; border-color: #d35400; font-size: 18px; padding: 10px 20px; z-index: 100;">
+        📖 나의 오답 노트 복습하기
+      </button>
       <div class="portal" id="portal-word"><div class="portal-label">영단어 기초반</div>🌀</div>
       <div class="portal" id="portal-grammar"><div class="portal-label">영문법 숙련반</div>🌀</div>
       <div class="portal" id="portal-writing"><div class="portal-label">영작문 도전반</div>🌀</div>
@@ -701,6 +704,8 @@
     function showLoading() { document.getElementById('loading-overlay').style.display = 'flex'; }
     function hideLoading() { document.getElementById('loading-overlay').style.display = 'none'; }
 
+    let isReviewMode = false;
+    
     async function getUser(uid) {
       const snap = await uRef(uid).get();
       if(snap.exists) return snap.data();
@@ -712,6 +717,7 @@
     inventory: [], 
     placedItems: [], // <--- 이거 추가!
     weeklyRewardItems: [] 
+    incorrectNotes: [] // 👈 새로 추가! (틀린 문제 보관함)
 };
       await uRef(uid).set(defaultData);
       return defaultData;
@@ -1162,6 +1168,43 @@ function startTraining(partType, level = 1) {
       }
     }
 
+    // 📖 [오답 노트 저장 함수]
+async function saveIncorrectNote(qData) {
+    if (!currentUserData.incorrectNotes) currentUserData.incorrectNotes = [];
+    // 이미 오답 노트에 있는 문제인지 확인 (중복 저장 방지)
+    const alreadyExists = currentUserData.incorrectNotes.find(item => item.q === qData.q);
+    
+    if (!alreadyExists) {
+        await uRef(currentUser).update({
+            incorrectNotes: firebase.firestore.FieldValue.arrayUnion(qData)
+        });
+        // 최신 데이터로 새로고침
+        currentUserData = await getUser(currentUser); 
+    }
+}
+
+// 📖 [오답 복습 시작 함수]
+function startReviewTraining() {
+    if (!currentUserData.incorrectNotes || currentUserData.incorrectNotes.length === 0) {
+        return alert("✨ 훌륭합니다! 현재 기록된 오답이 하나도 없습니다.");
+    }
+
+    activeQuizIndex = 0;
+    // 틀렸던 문제 중 최대 5개를 랜덤으로 섞어서 추출
+    let pool = [...currentUserData.incorrectNotes].sort(() => Math.random() - 0.5).slice(0, 5);
+    activeQuizList = pool;
+    
+    // 복습 보상은 살짝 적게 설정
+    activeRewardGold = 3; 
+    activeRewardXp = 5;
+    
+    isReviewMode = true; // 복습 모드 ON
+    document.getElementById('quiz-banner').innerText = "📖 오답 노트 특별 복습 코스";
+
+    changeMap('quiz-screen', 490);
+    renderTrainingQuestion();
+}
+    
     function startDungeonFloor(floorNum) {
     // 1. 던전 화면 레이아웃 고정 및 경험치 바 숨기기
     const battleScreen = document.getElementById('dungeon-battle-screen');
